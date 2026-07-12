@@ -47,8 +47,9 @@ final class BackStackStore
     public function current(int $chatId): ?BackStackEntry
     {
         $stack = $this->all($chatId);
+        $key = array_key_last($stack);
 
-        return $stack[array_key_last($stack)] ?? null;
+        return $key !== null ? ($stack[$key] ?? null) : null;
     }
 
     private function save(int $chatId, array $stack): void
