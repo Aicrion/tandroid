@@ -1,0 +1,13 @@
+bot:
+  token: '%env(AICRION_BOT_TOKEN)%'
+  mode: webhook # webhook | polling
+
+cache:
+  redis_dsn: '%env(AICRION_REDIS_DSN)%' # falls back to filesystem cache when empty
+
+database:
+  driver: pdo_sqlite
+  path: var/data.sqlite
+
+locale: fa
+plugins_path: plugins
