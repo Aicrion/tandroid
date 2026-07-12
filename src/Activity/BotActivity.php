@@ -75,7 +75,7 @@ abstract class BotActivity
      */
     protected function startActivity(Intent $intent): NavigationRequest
     {
-        return new NavigationRequest($intent);
+        return NavigationRequest::navigate($intent);
     }
 
     /**
