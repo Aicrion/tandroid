@@ -48,7 +48,7 @@ final class Keyboard implements WidgetInterface
                 static function (Button $button): array {
                     return array_filter([
                         'text' => $button->label,
-                        'callback_data' => $button->callbackData,
+                        'callback_data' => $button->resolveCallbackData(),
                         'url' => $button->url,
                         'request_contact' => $button->requestContact ?: null,
                     ], static fn ($v) => $v !== null);

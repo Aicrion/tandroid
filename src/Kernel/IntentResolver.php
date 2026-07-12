@@ -24,14 +24,15 @@ final class IntentResolver
      */
     public function __construct(
         private readonly array $registry,
+        private readonly ?CallbackDataStore $callbackDataStore = null,
     ) {}
 
     public function resolve(Update $update): Intent
     {
         if ($update->type === UpdateType::CallbackQuery && $update->callbackData !== null) {
-            $decoded = json_decode($update->callbackData, associative: true);
+            $decoded = $this->decodeCallbackData($update->callbackData);
 
-            if (isset($decoded['a'])) {
+            if ($decoded !== null && isset($decoded['a'])) {
                 $intent = Intent::to($decoded['a']);
 
                 foreach ($decoded['p'] ?? [] as $key => $value) {
@@ -52,6 +53,31 @@ final class IntentResolver
         }
 
         return $this->resolveImplicit($update);
+    }
+
+    /**
+     * callback_data for an explicit-intent button arrives in one of
+     * two shapes:
+     *   - the normal case: a short opaque token minted by
+     *     CallbackDataStore::put() (see Button::resolveCallbackData()),
+     *     which keeps every button safely under Telegram's 64-byte
+     *     callback_data limit regardless of how long the target
+     *     Activity's FQCN is.
+     *   - a raw JSON-encoded payload — kept working for backward
+     *     compatibility with callback_data built by hand, by an
+     *     older framework version, or directly in tests.
+     *
+     * @return array{a?: string, p?: array, f?: list<string>}|null
+     */
+    private function decodeCallbackData(string $callbackData): ?array
+    {
+        $decoded = json_decode($callbackData, associative: true);
+
+        if (is_array($decoded)) {
+            return $decoded;
+        }
+
+        return $this->callbackDataStore?->get($callbackData);
     }
 
     private function resolveImplicit(Update $update): Intent

@@ -98,8 +98,12 @@ final class Kernel
             $container->autowire($activityClass, $activityClass)->setPublic(true);
         }
 
+        $container->register(CallbackDataStore::class, CallbackDataStore::class)
+            ->setArguments([new Reference('aicrion.cache')])
+            ->setPublic(true);
+
         $container->register(IntentResolver::class, IntentResolver::class)
-            ->setArguments([$registry])
+            ->setArguments([$registry, new Reference(CallbackDataStore::class)])
             ->setPublic(true);
 
         $container->register(BackStackStore::class, BackStackStore::class)
@@ -140,6 +144,13 @@ final class Kernel
         $this->container = $container;
         $this->activityManager = $container->get(ActivityManager::class);
         $this->container->get(BroadcastDispatcher::class)->registerReceivers($packageManager->receiverClasses());
+
+        // Button/Keyboard render callback_data deep inside View::render(),
+        // with no DI container in scope, so CallbackDataStore also needs
+        // a statically-configured facade — same pattern as Telegram::configure()
+        // above, and the same cache pool instance the DI-injected
+        // CallbackDataStore(s) already use.
+        CallbackDataStore::configure($container->get('aicrion.cache'));
 
         return $this;
     }
