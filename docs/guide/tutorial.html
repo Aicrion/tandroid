@@ -234,7 +234,7 @@ Full details in <a href="plugins.html">Plugin System</a>.</p>
     <span class="k">public</span> <span class="k">function</span> <span class="nf">onCreate</span><span class="p">(</span><span class="nx">Intent</span> <span class="nv">$intent</span><span class="p">)</span><span class="o">:</span> <span class="o">?</span><span class="nx">NavigationRequest</span>
     <span class="p">{</span>
         <span class="nv">$keyboard</span> <span class="o">=</span> <span class="nx">Keyboard</span><span class="o">::</span><span class="na">inline</span><span class="p">()</span>
-            <span class="o">-&gt;</span><span class="na">row</span><span class="p">(</span><span class="nx">Button</span><span class="o">::</span><span class="na">action</span><span class="p">(</span><span class="s1">&#39;👤 My Profile&#39;</span><span class="p">,</span> <span class="nx">to</span><span class="o">:</span> <span class="nx">ProfileActivity</span><span class="o">::</span><span class="na">class</span><span class="p">));</span>
+            <span class="o">-&gt;</span><span class="na">row</span><span class="p">(</span><span class="nx">Button</span><span class="o">::</span><span class="na">actionReplace</span><span class="p">(</span><span class="s1">&#39;👤 My Profile&#39;</span><span class="p">,</span> <span class="nx">to</span><span class="o">:</span> <span class="nx">ProfileActivity</span><span class="o">::</span><span class="na">class</span><span class="p">));</span>
 
         <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">setContentView</span><span class="p">(</span>
             <span class="nx">View</span><span class="o">::</span><span class="na">message</span><span class="p">(</span><span class="s1">&#39;Welcome to my first Tandroid bot! 👋&#39;</span><span class="p">)</span>
@@ -255,7 +255,7 @@ Full details in <a href="plugins.html">Plugin System</a>.</p>
 <li><code>onCreate()</code> is the only method you are required to implement.</li>
 <li><code>setContentView()</code> declares what gets sent back to the user.</li>
 <li><code>Button::action(...)</code> builds an inline button whose tap will be
-  routed, as an explicit Intent, straight to <code>ProfileActivity</code>.</li>
+  routed, as an explicit Intent, straight to <code>ProfileActivity</code>, while replacing the current Telegram message in place. Use plain <code>Button::action(...)</code> when you want chat-style history instead.</li>
 </ul>
 <h2 id="step-7-write-a-second-activity-and-navigate-to-it">Step 7 — Write a Second Activity and Navigate to It</h2>
 <p>Create <code>plugins/greeter/src/ProfileActivity.php</code>:</p>
@@ -278,7 +278,7 @@ Full details in <a href="plugins.html">Plugin System</a>.</p>
         <span class="nv">$userId</span> <span class="o">=</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">update</span><span class="p">()</span><span class="o">-&gt;</span><span class="na">userId</span><span class="p">;</span>
 
         <span class="nv">$keyboard</span> <span class="o">=</span> <span class="nx">Keyboard</span><span class="o">::</span><span class="na">inline</span><span class="p">()</span>
-            <span class="o">-&gt;</span><span class="na">row</span><span class="p">(</span><span class="nx">Button</span><span class="o">::</span><span class="na">action</span><span class="p">(</span><span class="s1">&#39;⬅️ Back&#39;</span><span class="p">,</span> <span class="nx">to</span><span class="o">:</span> <span class="nx">StartActivity</span><span class="o">::</span><span class="na">class</span><span class="p">));</span>
+            <span class="o">-&gt;</span><span class="na">row</span><span class="p">(</span><span class="nx">Button</span><span class="o">::</span><span class="na">actionReplace</span><span class="p">(</span><span class="s1">&#39;⬅️ Back&#39;</span><span class="p">,</span> <span class="nx">to</span><span class="o">:</span> <span class="nx">StartActivity</span><span class="o">::</span><span class="na">class</span><span class="p">));</span>
 
         <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">setContentView</span><span class="p">(</span>
             <span class="nx">View</span><span class="o">::</span><span class="na">message</span><span class="p">(</span><span class="s2">&quot;Your Telegram user ID is: </span><span class="si">{</span><span class="nv">$userId</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
@@ -411,7 +411,7 @@ shared-hosting caveats, in
         <span class="nv">$viewModel</span><span class="o">-&gt;</span><span class="na">visitCount</span><span class="o">++</span><span class="p">;</span>
 
         <span class="nv">$keyboard</span> <span class="o">=</span> <span class="nx">Keyboard</span><span class="o">::</span><span class="na">inline</span><span class="p">()</span>
-            <span class="o">-&gt;</span><span class="na">row</span><span class="p">(</span><span class="nx">Button</span><span class="o">::</span><span class="na">action</span><span class="p">(</span><span class="s1">&#39;⬅️ Back&#39;</span><span class="p">,</span> <span class="nx">to</span><span class="o">:</span> <span class="nx">StartActivity</span><span class="o">::</span><span class="na">class</span><span class="p">));</span>
+            <span class="o">-&gt;</span><span class="na">row</span><span class="p">(</span><span class="nx">Button</span><span class="o">::</span><span class="na">actionReplace</span><span class="p">(</span><span class="s1">&#39;⬅️ Back&#39;</span><span class="p">,</span> <span class="nx">to</span><span class="o">:</span> <span class="nx">StartActivity</span><span class="o">::</span><span class="na">class</span><span class="p">));</span>
 
         <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">setContentView</span><span class="p">(</span>
             <span class="nx">View</span><span class="o">::</span><span class="na">message</span><span class="p">(</span><span class="s2">&quot;Visits to this screen: </span><span class="si">{</span><span class="nv">$viewModel</span><span class="o">-&gt;</span><span class="na">visitCount</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
