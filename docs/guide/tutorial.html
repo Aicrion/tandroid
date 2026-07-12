@@ -159,8 +159,9 @@ in <a href="configuration.html">Configuration</a>.</p>
 
 <span class="k">use</span> <span class="nx">Aicrion\Tandroid\Package\Manifest</span><span class="p">;</span>
 
-<span class="k">return</span> <span class="k">new</span> <span class="nx">Manifest</span><span class="p">(</span>
-    <span class="nx">name</span><span class="o">:</span> <span class="s1">&#39;greeter&#39;</span><span class="p">,</span>
+<span class="k">return</span> <span class="nx">Manifest</span><span class="o">::</span><span class="na">define</span><span class="p">(</span>
+    <span class="nx">package</span><span class="o">:</span> <span class="s1">&#39;greeter&#39;</span><span class="p">,</span>
+    <span class="nx">version</span><span class="o">:</span> <span class="s1">&#39;1.0.0&#39;</span><span class="p">,</span>
     <span class="nx">activities</span><span class="o">:</span> <span class="p">[</span>
         <span class="nx">StartActivity</span><span class="o">::</span><span class="na">class</span><span class="p">,</span>
         <span class="nx">ProfileActivity</span><span class="o">::</span><span class="na">class</span><span class="p">,</span>

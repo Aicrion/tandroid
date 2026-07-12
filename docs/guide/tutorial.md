@@ -119,8 +119,9 @@ namespace App\Plugins\Greeter;
 
 use Aicrion\Tandroid\Package\Manifest;
 
-return new Manifest(
-    name: 'greeter',
+return Manifest::define(
+    package: 'greeter',
+    version: '1.0.0',
     activities: [
         StartActivity::class,
         ProfileActivity::class,
