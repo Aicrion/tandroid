@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Plugin System — Aicrion Tandroid Docs</title>
+<link rel="stylesheet" href="../assets/style.css">
+<link rel="stylesheet" href="../assets/docs.css">
+</head>
+<body>
+<a class="skip" href="#content">Skip to content</a>
+<button class="btn theme" data-theme-toggle aria-label="Toggle theme">Theme</button>
+<button class="btn sidebar-toggle" data-sidebar-toggle aria-label="Toggle sidebar">Menu</button>
+<div class="docs-shell">
+  <aside class="docs-sidebar" data-sidebar>
+    <div class="sidebar-brand">
+      <a href="../index.html" class="logo">
+        <svg class="logo-mark" viewBox="0 0 48 48" fill="none" width="28" height="28"><path d="M24 6l14 8v20l-14 8-14-8V14l14-8Z" stroke="currentColor" stroke-width="2.5"/></svg>
+        <span>Aicrion Tandroid</span>
+      </a>
+    </div>
+    <nav class="sidebar-nav">
+<a class="side-link" href="00-index.html">Home</a>
+<div class="side-group"><div class="side-group-title">Getting Started</div>
+<a class="side-link" href="01-installation.html">Installation</a>
+<a class="side-link" href="02-configuration.html">Configuration</a>
+</div>
+<div class="side-group"><div class="side-group-title">Core Architecture</div>
+<a class="side-link" href="03-architecture.html">Kernel & Boot Lifecycle</a>
+<a class="side-link" href="04-activities-and-intents.html">Activities & Intents</a>
+<a class="side-link" href="05-views-and-widgets.html">Views & Widgets</a>
+<a class="side-link" href="06-viewmodel-and-state.html">ViewModel & State</a>
+</div>
+<div class="side-group"><div class="side-group-title">Data & Infrastructure</div>
+<a class="side-link" href="07-database-and-doctrine.html">Database & Doctrine</a>
+<a class="side-link" href="08-caching-and-redis.html">Caching & Redis</a>
+</div>
+<div class="side-group"><div class="side-group-title">Extensibility</div>
+<a class="side-link active" href="09-plugins.html">Plugin System</a>
+<a class="side-link" href="10-broadcasts.html">Broadcasts</a>
+</div>
+<div class="side-group"><div class="side-group-title">Telegram Integration</div>
+<a class="side-link" href="11-transport-webhook-and-polling.html">Webhook & Polling</a>
+<a class="side-link" href="12-telegram-api-reference.html">Telegram API Reference</a>
+</div>
+<div class="side-group"><div class="side-group-title">Other Topics</div>
+<a class="side-link" href="13-localization.html">Localization (i18n)</a>
+<a class="side-link" href="14-testing.html">Testing</a>
+<a class="side-link" href="15-deployment.html">Deployment</a>
+<a class="side-link" href="16-advanced-features.html">Advanced Features</a>
+</div>
+</nav>
+  </aside>
+  <main id="content" class="docs-content">
+    <div class="docs-article">
+      <h1 id="plugin-system-package-manager">Plugin System (Package Manager)</h1>
+<p>Every bot feature is written as an independent <strong>plugin</strong> — exactly
+like every app installed on Android has its own Activities,
+permissions, and database. <code>Package\PackageManager</code> is the
+equivalent of <code>PackageManagerService</code>.</p>
+<h2 id="plugin-structure">Plugin Structure</h2>
+<pre><code>plugins/greeter/
+├── manifest.php              # this plugin's AndroidManifest.xml
+├── migrations/
+│   ├── migrations.php
+│   └── versions/
+│       └── Version20260101000000.php
+└── src/
+    ├── StartActivity.php
+    ├── ProfileActivity.php
+    ├── RelayActivity.php
+    ├── WelcomeReceiver.php
+    ├── Entity/
+    │   └── Subscriber.php
+    └── Repository/
+        └── SubscriberRepository.php
+</code></pre>
+<h2 id="writing-manifestphp">Writing manifest.php</h2>
+<pre><code class="language-php">use Aicrion\Tandroid\Package\Manifest;
+use Aicrion\Tandroid\Package\Permission;
+use Greeter\Entity\Subscriber;
+use Greeter\{ProfileActivity, RelayActivity, StartActivity, WelcomeReceiver};
+
+return Manifest::define(
+    package: 'greeter',
+    version: '1.0.0',
+    activities: [StartActivity::class, ProfileActivity::class, RelayActivity::class],
+    permissions: [Permission::SendMessage, Permission::BroadcastEvents],
+    entities: [Subscriber::class],
+    receivers: [WelcomeReceiver::class],
+);
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Android equivalent</th>
+<th>Role</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>package</code></td>
+<td><code>package="..."</code></td>
+<td>The plugin's unique identifier; also used to name the migration table</td>
+</tr>
+<tr>
+<td><code>version</code></td>
+<td><code>versionName</code></td>
+<td>Purely informational; not currently checked for compatibility/auto-update</td>
+</tr>
+<tr>
+<td><code>activities</code></td>
+<td><code>&lt;activity&gt;</code></td>
+<td><strong>Any Activity not declared here is never registered in the DI Container and can never be navigated to</strong> — even with a <code>#[IntentFilter]</code> on it</td>
+</tr>
+<tr>
+<td><code>permissions</code></td>
+<td><code>&lt;uses-permission&gt;</code></td>
+<td>A declarative list from the <code>Permission</code> enum; currently documentation/audit only, not yet enforced automatically at runtime</td>
+</tr>
+<tr>
+<td><code>entities</code></td>
+<td>—</td>
+<td>The list of Entity classes; used to build the EntityManager automatically and resolve migration paths</td>
+</tr>
+<tr>
+<td><code>receivers</code></td>
+<td><code>&lt;receiver&gt;</code></td>
+<td>Classes implementing <code>Broadcast\BroadcastReceiverInterface</code></td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>⚠️ Important: the only way to activate an Activity, Receiver, or
+Entity is to declare it in that same plugin's <code>manifest.php</code>.
+Simply having the class exist in <code>src/</code> isn't enough — this is a
+deliberate design so <code>PackageManager</code> only wires autoloading and DI
+for things that are actually "installed."</p>
+</blockquote>
+<h2 id="the-discovery-cycle">The Discovery Cycle</h2>
+<p><code>PackageManager::discover()</code> runs on every <code>Kernel::boot()</code>:</p>
+<pre><code class="language-php">$pattern = &quot;{plugins_path}/*/manifest.php&quot;;
+
+foreach (glob($pattern) as $manifestFile) {
+    $manifest = require $manifestFile; // must return a Manifest
+}
+</code></pre>
+<p>After discovery, <code>Kernel::boot()</code> continues in this order:</p>
+<ol>
+<li>Runs each plugin's pending migrations
+   (<a href="07-database-and-doctrine.md">Database and Doctrine</a>).</li>
+<li>Builds the <code>EntityManager</code> using the Entities collected from all
+   plugins.</li>
+<li><code>autowire</code>s every declared Activity in the DI Container.</li>
+<li>Builds the <code>#[IntentFilter]</code> registry for <code>IntentResolver</code>.</li>
+<li>Registers every declared Receiver in <code>BroadcastDispatcher</code>.</li>
+</ol>
+<h2 id="automatic-autoloading-no-separate-composerjson">Automatic Autoloading — No Separate composer.json</h2>
+<p>Plugins aren't installed as Composer dependencies (only their folder
+is copied), so Composer has no idea their classes exist.
+<code>PackageManager::discover()</code> registers a lightweight PSR-4-style
+autoloader for every discovered plugin via <code>spl_autoload_register()</code>:
+the first namespace segment (which must match the plugin's root
+class name exactly, e.g. <code>Greeter</code>) maps directly to that plugin's
+<code>src/</code> folder:</p>
+<pre><code>Greeter\StartActivity              → plugins/greeter/src/StartActivity.php
+Greeter\Entity\Subscriber          → plugins/greeter/src/Entity/Subscriber.php
+Greeter\Repository\SubscriberRepository → plugins/greeter/src/Repository/SubscriberRepository.php
+</code></pre>
+<p>This means your plugin's <code>src/</code> folder structure just needs to match
+its internal namespaces under this convention — the exact same one
+Composer's PSR-4 uses — without needing to build a separate
+<code>composer.json</code> per plugin or run <code>composer dump-autoload</code>.</p>
+<h2 id="installing-a-new-plugin">Installing a New Plugin</h2>
+<p>Installing a plugin means simply <strong>copying its folder into
+<code>plugins/</code></strong>:</p>
+<pre><code class="language-bash">cp -r /path/to/awesome-plugin plugins/awesome-plugin
+</code></pre>
+<p>On the next request (webhook or polling), <code>Kernel::boot()</code> will:</p>
+<ul>
+<li>discover the new plugin,</li>
+<li>build its tables (automatic migration),</li>
+<li>activate its Activities and Receivers.</li>
+</ul>
+<p>No install command, no manual class cache, no SSH required — the
+same experience as installing an APK where the OS handles the rest.</p>
+<h2 id="removing-a-plugin">Removing a Plugin</h2>
+<p>Delete its folder from <code>plugins/</code>. Its Activities/Receivers will no
+longer resolve. <strong>Its database tables are not automatically
+removed</strong> (much like uninstalling an Android app without
+<code>adb uninstall -k</code> sometimes keeps app data) — if you need a full
+cleanup, write a <code>down()</code> migration for it and run it before
+deleting the folder.</p>
+<h2 id="suggested-skeleton-for-your-next-plugin">Suggested Skeleton for Your Next Plugin</h2>
+<p>The best starting point is copying <code>plugins/greeter</code> and renaming
+the namespace — this plugin demonstrates every core pattern (a
+simple Activity, an Activity with navigation, an Activity making a
+bot-to-bot call, Entity+Migration, a Receiver) in the smallest
+possible form.</p>
+      <div class="docs-pagination">
+        <a href="08-caching-and-redis.html">&larr; Caching & Redis</a><a href="10-broadcasts.html">Broadcasts &rarr;</a>
+      </div>
+    </div>
+  </main>
+</div>
+<script>
+(function(){
+  const r=document.documentElement,t=document.querySelector('[data-theme-toggle]');
+  let d=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';
+  r.setAttribute('data-theme',d);
+  t&&t.addEventListener('click',()=>{d=d==='dark'?'light':'dark';r.setAttribute('data-theme',d);});
+  const s=document.querySelector('[data-sidebar]'),st=document.querySelector('[data-sidebar-toggle]');
+  st&&st.addEventListener('click',()=>s.classList.toggle('open'));
+})();
+</script>
+</body>
+</html>

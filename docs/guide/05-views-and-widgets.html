@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Views & Widgets — Aicrion Tandroid Docs</title>
+<link rel="stylesheet" href="../assets/style.css">
+<link rel="stylesheet" href="../assets/docs.css">
+</head>
+<body>
+<a class="skip" href="#content">Skip to content</a>
+<button class="btn theme" data-theme-toggle aria-label="Toggle theme">Theme</button>
+<button class="btn sidebar-toggle" data-sidebar-toggle aria-label="Toggle sidebar">Menu</button>
+<div class="docs-shell">
+  <aside class="docs-sidebar" data-sidebar>
+    <div class="sidebar-brand">
+      <a href="../index.html" class="logo">
+        <svg class="logo-mark" viewBox="0 0 48 48" fill="none" width="28" height="28"><path d="M24 6l14 8v20l-14 8-14-8V14l14-8Z" stroke="currentColor" stroke-width="2.5"/></svg>
+        <span>Aicrion Tandroid</span>
+      </a>
+    </div>
+    <nav class="sidebar-nav">
+<a class="side-link" href="00-index.html">Home</a>
+<div class="side-group"><div class="side-group-title">Getting Started</div>
+<a class="side-link" href="01-installation.html">Installation</a>
+<a class="side-link" href="02-configuration.html">Configuration</a>
+</div>
+<div class="side-group"><div class="side-group-title">Core Architecture</div>
+<a class="side-link" href="03-architecture.html">Kernel & Boot Lifecycle</a>
+<a class="side-link" href="04-activities-and-intents.html">Activities & Intents</a>
+<a class="side-link active" href="05-views-and-widgets.html">Views & Widgets</a>
+<a class="side-link" href="06-viewmodel-and-state.html">ViewModel & State</a>
+</div>
+<div class="side-group"><div class="side-group-title">Data & Infrastructure</div>
+<a class="side-link" href="07-database-and-doctrine.html">Database & Doctrine</a>
+<a class="side-link" href="08-caching-and-redis.html">Caching & Redis</a>
+</div>
+<div class="side-group"><div class="side-group-title">Extensibility</div>
+<a class="side-link" href="09-plugins.html">Plugin System</a>
+<a class="side-link" href="10-broadcasts.html">Broadcasts</a>
+</div>
+<div class="side-group"><div class="side-group-title">Telegram Integration</div>
+<a class="side-link" href="11-transport-webhook-and-polling.html">Webhook & Polling</a>
+<a class="side-link" href="12-telegram-api-reference.html">Telegram API Reference</a>
+</div>
+<div class="side-group"><div class="side-group-title">Other Topics</div>
+<a class="side-link" href="13-localization.html">Localization (i18n)</a>
+<a class="side-link" href="14-testing.html">Testing</a>
+<a class="side-link" href="15-deployment.html">Deployment</a>
+<a class="side-link" href="16-advanced-features.html">Advanced Features</a>
+</div>
+</nav>
+  </aside>
+  <main id="content" class="docs-content">
+    <div class="docs-article">
+      <h1 id="views-and-widgets">Views and Widgets</h1>
+<p><code>View\View</code> is the equivalent of Android's <code>View</code>/<code>ViewGroup</code>, and
+<code>Widget\WidgetInterface</code> is the equivalent of Compose/XML UI
+components. Every Activity builds a <code>View</code> in <code>onCreate()</code>/
+<code>onResume()</code> and declares it as the rendered content with
+<code>$this-&gt;setContentView($view)</code>.</p>
+<h2 id="building-a-view">Building a View</h2>
+<pre><code class="language-php">use Aicrion\Tandroid\View\View;
+use Aicrion\Tandroid\View\ParseMode;
+
+$view = View::message('Hello! 👋', ParseMode::HTML);
+</code></pre>
+<p><code>View</code> is <strong>immutable</strong> — every method returns a new instance
+(similar to immutable state in Jetpack Compose):</p>
+<pre><code class="language-php">public function attach(WidgetInterface $widget): self; // adds a widget (keyboard, table, etc.)
+public function withKeyboard(WidgetInterface $keyboard): self; // alias of attach(), for readability
+public function render(): array; // becomes the final sendMessage payload
+</code></pre>
+<p>The final output of <code>render()</code> is exactly what
+<code>Kernel::handle()</code> automatically sends to the Telegram API:</p>
+<pre><code class="language-php">['text' =&gt; '...', 'parse_mode' =&gt; 'MarkdownV2', 'reply_markup' =&gt; [...]]
+</code></pre>
+<h2 id="widgetinterface">WidgetInterface</h2>
+<p>Every widget has a single contract:</p>
+<pre><code class="language-php">interface WidgetInterface
+{
+    /** @return array&lt;string, mixed&gt; a fragment of the final sendMessage payload */
+    public function render(): array;
+}
+</code></pre>
+<h2 id="buttons-and-keyboards-button-keyboard">Buttons and Keyboards (Button / Keyboard)</h2>
+<p><code>Widget\Button</code> builds three kinds of buttons:</p>
+<pre><code class="language-php">use Aicrion\Tandroid\Widget\Button;
+
+Button::action('My Profile', to: ProfileActivity::class);              // navigate to another Activity
+Button::action('Delete Order', to: OrderActivity::class, payload: ['id' =&gt; 42]); // with an extra
+Button::url('Docs', 'https://example.com/docs');                        // external link
+Button::requestContact('Share phone number');                           // request contact
+</code></pre>
+<p>An <code>action</code> button automatically encodes <code>to</code> and <code>payload</code> into
+<code>callback_data</code> as JSON (<code>{"a": "...", "p": {...}}</code>) — that exact
+structure is what <code>Kernel\IntentResolver</code> on the receiving side
+converts into an explicit Intent (see
+<a href="04-activities-and-intents.md">Activities and Intents</a>).</p>
+<p><code>Widget\Keyboard</code> arranges buttons row by row — exactly like a
+vertical <code>LinearLayout</code> where each row is itself a horizontal
+<code>LinearLayout</code>:</p>
+<pre><code class="language-php">use Aicrion\Tandroid\Widget\Keyboard;
+
+$keyboard = Keyboard::inline()
+    -&gt;row(Button::action('My Profile', to: ProfileActivity::class))
+    -&gt;row(Button::url('Docs', 'https://example.com/docs'));
+
+$view = View::message('Welcome')-&gt;attach($keyboard);
+</code></pre>
+<p>For a Reply keyboard (not Inline):</p>
+<pre><code class="language-php">Keyboard::reply()-&gt;row(Button::requestContact());
+// or directly:
+Keyboard::requestContact('Send my number');
+</code></pre>
+<h2 id="multi-select-checkboxes-checkboxgroupwidget">Multi-Select Checkboxes (CheckboxGroupWidget)</h2>
+<p>The equivalent of a group of <code>CheckBox</code>es in Android — each option is
+a toggleable inline button, and the selection state is encoded
+directly in <code>callback_data</code> (no server-side state needed between
+taps):</p>
+<pre><code class="language-php">use Aicrion\Tandroid\Widget\CheckboxGroupWidget;
+
+$group = CheckboxGroupWidget::make('interests')
+    -&gt;option('sport', 'Sports')
+    -&gt;option('tech', 'Technology')
+    -&gt;checkedValues(['tech']); // pre-selected options
+
+$view = View::message('Select your interests:')-&gt;attach($group);
+</code></pre>
+<p>Every tap on an option sends a <code>callback_data</code> shaped like
+<code>{"w":"checkbox","n":"interests","v":"sport","c":true}</code> —
+your Activity is responsible for reading <code>n</code>/<code>v</code>/<code>c</code> from
+<code>update-&gt;callbackData</code> (or via <code>Intent</code>) and updating the actual
+state (usually in a <a href="06-viewmodel-and-state.md">ViewModel</a>).</p>
+<h2 id="multi-step-form-formwidget">Multi-Step Form (FormWidget)</h2>
+<p>For linear, text-based forms (e.g. "Name?" → "Age?" → "Confirm"):</p>
+<pre><code class="language-php">use Aicrion\Tandroid\Widget\FormWidget;
+
+$form = FormWidget::make()
+    -&gt;step('name', 'Enter your name:')
+    -&gt;step('age', 'Enter your age:', validator: static fn (string $v) =&gt; is_numeric($v));
+
+// The Activity, after receiving the user's reply:
+$result = $form-&gt;withAnswers($savedAnswers, $savedStep)-&gt;submit($update-&gt;text);
+
+match (true) {
+    $result-&gt;isInvalid  =&gt; /* re-show the same step with an error message: $result-&gt;error / $result-&gt;nextPrompt */,
+    $result-&gt;isComplete =&gt; /* $result-&gt;answers holds the final data */,
+    default              =&gt; /* next step: $result-&gt;nextPrompt, step: $result-&gt;nextStep */,
+};
+</code></pre>
+<p><code>FormSubmissionResult</code> has three states: <code>next()</code>, <code>complete()</code>,
+<code>invalid()</code> — with corresponding readonly properties for checking
+(<code>isComplete</code>, <code>isInvalid</code>). Persisting <code>$savedAnswers</code>/<code>$savedStep</code>
+between requests is your responsibility; usually kept in a
+ViewModel.</p>
+<h2 id="multi-page-wizard-wizardwidget">Multi-Page Wizard (WizardWidget)</h2>
+<p>For flows that need explicit "Previous/Next" buttons and pages with
+custom widgets (not just text):</p>
+<pre><code class="language-php">use Aicrion\Tandroid\Widget\{WizardWidget, WizardPage, Button};
+
+$wizard = WizardWidget::make(ownerActivity: SettingsActivity::class)
+    -&gt;page(new WizardPage('Choose your language', buttons: [[Button::action('English', to: SettingsActivity::class)]]))
+    -&gt;page(new WizardPage('Choose your timezone'))
+    -&gt;atIndex($currentIndex);
+
+$view = View::message($wizard-&gt;currentPage()?-&gt;text ?? '')-&gt;attach($wizard);
+</code></pre>
+<p>The "Previous/Next" buttons automatically point back to the same
+<code>ownerActivity</code> with a <code>wizard_step</code> extra; the Activity must read
+this extra in <code>onNewIntent()</code>/<code>onCreate()</code> to set <code>atIndex()</code>
+correctly.</p>
+<h2 id="rich-messages-viewrich">Rich Messages (View\Rich*)</h2>
+<p>For content that goes beyond plain text, the <code>View\Rich</code> namespace
+provides composable blocks, all producing Markdown/HTML output
+compatible with Telegram:</p>
+<table>
+<thead>
+<tr>
+<th>Class</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Rich\TableBlock</code></td>
+<td>Monospace text table</td>
+</tr>
+<tr>
+<td><code>Rich\CodeBlock</code></td>
+<td>Code block with a language hint</td>
+</tr>
+<tr>
+<td><code>Rich\QuoteBlock</code></td>
+<td>Blockquote</td>
+</tr>
+<tr>
+<td><code>Rich\ListBlock</code></td>
+<td>Ordered/unordered list</td>
+</tr>
+<tr>
+<td><code>Rich\MapBlock</code></td>
+<td>Map link (static location)</td>
+</tr>
+<tr>
+<td><code>Rich\SlideshowBlock</code></td>
+<td>A set of images as a slideshow (media group)</td>
+</tr>
+<tr>
+<td><code>Rich\RichMessage</code></td>
+<td>Composes several blocks into a single message</td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-php">use Aicrion\Tandroid\View\Rich\{RichMessage, TableBlock, CodeBlock};
+
+$message = RichMessage::make()
+    -&gt;block((new TableBlock(['Name', 'Price']))-&gt;row('Book', '$5.00')-&gt;row('Notebook', '$1.50'))
+    -&gt;block(new CodeBlock('echo &quot;hello&quot;;', language: 'php'));
+</code></pre>
+<h2 id="streamingview-incremental-replies-like-edit_message">StreamingView — Incremental Replies (like edit_message)</h2>
+<p><code>View\StreamingView</code> is designed for replies that need to be
+completed gradually (e.g. output from a language model arriving
+token by token): each call to <code>push()</code> accumulates text, and
+<code>render()</code> ultimately produces the same standard structure as
+<code>View::render()</code>, letting an Activity switch between the initial send
+and subsequent edits.</p>
+<h2 id="next-step">Next Step</h2>
+<p>Wherever widgets or forms need to keep state across multiple user
+taps (like <code>$savedAnswers</code>/<code>$currentStep</code> above), read
+<a href="06-viewmodel-and-state.md">ViewModel and State Management</a>.</p>
+      <div class="docs-pagination">
+        <a href="04-activities-and-intents.html">&larr; Activities & Intents</a><a href="06-viewmodel-and-state.html">ViewModel & State &rarr;</a>
+      </div>
+    </div>
+  </main>
+</div>
+<script>
+(function(){
+  const r=document.documentElement,t=document.querySelector('[data-theme-toggle]');
+  let d=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';
+  r.setAttribute('data-theme',d);
+  t&&t.addEventListener('click',()=>{d=d==='dark'?'light':'dark';r.setAttribute('data-theme',d);});
+  const s=document.querySelector('[data-sidebar]'),st=document.querySelector('[data-sidebar-toggle]');
+  st&&st.addEventListener('click',()=>s.classList.toggle('open'));
+})();
+</script>
+</body>
+</html>

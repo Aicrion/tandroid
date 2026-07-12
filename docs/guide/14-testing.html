@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Testing — Aicrion Tandroid Docs</title>
+<link rel="stylesheet" href="../assets/style.css">
+<link rel="stylesheet" href="../assets/docs.css">
+</head>
+<body>
+<a class="skip" href="#content">Skip to content</a>
+<button class="btn theme" data-theme-toggle aria-label="Toggle theme">Theme</button>
+<button class="btn sidebar-toggle" data-sidebar-toggle aria-label="Toggle sidebar">Menu</button>
+<div class="docs-shell">
+  <aside class="docs-sidebar" data-sidebar>
+    <div class="sidebar-brand">
+      <a href="../index.html" class="logo">
+        <svg class="logo-mark" viewBox="0 0 48 48" fill="none" width="28" height="28"><path d="M24 6l14 8v20l-14 8-14-8V14l14-8Z" stroke="currentColor" stroke-width="2.5"/></svg>
+        <span>Aicrion Tandroid</span>
+      </a>
+    </div>
+    <nav class="sidebar-nav">
+<a class="side-link" href="00-index.html">Home</a>
+<div class="side-group"><div class="side-group-title">Getting Started</div>
+<a class="side-link" href="01-installation.html">Installation</a>
+<a class="side-link" href="02-configuration.html">Configuration</a>
+</div>
+<div class="side-group"><div class="side-group-title">Core Architecture</div>
+<a class="side-link" href="03-architecture.html">Kernel & Boot Lifecycle</a>
+<a class="side-link" href="04-activities-and-intents.html">Activities & Intents</a>
+<a class="side-link" href="05-views-and-widgets.html">Views & Widgets</a>
+<a class="side-link" href="06-viewmodel-and-state.html">ViewModel & State</a>
+</div>
+<div class="side-group"><div class="side-group-title">Data & Infrastructure</div>
+<a class="side-link" href="07-database-and-doctrine.html">Database & Doctrine</a>
+<a class="side-link" href="08-caching-and-redis.html">Caching & Redis</a>
+</div>
+<div class="side-group"><div class="side-group-title">Extensibility</div>
+<a class="side-link" href="09-plugins.html">Plugin System</a>
+<a class="side-link" href="10-broadcasts.html">Broadcasts</a>
+</div>
+<div class="side-group"><div class="side-group-title">Telegram Integration</div>
+<a class="side-link" href="11-transport-webhook-and-polling.html">Webhook & Polling</a>
+<a class="side-link" href="12-telegram-api-reference.html">Telegram API Reference</a>
+</div>
+<div class="side-group"><div class="side-group-title">Other Topics</div>
+<a class="side-link" href="13-localization.html">Localization (i18n)</a>
+<a class="side-link active" href="14-testing.html">Testing</a>
+<a class="side-link" href="15-deployment.html">Deployment</a>
+<a class="side-link" href="16-advanced-features.html">Advanced Features</a>
+</div>
+</nav>
+  </aside>
+  <main id="content" class="docs-content">
+    <div class="docs-article">
+      <h1 id="testing">Testing</h1>
+<p>The framework is tested with PHPUnit 11 and Mockery. <code>phpunit.xml</code>
+defines two suites: <code>Unit</code> (<code>tests/Unit</code>) and <code>Feature</code>
+(<code>tests/Feature</code>).</p>
+<pre><code class="language-bash">vendor/bin/phpunit
+</code></pre>
+<h2 id="test-folder-structure">Test Folder Structure</h2>
+<pre><code>tests/
+├── Unit/
+│   ├── ActivityManagerChainTest.php   # NavigationRequest navigation chain
+│   ├── IntentTest.php                 # Intent object construction/immutability
+│   ├── TranslatorTest.php             # translation with parameters and fallback
+│   └── ViewModelTest.php              # ViewModel hydrate/dehydrate
+├── Feature/
+│   └── BuildSmokeTest.php             # overall project health (critical files, manifests)
+└── Fixtures/
+    ├── StubContainer.php              # minimal PSR-11 container for tests
+    ├── ChainStartActivity.php         # fixture Activity that navigates immediately
+    └── ChainTargetActivity.php        # fixture destination Activity
+</code></pre>
+<h2 id="testing-a-single-activity">Testing a Single Activity</h2>
+<p>Since every <code>BotActivity</code> is a plain PHP class (no hidden dependency
+on superglobals), unit-testing one is straightforward: instantiate
+it, call <code>bindUpdate()</code>, run <code>onCreate()</code> with a custom <code>Intent</code>, and
+assert on the <code>getContentView()</code> output:</p>
+<pre><code class="language-php">use Aicrion\Tandroid\Intent\Intent;
+use Aicrion\Tandroid\Update\{Update, UpdateType};
+use Greeter\ProfileActivity;
+
+final class ProfileActivityTest extends TestCase
+{
+    public function test_it_shows_the_user_id(): void
+    {
+        $activity = new ProfileActivity();
+        $activity-&gt;bindUpdate(new Update(updateId: 1, chatId: 1, userId: 99, type: UpdateType::Message));
+
+        $activity-&gt;onCreate(Intent::action('VIEW_PROFILE'));
+
+        $this-&gt;assertStringContainsString('99', $activity-&gt;getContentView()?-&gt;text);
+    }
+}
+</code></pre>
+<h2 id="testing-a-navigation-chain-with-activitymanager">Testing a Navigation Chain with ActivityManager</h2>
+<p>For higher-level tests that actually involve
+<code>Kernel\ActivityManager</code> (e.g. to verify a <code>NavigationRequest</code> is
+actually followed), use <code>Tests\Fixtures\StubContainer</code> — a minimal
+PSR-11 container that directly instantiates any zero-argument class
+— and <code>Symfony\Component\Cache\Adapter\ArrayAdapter</code> as an in-memory
+cache:</p>
+<pre><code class="language-php">$manager = new ActivityManager(
+    container: new StubContainer(),
+    intentResolver: new IntentResolver(registry: []),
+    backStack: new BackStackStore(new ArrayAdapter()),
+    stateStore: new StateStore(new ArrayAdapter()),
+);
+
+$update = new Update(
+    updateId: 1,
+    chatId: 555,
+    userId: 42,
+    type: UpdateType::CallbackQuery,
+    callbackData: json_encode(['a' =&gt; ChainStartActivity::class, 'p' =&gt; []]),
+);
+
+$view = $manager-&gt;dispatch($update);
+
+$this-&gt;assertSame('landed:chain-start', $view-&gt;text);
+</code></pre>
+<p>This is exactly the pattern implemented in
+<code>tests/Unit/ActivityManagerChainTest.php</code> — see the full example
+there.</p>
+<h2 id="testing-repositories-doctrine-dependent-code">Testing Repositories / Doctrine-Dependent Code</h2>
+<p>Since <code>EntityManagerInterface</code> is a regular dependency, mock it with
+Mockery for unit tests; for integration tests that actually need a
+database, build an in-memory SQLite connection:</p>
+<pre><code class="language-php">$config = ORMSetup::createAttributeMetadataConfiguration([__DIR__ . '/../src/Entity'], isDevMode: true);
+$connection = DriverManager::getConnection(['driver' =&gt; 'pdo_sqlite', 'memory' =&gt; true], $config);
+$entityManager = new EntityManager($connection, $config);
+
+$tool = new \Doctrine\ORM\Tools\SchemaTool($entityManager);
+$tool-&gt;createSchema($entityManager-&gt;getMetadataFactory()-&gt;getAllMetadata());
+</code></pre>
+<h2 id="dont-hit-real-telegram-outbound-calls">Don't Hit Real Telegram Outbound Calls</h2>
+<p>Never make real HTTP requests to <code>api.telegram.org</code> in unit tests.
+Every <code>Api\*Request</code> class accepts a
+<code>Symfony\Contracts\HttpClient\HttpClientInterface</code> in its
+constructor — use
+<code>Symfony\Component\HttpClient\MockHttpClient</code>:</p>
+<pre><code class="language-php">use Symfony\Component\HttpClient\MockHttpClient;
+use Symfony\Component\HttpClient\Response\MockResponse;
+
+$client = new MockHttpClient([new MockResponse(json_encode(['ok' =&gt; true, 'result' =&gt; []]))]);
+$request = new SendMessageRequest($client, 'fake-token');
+$request-&gt;to(1)-&gt;text('Hello')-&gt;send();
+</code></pre>
+<h2 id="guidelines-for-writing-new-tests">Guidelines for Writing New Tests</h2>
+<ul>
+<li>Put fixture classes (like helper Activities) in <code>tests/Fixtures/</code>,
+  not <code>tests/Unit/</code>, so PHPUnit doesn't mistakenly try to run them
+  as tests.</li>
+<li>For every core architecture change (like modifying
+  <code>ActivityManager</code>), always add an integration-level test like
+  <code>ActivityManagerChainTest</code> — a regression there means the entire
+  framework's navigation mechanism is broken.</li>
+</ul>
+      <div class="docs-pagination">
+        <a href="13-localization.html">&larr; Localization (i18n)</a><a href="15-deployment.html">Deployment &rarr;</a>
+      </div>
+    </div>
+  </main>
+</div>
+<script>
+(function(){
+  const r=document.documentElement,t=document.querySelector('[data-theme-toggle]');
+  let d=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';
+  r.setAttribute('data-theme',d);
+  t&&t.addEventListener('click',()=>{d=d==='dark'?'light':'dark';r.setAttribute('data-theme',d);});
+  const s=document.querySelector('[data-sidebar]'),st=document.querySelector('[data-sidebar-toggle]');
+  st&&st.addEventListener('click',()=>s.classList.toggle('open'));
+})();
+</script>
+</body>
+</html>

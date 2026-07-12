@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Localization (i18n) — Aicrion Tandroid Docs</title>
+<link rel="stylesheet" href="../assets/style.css">
+<link rel="stylesheet" href="../assets/docs.css">
+</head>
+<body>
+<a class="skip" href="#content">Skip to content</a>
+<button class="btn theme" data-theme-toggle aria-label="Toggle theme">Theme</button>
+<button class="btn sidebar-toggle" data-sidebar-toggle aria-label="Toggle sidebar">Menu</button>
+<div class="docs-shell">
+  <aside class="docs-sidebar" data-sidebar>
+    <div class="sidebar-brand">
+      <a href="../index.html" class="logo">
+        <svg class="logo-mark" viewBox="0 0 48 48" fill="none" width="28" height="28"><path d="M24 6l14 8v20l-14 8-14-8V14l14-8Z" stroke="currentColor" stroke-width="2.5"/></svg>
+        <span>Aicrion Tandroid</span>
+      </a>
+    </div>
+    <nav class="sidebar-nav">
+<a class="side-link" href="00-index.html">Home</a>
+<div class="side-group"><div class="side-group-title">Getting Started</div>
+<a class="side-link" href="01-installation.html">Installation</a>
+<a class="side-link" href="02-configuration.html">Configuration</a>
+</div>
+<div class="side-group"><div class="side-group-title">Core Architecture</div>
+<a class="side-link" href="03-architecture.html">Kernel & Boot Lifecycle</a>
+<a class="side-link" href="04-activities-and-intents.html">Activities & Intents</a>
+<a class="side-link" href="05-views-and-widgets.html">Views & Widgets</a>
+<a class="side-link" href="06-viewmodel-and-state.html">ViewModel & State</a>
+</div>
+<div class="side-group"><div class="side-group-title">Data & Infrastructure</div>
+<a class="side-link" href="07-database-and-doctrine.html">Database & Doctrine</a>
+<a class="side-link" href="08-caching-and-redis.html">Caching & Redis</a>
+</div>
+<div class="side-group"><div class="side-group-title">Extensibility</div>
+<a class="side-link" href="09-plugins.html">Plugin System</a>
+<a class="side-link" href="10-broadcasts.html">Broadcasts</a>
+</div>
+<div class="side-group"><div class="side-group-title">Telegram Integration</div>
+<a class="side-link" href="11-transport-webhook-and-polling.html">Webhook & Polling</a>
+<a class="side-link" href="12-telegram-api-reference.html">Telegram API Reference</a>
+</div>
+<div class="side-group"><div class="side-group-title">Other Topics</div>
+<a class="side-link active" href="13-localization.html">Localization (i18n)</a>
+<a class="side-link" href="14-testing.html">Testing</a>
+<a class="side-link" href="15-deployment.html">Deployment</a>
+<a class="side-link" href="16-advanced-features.html">Advanced Features</a>
+</div>
+</nav>
+  </aside>
+  <main id="content" class="docs-content">
+    <div class="docs-article">
+      <h1 id="localization-i18n">Localization (i18n)</h1>
+<p>Unlike most PHP translation libraries, <code>I18n\Translator</code> reads
+language files as <strong>PHP arrays</strong> (not flat JSON/YAML) — meaning each
+entry can be an actual <strong>Closure</strong>, and therefore supports any
+arbitrary expression (pluralization, gender matching, computed
+formatting), not just simple placeholder substitution.</p>
+<h2 id="language-folder-structure">Language Folder Structure</h2>
+<pre><code>lang/
+├── en/
+│   └── order.php
+└── fa/
+    └── order.php
+</code></pre>
+<p>Each file is a logical namespace (e.g. <code>order</code>), and the final
+translation key is read as <code>{file}.{key}</code> (e.g. <code>order.created</code>).</p>
+<h2 id="writing-a-language-file">Writing a Language File</h2>
+<pre><code class="language-php">// lang/en/order.php
+return [
+    // A simple string with :name-style placeholders
+    'greeting' =&gt; 'Hello :name, welcome!',
+
+    // A Closure with custom parameters — real pluralization, not just singular/plural
+    'created' =&gt; fn (int $count) =&gt; match (true) {
+        $count === 1 =&gt; 'One order was placed successfully ✅',
+        $count &gt; 1 =&gt; &quot;{$count} orders were placed successfully ✅&quot;,
+        default =&gt; 'No orders were placed',
+    },
+
+    // A Closure for computed formatting
+    'total_price' =&gt; fn (int $amount) =&gt; sprintf('Total: $%s', number_format($amount)),
+];
+</code></pre>
+<h2 id="usage">Usage</h2>
+<pre><code class="language-php">use Aicrion\Tandroid\I18n\Translator;
+
+$translator = Translator::create(langPath: __DIR__ . '/lang', defaultLocale: 'en');
+
+$translator-&gt;trans('order.greeting', ['name' =&gt; 'Alex']);
+// =&gt; &quot;Hello Alex, welcome!&quot;
+
+$translator-&gt;trans('order.created', [3]);
+// =&gt; &quot;3 orders were placed successfully ✅&quot;   (Closure parameters are passed positionally)
+
+$translator-&gt;trans('order.created', [3], locale: 'fa');
+// =&gt; &quot;3 سفارش با موفقیت ثبت شد ✅&quot;
+</code></pre>
+<h3 id="key-resolution-rules">Key Resolution Rules</h3>
+<ol>
+<li>If an entry is a <strong>Closure</strong>, the <code>trans()</code> params array is spread
+   (<code>...$params</code>) into it — so parameter order must match the
+   Closure's signature.</li>
+<li>If an entry is a <strong>string</strong>, every <code>:key</code> in it is replaced with
+   <code>$params['key']</code> (<code>interpolate()</code>).</li>
+<li>If the key isn't found in the requested locale, the Translator
+   automatically falls back to its constructor's <code>defaultLocale</code>.</li>
+<li>If the key isn't found in any locale, the key itself
+   (<code>order.created</code>) is returned — not an exception — so a missing
+   translation doesn't break the whole request.</li>
+</ol>
+<h2 id="using-it-in-an-activity">Using It in an Activity</h2>
+<p>Since <code>Translator</code> is a regular class, type-hint it in your
+Activity's constructor (or register a shared instance yourself as a
+service in the DI Container):</p>
+<pre><code class="language-php">final class OrderActivity extends BotActivity
+{
+    public function __construct(
+        private readonly Translator $translator,
+    ) {}
+
+    public function onCreate(Intent $intent): ?NavigationRequest
+    {
+        $locale = $this-&gt;update-&gt;raw['message']['from']['language_code'] ?? 'en';
+
+        $this-&gt;setContentView(
+            View::message($this-&gt;translator-&gt;trans('order.created', [1], $locale)),
+        );
+
+        return null;
+    }
+}
+</code></pre>
+<blockquote>
+<p>Note: <code>Translator</code> isn't automatically registered in the DI
+Container by default (because the <code>lang/</code> path is host-project
+specific, not something the framework itself owns). In your own
+host project, add
+<code>$container-&gt;set(Translator::class, Translator::create(...))</code>, or
+for simplicity, build a singleton inside your own wrapper service.</p>
+</blockquote>
+      <div class="docs-pagination">
+        <a href="12-telegram-api-reference.html">&larr; Telegram API Reference</a><a href="14-testing.html">Testing &rarr;</a>
+      </div>
+    </div>
+  </main>
+</div>
+<script>
+(function(){
+  const r=document.documentElement,t=document.querySelector('[data-theme-toggle]');
+  let d=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';
+  r.setAttribute('data-theme',d);
+  t&&t.addEventListener('click',()=>{d=d==='dark'?'light':'dark';r.setAttribute('data-theme',d);});
+  const s=document.querySelector('[data-sidebar]'),st=document.querySelector('[data-sidebar-toggle]');
+  st&&st.addEventListener('click',()=>s.classList.toggle('open'));
+})();
+</script>
+</body>
+</html>

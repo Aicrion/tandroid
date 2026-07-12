@@ -7,7 +7,7 @@ every plugin is an "installed app" with its own independent
 `manifest.php`. Built on PHP 8.5+, Symfony DependencyInjection/
 HttpClient/Cache, and Doctrine ORM/Migrations.
 
-**📖 Full documentation: [`docs/guide/00-index.md`](docs/guide/00-index.md)**
+**📖 Full documentation: [`docs/guide/00-index.html`](docs/guide/00-index.html)**
 (installation, architecture, Activity/Intent, View/Widget, ViewModel,
 database, caching, plugins, Broadcasts, Webhook/Polling, full API
 reference, i18n, testing, deployment, and advanced features — each
@@ -41,7 +41,7 @@ $kernel->handle($update); // runs the matching Activity and sends the reply auto
 ```
 
 Full installation/configuration/run details in
-[Installation](docs/guide/01-installation.md).
+[Installation](docs/guide/01-installation.html).
 
 ## A Small Activity
 
@@ -67,7 +67,7 @@ final class StartActivity extends BotActivity
 }
 ```
 
-More in [Activities and Intents](docs/guide/04-activities-and-intents.md).
+More in [Activities and Intents](docs/guide/04-activities-and-intents.html).
 
 ## Building a New Plugin
 
@@ -76,7 +76,7 @@ Every plugin lives in `plugins/<package-name>/` and includes
 `migrations/` folder for Doctrine Migrations, which run automatically
 on the first request after deployment — no CLI command required. A
 complete example is available at `plugins/greeter/`; the full guide
-is at [Plugin System](docs/guide/09-plugins.md).
+is at [Plugin System](docs/guide/09-plugins.html).
 
 ## Telegram Bot API Coverage
 
@@ -85,7 +85,7 @@ topic management, payments and Stars, Rich Messages, reactions,
 Inline mode, Business accounts, gifts and stickers, join requests,
 Bot-to-Bot, Guest Mode, and Managed Bots — all available through the
 fluent `Api\Telegram` facade. The full table is in the
-[Telegram API Reference](docs/guide/12-telegram-api-reference.md).
+[Telegram API Reference](docs/guide/12-telegram-api-reference.html).
 
 ```php
 Telegram::message()->to($chatId)->text('Hello from Aicrion')->send();
@@ -101,4 +101,4 @@ vendor/bin/phpunit
 ```
 
 A guide to writing new tests (including testing Activity navigation
-chains) is at [Testing](docs/guide/14-testing.md).
+chains) is at [Testing](docs/guide/14-testing.html).

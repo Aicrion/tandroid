@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Installation — Aicrion Tandroid Docs</title>
+<link rel="stylesheet" href="../assets/style.css">
+<link rel="stylesheet" href="../assets/docs.css">
+</head>
+<body>
+<a class="skip" href="#content">Skip to content</a>
+<button class="btn theme" data-theme-toggle aria-label="Toggle theme">Theme</button>
+<button class="btn sidebar-toggle" data-sidebar-toggle aria-label="Toggle sidebar">Menu</button>
+<div class="docs-shell">
+  <aside class="docs-sidebar" data-sidebar>
+    <div class="sidebar-brand">
+      <a href="../index.html" class="logo">
+        <svg class="logo-mark" viewBox="0 0 48 48" fill="none" width="28" height="28"><path d="M24 6l14 8v20l-14 8-14-8V14l14-8Z" stroke="currentColor" stroke-width="2.5"/></svg>
+        <span>Aicrion Tandroid</span>
+      </a>
+    </div>
+    <nav class="sidebar-nav">
+<a class="side-link" href="00-index.html">Home</a>
+<div class="side-group"><div class="side-group-title">Getting Started</div>
+<a class="side-link active" href="01-installation.html">Installation</a>
+<a class="side-link" href="02-configuration.html">Configuration</a>
+</div>
+<div class="side-group"><div class="side-group-title">Core Architecture</div>
+<a class="side-link" href="03-architecture.html">Kernel & Boot Lifecycle</a>
+<a class="side-link" href="04-activities-and-intents.html">Activities & Intents</a>
+<a class="side-link" href="05-views-and-widgets.html">Views & Widgets</a>
+<a class="side-link" href="06-viewmodel-and-state.html">ViewModel & State</a>
+</div>
+<div class="side-group"><div class="side-group-title">Data & Infrastructure</div>
+<a class="side-link" href="07-database-and-doctrine.html">Database & Doctrine</a>
+<a class="side-link" href="08-caching-and-redis.html">Caching & Redis</a>
+</div>
+<div class="side-group"><div class="side-group-title">Extensibility</div>
+<a class="side-link" href="09-plugins.html">Plugin System</a>
+<a class="side-link" href="10-broadcasts.html">Broadcasts</a>
+</div>
+<div class="side-group"><div class="side-group-title">Telegram Integration</div>
+<a class="side-link" href="11-transport-webhook-and-polling.html">Webhook & Polling</a>
+<a class="side-link" href="12-telegram-api-reference.html">Telegram API Reference</a>
+</div>
+<div class="side-group"><div class="side-group-title">Other Topics</div>
+<a class="side-link" href="13-localization.html">Localization (i18n)</a>
+<a class="side-link" href="14-testing.html">Testing</a>
+<a class="side-link" href="15-deployment.html">Deployment</a>
+<a class="side-link" href="16-advanced-features.html">Advanced Features</a>
+</div>
+</nav>
+  </aside>
+  <main id="content" class="docs-content">
+    <div class="docs-article">
+      <h1 id="installation">Installation</h1>
+<h2 id="requirements">Requirements</h2>
+<ul>
+<li>PHP <strong>8.5</strong> or higher (the framework uses <code>readonly</code> properties,
+  backed enums, and <code>declare(strict_types=1)</code> everywhere).</li>
+<li>PHP extensions: <code>pdo</code>, <code>mbstring</code>, <code>json</code>, and — if you use Redis —
+  either the <code>redis</code> extension or <code>predis/predis</code> (already installed
+  as a dependency, so the native extension isn't required).</li>
+<li>Composer 2.x.</li>
+<li>A Doctrine DBAL-supported database: SQLite, MySQL/MariaDB, or
+  PostgreSQL. For a quick start, use SQLite — no separate server
+  required, and it works well on shared hosting.</li>
+</ul>
+<h2 id="installing-with-composer">Installing with Composer</h2>
+<pre><code class="language-bash">composer require aicrion/tandroid
+</code></pre>
+<p>This pulls in Symfony DependencyInjection, EventDispatcher, Cache,
+Config, Yaml, Messenger, HttpClient, as well as Doctrine ORM/DBAL/
+Migrations and <code>predis/predis</code> — no other manual dependencies needed.</p>
+<h2 id="host-application-structure">Host Application Structure</h2>
+<p>The framework is designed as a library, not a project skeleton. A
+typical host application looks like this:</p>
+<pre><code>my-bot/
+├── config/
+│   └── aicrion.yaml        # main configuration
+├── plugins/
+│   └── my-plugin/          # every bot feature is a plugin
+│       ├── manifest.php
+│       └── src/
+├── public/
+│   └── webhook.php         # webhook mode entry point
+├── bin/
+│   └── poll.php             # polling mode entry point
+├── var/
+│   ├── cache/               # filesystem cache (fallback)
+│   └── data.sqlite          # default SQLite database
+├── vendor/
+└── composer.json
+</code></pre>
+<p>You can copy this very repository as a starter skeleton;
+<code>public/webhook.php</code>, <code>bin/poll.php</code>, and <code>config/aicrion.yaml</code> are
+ready to go, and the <code>plugins/greeter</code> sample plugin shows what a
+real plugin looks like.</p>
+<h2 id="setting-up-the-bot-token">Setting Up the Bot Token</h2>
+<ol>
+<li>Create a bot with <a href="https://t.me/BotFather">@BotFather</a> and copy
+   the token.</li>
+<li>Set it as an environment variable (recommended — never hardcode
+   the token in <code>aicrion.yaml</code>):</li>
+</ol>
+<pre><code class="language-bash">export AICRION_BOT_TOKEN=&quot;123456:ABC-your-token&quot;
+</code></pre>
+<ol>
+<li>Check <code>config/aicrion.yaml</code> (it already works out of the box
+   because it uses <code>%env(...)%</code>):</li>
+</ol>
+<pre><code class="language-yaml">bot:
+  token: '%env(AICRION_BOT_TOKEN)%'
+  mode: webhook # webhook | polling
+</code></pre>
+<p>The full config system is documented in <a href="02-configuration.md">Configuration</a>.</p>
+<h2 id="running-your-first-bot">Running Your First Bot</h2>
+<p>With the sample <code>greeter</code> plugin bundled in the skeleton, you can
+test immediately:</p>
+<h3 id="polling-mode-for-local-development">Polling Mode (for local development)</h3>
+<pre><code class="language-bash">php bin/poll.php
+</code></pre>
+<p>This runs an infinite loop with a 200ms pause between each
+<code>getUpdates</code> call; press <code>Ctrl+C</code> to stop.</p>
+<h3 id="webhook-mode-for-production-shared-hosting">Webhook Mode (for production / shared hosting)</h3>
+<ol>
+<li>Upload <code>public/</code> to a server with valid HTTPS.</li>
+<li>Register the webhook with Telegram:</li>
+</ol>
+<pre><code class="language-bash">curl &quot;https://api.telegram.org/bot$AICRION_BOT_TOKEN/setWebhook?url=https://your-domain.com/webhook.php&quot;
+</code></pre>
+<p>or using the framework's <code>WebhookManager</code> class:</p>
+<pre><code class="language-php">use Aicrion\Tandroid\Api\Telegram;
+
+Telegram::webhook()-&gt;set('https://your-domain.com/webhook.php');
+</code></pre>
+<p>Send <code>/start</code> to the bot and <code>plugins/greeter/src/StartActivity.php</code>
+will fire, replying with a welcome message and a "My Profile" button.</p>
+<h2 id="next-step">Next Step</h2>
+<p>The <a href="03-architecture.md">Kernel and Boot Lifecycle</a> chapter explains
+exactly what happens when <code>Kernel::boot()</code> is called.</p>
+      <div class="docs-pagination">
+        <a href="00-index.html">&larr; Documentation Home</a><a href="02-configuration.html">Configuration &rarr;</a>
+      </div>
+    </div>
+  </main>
+</div>
+<script>
+(function(){
+  const r=document.documentElement,t=document.querySelector('[data-theme-toggle]');
+  let d=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';
+  r.setAttribute('data-theme',d);
+  t&&t.addEventListener('click',()=>{d=d==='dark'?'light':'dark';r.setAttribute('data-theme',d);});
+  const s=document.querySelector('[data-sidebar]'),st=document.querySelector('[data-sidebar-toggle]');
+  st&&st.addEventListener('click',()=>s.classList.toggle('open'));
+})();
+</script>
+</body>
+</html>

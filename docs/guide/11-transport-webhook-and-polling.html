@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Webhook & Polling — Aicrion Tandroid Docs</title>
+<link rel="stylesheet" href="../assets/style.css">
+<link rel="stylesheet" href="../assets/docs.css">
+</head>
+<body>
+<a class="skip" href="#content">Skip to content</a>
+<button class="btn theme" data-theme-toggle aria-label="Toggle theme">Theme</button>
+<button class="btn sidebar-toggle" data-sidebar-toggle aria-label="Toggle sidebar">Menu</button>
+<div class="docs-shell">
+  <aside class="docs-sidebar" data-sidebar>
+    <div class="sidebar-brand">
+      <a href="../index.html" class="logo">
+        <svg class="logo-mark" viewBox="0 0 48 48" fill="none" width="28" height="28"><path d="M24 6l14 8v20l-14 8-14-8V14l14-8Z" stroke="currentColor" stroke-width="2.5"/></svg>
+        <span>Aicrion Tandroid</span>
+      </a>
+    </div>
+    <nav class="sidebar-nav">
+<a class="side-link" href="00-index.html">Home</a>
+<div class="side-group"><div class="side-group-title">Getting Started</div>
+<a class="side-link" href="01-installation.html">Installation</a>
+<a class="side-link" href="02-configuration.html">Configuration</a>
+</div>
+<div class="side-group"><div class="side-group-title">Core Architecture</div>
+<a class="side-link" href="03-architecture.html">Kernel & Boot Lifecycle</a>
+<a class="side-link" href="04-activities-and-intents.html">Activities & Intents</a>
+<a class="side-link" href="05-views-and-widgets.html">Views & Widgets</a>
+<a class="side-link" href="06-viewmodel-and-state.html">ViewModel & State</a>
+</div>
+<div class="side-group"><div class="side-group-title">Data & Infrastructure</div>
+<a class="side-link" href="07-database-and-doctrine.html">Database & Doctrine</a>
+<a class="side-link" href="08-caching-and-redis.html">Caching & Redis</a>
+</div>
+<div class="side-group"><div class="side-group-title">Extensibility</div>
+<a class="side-link" href="09-plugins.html">Plugin System</a>
+<a class="side-link" href="10-broadcasts.html">Broadcasts</a>
+</div>
+<div class="side-group"><div class="side-group-title">Telegram Integration</div>
+<a class="side-link active" href="11-transport-webhook-and-polling.html">Webhook & Polling</a>
+<a class="side-link" href="12-telegram-api-reference.html">Telegram API Reference</a>
+</div>
+<div class="side-group"><div class="side-group-title">Other Topics</div>
+<a class="side-link" href="13-localization.html">Localization (i18n)</a>
+<a class="side-link" href="14-testing.html">Testing</a>
+<a class="side-link" href="15-deployment.html">Deployment</a>
+<a class="side-link" href="16-advanced-features.html">Advanced Features</a>
+</div>
+</nav>
+  </aside>
+  <main id="content" class="docs-content">
+    <div class="docs-article">
+      <h1 id="webhook-and-polling-modes">Webhook and Polling Modes</h1>
+<p>The framework supports both models Telegram offers for receiving
+Updates. The choice between the two depends purely on your
+environment — your Activity code is <strong>exactly the same</strong> in both
+modes; the only difference is the entry point.</p>
+<h2 id="comparison">Comparison</h2>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Webhook</th>
+<th>Polling</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Requires public HTTPS</td>
+<td>Yes</td>
+<td>No</td>
+</tr>
+<tr>
+<td>Requires a long-running process</td>
+<td>No — every Update is a normal HTTP request</td>
+<td>Yes — an infinite loop</td>
+</tr>
+<tr>
+<td>Suitable for shared hosting</td>
+<td>✅ Yes, the default choice</td>
+<td>❌ Most shared hosts don't allow long-running processes</td>
+</tr>
+<tr>
+<td>Entry point</td>
+<td><code>public/webhook.php</code></td>
+<td><code>bin/poll.php</code></td>
+</tr>
+<tr>
+<td>Update source class</td>
+<td><code>Update\WebhookUpdateSource</code></td>
+<td><code>Update\PollingUpdateSource</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="webhook-mode">Webhook Mode</h2>
+<h3 id="registering-the-webhook-with-telegram">Registering the Webhook with Telegram</h3>
+<pre><code class="language-php">use Aicrion\Tandroid\Api\Telegram;
+
+Telegram::webhook()-&gt;set(
+    url: 'https://your-domain.com/webhook.php',
+    secretToken: getenv('AICRION_WEBHOOK_SECRET') ?: null,
+    dropPendingUpdates: true,
+);
+</code></pre>
+<p>or directly with <code>curl</code>:</p>
+<pre><code class="language-bash">curl &quot;https://api.telegram.org/bot$AICRION_BOT_TOKEN/setWebhook?url=https://your-domain.com/webhook.php&quot;
+</code></pre>
+<h3 id="the-publicwebhookphp-entry-point">The <code>public/webhook.php</code> Entry Point</h3>
+<pre><code class="language-php">$kernel = Kernel::fromConfigFile(__DIR__ . '/../config/aicrion.yaml')-&gt;boot();
+$source = new WebhookUpdateSource(file_get_contents('php://input') ?: '');
+
+foreach ($source-&gt;pull() as $update) {
+    $kernel-&gt;handle($update); // Kernel itself also sends the reply
+}
+
+http_response_code(200);
+</code></pre>
+<p>Every time Telegram has a new Update, it sends a <code>POST</code> request with
+a JSON body directly to this file. <code>Kernel::boot()</code> runs once per
+HTTP request — on shared hosting this means no persistent process is
+needed, exactly like running any regular PHP script.</p>
+<h3 id="managing-the-webhook">Managing the Webhook</h3>
+<pre><code class="language-php">Telegram::webhook()-&gt;info();               // getWebhookInfo
+Telegram::webhook()-&gt;delete(dropPendingUpdates: true); // switch back to polling
+</code></pre>
+<h2 id="polling-mode">Polling Mode</h2>
+<h3 id="the-binpollphp-entry-point">The <code>bin/poll.php</code> Entry Point</h3>
+<pre><code class="language-bash">php bin/poll.php
+</code></pre>
+<pre><code class="language-php">$kernel = Kernel::fromConfigFile(__DIR__ . '/../config/aicrion.yaml')-&gt;boot();
+$source = new PollingUpdateSource($kernel-&gt;httpClient(), $kernel-&gt;config()-&gt;botToken);
+
+while (true) {
+    foreach ($source-&gt;pull() as $update) {
+        $kernel-&gt;handle($update);
+    }
+
+    usleep(200_000);
+}
+</code></pre>
+<p><code>PollingUpdateSource</code> keeps the <code>update_id</code> offset internally, so
+each <code>pull()</code> only returns new Updates, and restarting the process
+won't reprocess old Updates (as long as the process stays alive
+long enough; for persistence across restarts, store the offset
+yourself in cache/database).</p>
+<blockquote>
+<p>For stable production execution, run <code>bin/poll.php</code> under a
+process supervisor (systemd, supervisord, or Docker's
+<code>restart: always</code>) so it automatically comes back up after a
+crash.</p>
+</blockquote>
+<h2 id="switching-between-modes">Switching Between Modes</h2>
+<p>The <code>bot.mode</code> value in <code>config/aicrion.yaml</code> is purely documentation
+of your intent; the entry point you actually run
+(<code>webhook.php</code> on a web server, or <code>poll.php</code> via CLI) determines
+the real mode. Never enable both simultaneously for the same bot —
+Telegram accepts either Webhooks or <code>getUpdates</code>, not both; if
+Webhook is active and you want to switch to Polling, call
+<code>Telegram::webhook()-&gt;delete()</code> first.</p>
+      <div class="docs-pagination">
+        <a href="10-broadcasts.html">&larr; Broadcasts</a><a href="12-telegram-api-reference.html">Telegram API Reference &rarr;</a>
+      </div>
+    </div>
+  </main>
+</div>
+<script>
+(function(){
+  const r=document.documentElement,t=document.querySelector('[data-theme-toggle]');
+  let d=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';
+  r.setAttribute('data-theme',d);
+  t&&t.addEventListener('click',()=>{d=d==='dark'?'light':'dark';r.setAttribute('data-theme',d);});
+  const s=document.querySelector('[data-sidebar]'),st=document.querySelector('[data-sidebar-toggle]');
+  st&&st.addEventListener('click',()=>s.classList.toggle('open'));
+})();
+</script>
+</body>
+</html>

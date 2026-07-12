@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ViewModel & State — Aicrion Tandroid Docs</title>
+<link rel="stylesheet" href="../assets/style.css">
+<link rel="stylesheet" href="../assets/docs.css">
+</head>
+<body>
+<a class="skip" href="#content">Skip to content</a>
+<button class="btn theme" data-theme-toggle aria-label="Toggle theme">Theme</button>
+<button class="btn sidebar-toggle" data-sidebar-toggle aria-label="Toggle sidebar">Menu</button>
+<div class="docs-shell">
+  <aside class="docs-sidebar" data-sidebar>
+    <div class="sidebar-brand">
+      <a href="../index.html" class="logo">
+        <svg class="logo-mark" viewBox="0 0 48 48" fill="none" width="28" height="28"><path d="M24 6l14 8v20l-14 8-14-8V14l14-8Z" stroke="currentColor" stroke-width="2.5"/></svg>
+        <span>Aicrion Tandroid</span>
+      </a>
+    </div>
+    <nav class="sidebar-nav">
+<a class="side-link" href="00-index.html">Home</a>
+<div class="side-group"><div class="side-group-title">Getting Started</div>
+<a class="side-link" href="01-installation.html">Installation</a>
+<a class="side-link" href="02-configuration.html">Configuration</a>
+</div>
+<div class="side-group"><div class="side-group-title">Core Architecture</div>
+<a class="side-link" href="03-architecture.html">Kernel & Boot Lifecycle</a>
+<a class="side-link" href="04-activities-and-intents.html">Activities & Intents</a>
+<a class="side-link" href="05-views-and-widgets.html">Views & Widgets</a>
+<a class="side-link active" href="06-viewmodel-and-state.html">ViewModel & State</a>
+</div>
+<div class="side-group"><div class="side-group-title">Data & Infrastructure</div>
+<a class="side-link" href="07-database-and-doctrine.html">Database & Doctrine</a>
+<a class="side-link" href="08-caching-and-redis.html">Caching & Redis</a>
+</div>
+<div class="side-group"><div class="side-group-title">Extensibility</div>
+<a class="side-link" href="09-plugins.html">Plugin System</a>
+<a class="side-link" href="10-broadcasts.html">Broadcasts</a>
+</div>
+<div class="side-group"><div class="side-group-title">Telegram Integration</div>
+<a class="side-link" href="11-transport-webhook-and-polling.html">Webhook & Polling</a>
+<a class="side-link" href="12-telegram-api-reference.html">Telegram API Reference</a>
+</div>
+<div class="side-group"><div class="side-group-title">Other Topics</div>
+<a class="side-link" href="13-localization.html">Localization (i18n)</a>
+<a class="side-link" href="14-testing.html">Testing</a>
+<a class="side-link" href="15-deployment.html">Deployment</a>
+<a class="side-link" href="16-advanced-features.html">Advanced Features</a>
+</div>
+</nav>
+  </aside>
+  <main id="content" class="docs-content">
+    <div class="docs-article">
+      <h1 id="viewmodel-and-state-management">ViewModel and State Management</h1>
+<p>Because every <code>BotActivity</code> is <strong>freshly instantiated on every
+request</strong> (PHP holds no memory between requests), regular class
+properties never survive between two user taps. The framework's
+solution is exactly what Android calls
+<code>androidx.lifecycle.ViewModel</code>: a state holder that outlives the
+Activity itself.</p>
+<h2 id="creating-a-viewmodel">Creating a ViewModel</h2>
+<pre><code class="language-php">use Aicrion\Tandroid\Kernel\ViewModel\ViewModel;
+
+final class CartViewModel extends ViewModel
+{
+    public function addItem(string $sku): void
+    {
+        $items = $this-&gt;get('items', []);
+        $items[] = $sku;
+        $this-&gt;set('items', $items);
+    }
+
+    public function items(): array
+    {
+        return $this-&gt;get('items', []);
+    }
+}
+</code></pre>
+<p>The base <code>ViewModel</code> exposes just two protected methods to
+subclasses: <code>get(string $key, mixed $default = null)</code> and
+<code>set(string $key, mixed $value)</code>. All state is kept in an internal
+array that gets serialized/deserialized via <code>hydrate()</code>/
+<code>dehydrate()</code> (called only by <code>StateStore</code>, never manually).</p>
+<h2 id="using-it-in-an-activity">Using It in an Activity</h2>
+<p>By combining <code>HasViewModel</code> onto any <code>BotActivity</code>, the protected
+<code>viewModel()</code> method becomes available:</p>
+<pre><code class="language-php">use Aicrion\Tandroid\Activity\{BotActivity, HasViewModel, NavigationRequest};
+use Aicrion\Tandroid\Intent\Intent;
+use Aicrion\Tandroid\View\View;
+
+final class CartActivity extends BotActivity
+{
+    use HasViewModel;
+
+    public function onCreate(Intent $intent): ?NavigationRequest
+    {
+        $cart = $this-&gt;viewModel(CartViewModel::class);
+        $cart-&gt;addItem($intent-&gt;getExtra('sku'));
+
+        $this-&gt;setContentView(View::message('Cart items: ' . count($cart-&gt;items())));
+
+        return null;
+    }
+}
+</code></pre>
+<p>That's it. You don't need to persist anything yourself —
+<code>ActivityManager</code> automatically calls <code>persistViewModel()</code> on any
+Activity using <code>HasViewModel</code> right after every lifecycle hook
+completes.</p>
+<h2 id="how-it-works-under-the-hood">How It Works Under the Hood</h2>
+<ol>
+<li><code>Kernel::boot()</code> builds an instance of
+   <code>Kernel\ViewModel\StateStore</code> and injects it into
+   <code>ActivityManager</code>.</li>
+<li>For every Activity instance, <code>ActivityManager</code> checks
+   <code>method_exists($activity, 'bindStateStore')</code>; if true (meaning
+   <code>HasViewModel</code> is used), it injects <code>StateStore</code>.</li>
+<li>The first call to <code>$this-&gt;viewModel(FooViewModel::class)</code> inside
+   your Activity calls <code>StateStore::resolve()</code>, which creates a fresh
+   <code>FooViewModel</code> instance and — if previous state exists in cache —
+   restores it via <code>hydrate()</code>.</li>
+<li>After <code>onCreate</code>/<code>onNewIntent</code>/<code>onResume</code> finishes,
+   <code>ActivityManager</code> calls <code>persistViewModel()</code> on that same
+   Activity, saving the new state back into <code>StateStore</code> (only if
+   <code>viewModel()</code> was actually called).</li>
+</ol>
+<h2 id="the-scope-of-a-viewmodel">The Scope of a ViewModel</h2>
+<p>The storage key is built from a combination of the user's <code>chat_id</code>
+and the ViewModel class's FQCN:</p>
+<pre><code>aicrion.viewmodel.{ViewModel_FQCN_underscored}.{chat_id}
+</code></pre>
+<p>This means a <code>CartViewModel</code> shared across multiple Activities (e.g.
+<code>ProductActivity</code> → <code>CartActivity</code> → <code>CheckoutActivity</code>) all running
+for the same user <strong>see the same shared state</strong> — exactly like a
+ViewModel surviving Android recreating the Activity on a screen
+rotation.</p>
+<p>To explicitly clear a ViewModel from cache (e.g. after an order
+completes):</p>
+<pre><code class="language-php">$this-&gt;stateStore-&gt;clear(CartViewModel::class, $this-&gt;update-&gt;chatId);
+</code></pre>
+<p>(Since <code>HasViewModel</code> defines this property as <code>private</code> within your
+own class, it's directly accessible from your Activity's methods —
+no separate getter needed.)</p>
+<h2 id="when-to-use-a-viewmodel-vs-an-extra">When to Use a ViewModel vs. an Extra</h2>
+<table>
+<thead>
+<tr>
+<th>Need</th>
+<th>Right tool</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A small value that only needs to reach the next Activity</td>
+<td><code>Intent::putExtra()</code></td>
+</tr>
+<tr>
+<td>State that must survive across multiple Activities/user taps</td>
+<td><code>ViewModel</code></td>
+</tr>
+<tr>
+<td>The final result of a form/wizard before reaching the confirmation step</td>
+<td>Usually <code>ViewModel</code> (since <code>FormWidget</code>/<code>WizardWidget</code> are themselves stateless)</td>
+</tr>
+</tbody>
+</table>
+      <div class="docs-pagination">
+        <a href="05-views-and-widgets.html">&larr; Views & Widgets</a><a href="07-database-and-doctrine.html">Database & Doctrine &rarr;</a>
+      </div>
+    </div>
+  </main>
+</div>
+<script>
+(function(){
+  const r=document.documentElement,t=document.querySelector('[data-theme-toggle]');
+  let d=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';
+  r.setAttribute('data-theme',d);
+  t&&t.addEventListener('click',()=>{d=d==='dark'?'light':'dark';r.setAttribute('data-theme',d);});
+  const s=document.querySelector('[data-sidebar]'),st=document.querySelector('[data-sidebar-toggle]');
+  st&&st.addEventListener('click',()=>s.classList.toggle('open'));
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Configuration — Aicrion Tandroid Docs</title>
+<link rel="stylesheet" href="../assets/style.css">
+<link rel="stylesheet" href="../assets/docs.css">
+</head>
+<body>
+<a class="skip" href="#content">Skip to content</a>
+<button class="btn theme" data-theme-toggle aria-label="Toggle theme">Theme</button>
+<button class="btn sidebar-toggle" data-sidebar-toggle aria-label="Toggle sidebar">Menu</button>
+<div class="docs-shell">
+  <aside class="docs-sidebar" data-sidebar>
+    <div class="sidebar-brand">
+      <a href="../index.html" class="logo">
+        <svg class="logo-mark" viewBox="0 0 48 48" fill="none" width="28" height="28"><path d="M24 6l14 8v20l-14 8-14-8V14l14-8Z" stroke="currentColor" stroke-width="2.5"/></svg>
+        <span>Aicrion Tandroid</span>
+      </a>
+    </div>
+    <nav class="sidebar-nav">
+<a class="side-link" href="00-index.html">Home</a>
+<div class="side-group"><div class="side-group-title">Getting Started</div>
+<a class="side-link" href="01-installation.html">Installation</a>
+<a class="side-link active" href="02-configuration.html">Configuration</a>
+</div>
+<div class="side-group"><div class="side-group-title">Core Architecture</div>
+<a class="side-link" href="03-architecture.html">Kernel & Boot Lifecycle</a>
+<a class="side-link" href="04-activities-and-intents.html">Activities & Intents</a>
+<a class="side-link" href="05-views-and-widgets.html">Views & Widgets</a>
+<a class="side-link" href="06-viewmodel-and-state.html">ViewModel & State</a>
+</div>
+<div class="side-group"><div class="side-group-title">Data & Infrastructure</div>
+<a class="side-link" href="07-database-and-doctrine.html">Database & Doctrine</a>
+<a class="side-link" href="08-caching-and-redis.html">Caching & Redis</a>
+</div>
+<div class="side-group"><div class="side-group-title">Extensibility</div>
+<a class="side-link" href="09-plugins.html">Plugin System</a>
+<a class="side-link" href="10-broadcasts.html">Broadcasts</a>
+</div>
+<div class="side-group"><div class="side-group-title">Telegram Integration</div>
+<a class="side-link" href="11-transport-webhook-and-polling.html">Webhook & Polling</a>
+<a class="side-link" href="12-telegram-api-reference.html">Telegram API Reference</a>
+</div>
+<div class="side-group"><div class="side-group-title">Other Topics</div>
+<a class="side-link" href="13-localization.html">Localization (i18n)</a>
+<a class="side-link" href="14-testing.html">Testing</a>
+<a class="side-link" href="15-deployment.html">Deployment</a>
+<a class="side-link" href="16-advanced-features.html">Advanced Features</a>
+</div>
+</nav>
+  </aside>
+  <main id="content" class="docs-content">
+    <div class="docs-article">
+      <h1 id="configuration-system">Configuration System</h1>
+<p>All framework configuration is read from a single YAML file
+(<code>config/aicrion.yaml</code>) and exposed to every subsystem as an
+immutable object (<code>Config\FrameworkConfig</code>); nowhere else in the code
+calls <code>getenv()</code> or reads the YAML file directly.</p>
+<h2 id="config-file-structure">Config File Structure</h2>
+<pre><code class="language-yaml">bot:
+  token: '%env(AICRION_BOT_TOKEN)%'
+  mode: webhook # webhook | polling
+
+cache:
+  redis_dsn: '%env(AICRION_REDIS_DSN)%' # if empty, cache automatically falls back to the filesystem
+
+database:
+  driver: pdo_sqlite
+  path: var/data.sqlite
+
+locale: en
+plugins_path: plugins
+</code></pre>
+<h2 id="the-frameworkconfig-class">The FrameworkConfig Class</h2>
+<p><code>Config\FrameworkConfig::fromFile(string $path)</code> reads the YAML file
+and returns a <code>readonly</code> instance of itself:</p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>botToken</code></td>
+<td><code>string</code></td>
+<td>The bot token, after <code>%env(...)%</code> values are resolved</td>
+</tr>
+<tr>
+<td><code>updateMode</code></td>
+<td><code>string</code></td>
+<td><code>webhook</code> or <code>polling</code></td>
+</tr>
+<tr>
+<td><code>redisDsn</code></td>
+<td><code>?string</code></td>
+<td>Redis DSN; if <code>null</code>/empty, only the filesystem cache is used</td>
+</tr>
+<tr>
+<td><code>database</code></td>
+<td><code>array</code></td>
+<td>An array directly compatible with <code>Doctrine\DBAL\DriverManager::getConnection()</code></td>
+</tr>
+<tr>
+<td><code>plugins</code></td>
+<td><code>array</code></td>
+<td>Per-plugin configuration (optional, at each plugin's discretion)</td>
+</tr>
+<tr>
+<td><code>locale</code></td>
+<td><code>string</code></td>
+<td>The default locale for <code>I18n\Translator</code></td>
+</tr>
+<tr>
+<td><code>pluginsPath</code></td>
+<td><code>string</code></td>
+<td>Path to the plugins folder, relative to the running script</td>
+</tr>
+</tbody>
+</table>
+<h2 id="overriding-with-environment-variables">Overriding with Environment Variables</h2>
+<p>Any value written with the <code>%env(NAME)%</code> syntax is replaced with
+<code>getenv('NAME')</code> at load time. This pattern is directly inspired by
+Symfony's Environment Variable Processors, but the implementation is
+lighter (<code>FrameworkConfig::resolveEnv</code>) and only resolves plain
+strings — no complex processors like <code>%env(json:...)%</code>.</p>
+<pre><code class="language-yaml">bot:
+  token: '%env(AICRION_BOT_TOKEN)%'
+</code></pre>
+<p>If the environment variable isn't set, <code>null</code> is returned (not the
+raw placeholder string).</p>
+<h2 id="database-configuration">Database Configuration</h2>
+<p>The <code>database</code> section is passed straight to
+<code>Doctrine\DBAL\DriverManager::getConnection()</code>, so it supports
+anything DBAL accepts:</p>
+<pre><code class="language-yaml"># SQLite (default — no server required)
+database:
+  driver: pdo_sqlite
+  path: var/data.sqlite
+
+# MySQL / MariaDB
+database:
+  driver: pdo_mysql
+  host: 127.0.0.1
+  port: 3306
+  dbname: aicrion
+  user: aicrion
+  password: '%env(DB_PASSWORD)%'
+  charset: utf8mb4
+
+# PostgreSQL
+database:
+  driver: pdo_pgsql
+  host: 127.0.0.1
+  port: 5432
+  dbname: aicrion
+  user: aicrion
+  password: '%env(DB_PASSWORD)%'
+</code></pre>
+<p>The practical usage of this connection (Entities, Repositories,
+Migrations) is covered in
+<a href="07-database-and-doctrine.md">Database and Doctrine</a>.</p>
+<h2 id="cacheredis-configuration">Cache/Redis Configuration</h2>
+<pre><code class="language-yaml">cache:
+  redis_dsn: '%env(AICRION_REDIS_DSN)%'
+</code></pre>
+<p>If <code>redis_dsn</code> is empty, or the Redis connection fails at boot time,
+<code>Cache\CachePoolFactory</code> silently and automatically falls back to
+using only the filesystem adapter (<code>var/cache</code>) — this is exactly
+what lets it work on shared hosting without Redis. Full details in
+<a href="08-caching-and-redis.md">Caching and Redis</a>.</p>
+<h2 id="plugins-path">Plugins Path</h2>
+<pre><code class="language-yaml">plugins_path: plugins
+</code></pre>
+<p><code>Package\PackageManager::discover()</code> scans this path with the
+pattern <code>{plugins_path}/*/manifest.php</code>. For projects with a
+different layout (e.g. <code>apps/</code> instead of <code>plugins/</code>), just change
+this value.</p>
+<h2 id="accessing-config-from-your-own-code">Accessing Config from Your Own Code</h2>
+<p>If you need config values inside an Activity or service, get them
+through the DI container (which auto-injects into any autowired
+service, since <code>FrameworkConfig</code> itself is registered in the
+container) or via <code>Kernel::config()</code>:</p>
+<pre><code class="language-php">$kernel = Kernel::fromConfigFile(__DIR__ . '/config/aicrion.yaml')-&gt;boot();
+$locale = $kernel-&gt;config()-&gt;locale;
+</code></pre>
+      <div class="docs-pagination">
+        <a href="01-installation.html">&larr; Installation</a><a href="03-architecture.html">Kernel & Boot Lifecycle &rarr;</a>
+      </div>
+    </div>
+  </main>
+</div>
+<script>
+(function(){
+  const r=document.documentElement,t=document.querySelector('[data-theme-toggle]');
+  let d=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';
+  r.setAttribute('data-theme',d);
+  t&&t.addEventListener('click',()=>{d=d==='dark'?'light':'dark';r.setAttribute('data-theme',d);});
+  const s=document.querySelector('[data-sidebar]'),st=document.querySelector('[data-sidebar-toggle]');
+  st&&st.addEventListener('click',()=>s.classList.toggle('open'));
+})();
+</script>
+</body>
+</html>

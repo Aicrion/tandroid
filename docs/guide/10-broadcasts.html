@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Broadcasts — Aicrion Tandroid Docs</title>
+<link rel="stylesheet" href="../assets/style.css">
+<link rel="stylesheet" href="../assets/docs.css">
+</head>
+<body>
+<a class="skip" href="#content">Skip to content</a>
+<button class="btn theme" data-theme-toggle aria-label="Toggle theme">Theme</button>
+<button class="btn sidebar-toggle" data-sidebar-toggle aria-label="Toggle sidebar">Menu</button>
+<div class="docs-shell">
+  <aside class="docs-sidebar" data-sidebar>
+    <div class="sidebar-brand">
+      <a href="../index.html" class="logo">
+        <svg class="logo-mark" viewBox="0 0 48 48" fill="none" width="28" height="28"><path d="M24 6l14 8v20l-14 8-14-8V14l14-8Z" stroke="currentColor" stroke-width="2.5"/></svg>
+        <span>Aicrion Tandroid</span>
+      </a>
+    </div>
+    <nav class="sidebar-nav">
+<a class="side-link" href="00-index.html">Home</a>
+<div class="side-group"><div class="side-group-title">Getting Started</div>
+<a class="side-link" href="01-installation.html">Installation</a>
+<a class="side-link" href="02-configuration.html">Configuration</a>
+</div>
+<div class="side-group"><div class="side-group-title">Core Architecture</div>
+<a class="side-link" href="03-architecture.html">Kernel & Boot Lifecycle</a>
+<a class="side-link" href="04-activities-and-intents.html">Activities & Intents</a>
+<a class="side-link" href="05-views-and-widgets.html">Views & Widgets</a>
+<a class="side-link" href="06-viewmodel-and-state.html">ViewModel & State</a>
+</div>
+<div class="side-group"><div class="side-group-title">Data & Infrastructure</div>
+<a class="side-link" href="07-database-and-doctrine.html">Database & Doctrine</a>
+<a class="side-link" href="08-caching-and-redis.html">Caching & Redis</a>
+</div>
+<div class="side-group"><div class="side-group-title">Extensibility</div>
+<a class="side-link" href="09-plugins.html">Plugin System</a>
+<a class="side-link active" href="10-broadcasts.html">Broadcasts</a>
+</div>
+<div class="side-group"><div class="side-group-title">Telegram Integration</div>
+<a class="side-link" href="11-transport-webhook-and-polling.html">Webhook & Polling</a>
+<a class="side-link" href="12-telegram-api-reference.html">Telegram API Reference</a>
+</div>
+<div class="side-group"><div class="side-group-title">Other Topics</div>
+<a class="side-link" href="13-localization.html">Localization (i18n)</a>
+<a class="side-link" href="14-testing.html">Testing</a>
+<a class="side-link" href="15-deployment.html">Deployment</a>
+<a class="side-link" href="16-advanced-features.html">Advanced Features</a>
+</div>
+</nav>
+  </aside>
+  <main id="content" class="docs-content">
+    <div class="docs-article">
+      <h1 id="broadcasts-and-system-wide-events">Broadcasts and System-Wide Events</h1>
+<p><code>Broadcast\BroadcastDispatcher</code> is the equivalent of Android's
+<code>BroadcastReceiver</code> mechanism: it announces system-wide events (not
+a direct reply to a specific Update) to every interested plugin —
+without the sender and receiver knowing about each other directly.</p>
+<h2 id="creating-an-event">Creating an Event</h2>
+<p>Any plain object (POJO) can be an event; it just needs to be passed
+to <code>publish()</code>:</p>
+<pre><code class="language-php">namespace Aicrion\Tandroid\Broadcast\Event;
+
+final class UserJoinedEvent
+{
+    public function __construct(
+        public readonly int $userId,
+        public readonly int $chatId,
+    ) {}
+}
+</code></pre>
+<h2 id="writing-a-receiver">Writing a Receiver</h2>
+<pre><code class="language-php">use Aicrion\Tandroid\Attribute\BroadcastFilter;
+use Aicrion\Tandroid\Broadcast\BroadcastReceiverInterface;
+use Aicrion\Tandroid\Broadcast\Event\UserJoinedEvent;
+use Aicrion\Tandroid\Api\Telegram;
+
+#[BroadcastFilter(event: UserJoinedEvent::class)]
+final class WelcomeReceiver implements BroadcastReceiverInterface
+{
+    public function onReceive(object $event): void
+    {
+        /** @var UserJoinedEvent $event */
+        Telegram::message()-&gt;to($event-&gt;chatId)-&gt;text('Welcome to the community! 🎉')-&gt;send();
+    }
+}
+</code></pre>
+<p>Like any Activity, a Receiver must be declared in the plugin's
+<code>manifest.php</code>:</p>
+<pre><code class="language-php">return Manifest::define(
+    package: 'greeter',
+    version: '1.0.0',
+    receivers: [WelcomeReceiver::class],
+    // ...
+);
+</code></pre>
+<h2 id="how-it-works">How It Works</h2>
+<ol>
+<li>On <code>Kernel::boot()</code>,
+   <code>BroadcastDispatcher::registerReceivers()</code> is called with every
+   Receiver collected from all manifests. For each Receiver, its
+   <code>#[BroadcastFilter]</code> is read via Reflection and stored in an
+   internal registry (<code>event class =&gt; [receiver classes]</code>).</li>
+<li>Whenever your code calls
+   <code>BroadcastDispatcher::publish($event)</code>, the dispatcher resolves
+   every Receiver registered for <code>$event::class</code> from the DI
+   Container and runs <code>onReceive($event)</code> on each of them.</li>
+</ol>
+<h2 id="built-in-event-userjoinedevent">Built-in Event: UserJoinedEvent</h2>
+<p><code>Kernel::handle()</code> publishes this event itself: with every Update, it
+checks whether the <code>chat_id</code> has already been seen in cache (key
+<code>aicrion.seen_chat.{chat_id}</code>); if it's the first time,
+<code>UserJoinedEvent</code> is published and the chat is marked as seen. This
+means any plugin can react to a "new user" without touching the
+framework core — just write a Receiver for <code>UserJoinedEvent</code>.</p>
+<h2 id="publishing-your-own-events">Publishing Your Own Events</h2>
+<p>From inside any Activity or service that has access to
+<code>BroadcastDispatcher</code> (by type-hinting it in the constructor — it's
+autowired automatically):</p>
+<pre><code class="language-php">final class OrderActivity extends BotActivity
+{
+    public function __construct(
+        private readonly BroadcastDispatcher $broadcaster,
+    ) {}
+
+    public function onCreate(Intent $intent): ?NavigationRequest
+    {
+        // ... order placement logic
+
+        $this-&gt;broadcaster-&gt;publish(new OrderPlacedEvent(orderId: $order-&gt;id));
+
+        $this-&gt;setContentView(View::message('Your order has been placed ✅'));
+
+        return null;
+    }
+}
+</code></pre>
+<h2 id="current-limitation">Current Limitation</h2>
+<p>The Broadcast system is currently <strong>synchronous</strong> — <code>publish()</code> runs
+every Receiver immediately, within the same request. For heavy
+operations (sending email, long-running processing) that shouldn't
+slow down the reply to the user, write your Receiver to dispatch the
+heavy work to a separate queue (e.g. Symfony Messenger, already
+available as a dependency) and return quickly.</p>
+      <div class="docs-pagination">
+        <a href="09-plugins.html">&larr; Plugin System</a><a href="11-transport-webhook-and-polling.html">Webhook & Polling &rarr;</a>
+      </div>
+    </div>
+  </main>
+</div>
+<script>
+(function(){
+  const r=document.documentElement,t=document.querySelector('[data-theme-toggle]');
+  let d=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';
+  r.setAttribute('data-theme',d);
+  t&&t.addEventListener('click',()=>{d=d==='dark'?'light':'dark';r.setAttribute('data-theme',d);});
+  const s=document.querySelector('[data-sidebar]'),st=document.querySelector('[data-sidebar-toggle]');
+  st&&st.addEventListener('click',()=>s.classList.toggle('open'));
+})();
+</script>
+</body>
+</html>

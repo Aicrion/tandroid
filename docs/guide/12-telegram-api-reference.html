@@ -1,0 +1,328 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Telegram API Reference — Aicrion Tandroid Docs</title>
+<link rel="stylesheet" href="../assets/style.css">
+<link rel="stylesheet" href="../assets/docs.css">
+</head>
+<body>
+<a class="skip" href="#content">Skip to content</a>
+<button class="btn theme" data-theme-toggle aria-label="Toggle theme">Theme</button>
+<button class="btn sidebar-toggle" data-sidebar-toggle aria-label="Toggle sidebar">Menu</button>
+<div class="docs-shell">
+  <aside class="docs-sidebar" data-sidebar>
+    <div class="sidebar-brand">
+      <a href="../index.html" class="logo">
+        <svg class="logo-mark" viewBox="0 0 48 48" fill="none" width="28" height="28"><path d="M24 6l14 8v20l-14 8-14-8V14l14-8Z" stroke="currentColor" stroke-width="2.5"/></svg>
+        <span>Aicrion Tandroid</span>
+      </a>
+    </div>
+    <nav class="sidebar-nav">
+<a class="side-link" href="00-index.html">Home</a>
+<div class="side-group"><div class="side-group-title">Getting Started</div>
+<a class="side-link" href="01-installation.html">Installation</a>
+<a class="side-link" href="02-configuration.html">Configuration</a>
+</div>
+<div class="side-group"><div class="side-group-title">Core Architecture</div>
+<a class="side-link" href="03-architecture.html">Kernel & Boot Lifecycle</a>
+<a class="side-link" href="04-activities-and-intents.html">Activities & Intents</a>
+<a class="side-link" href="05-views-and-widgets.html">Views & Widgets</a>
+<a class="side-link" href="06-viewmodel-and-state.html">ViewModel & State</a>
+</div>
+<div class="side-group"><div class="side-group-title">Data & Infrastructure</div>
+<a class="side-link" href="07-database-and-doctrine.html">Database & Doctrine</a>
+<a class="side-link" href="08-caching-and-redis.html">Caching & Redis</a>
+</div>
+<div class="side-group"><div class="side-group-title">Extensibility</div>
+<a class="side-link" href="09-plugins.html">Plugin System</a>
+<a class="side-link" href="10-broadcasts.html">Broadcasts</a>
+</div>
+<div class="side-group"><div class="side-group-title">Telegram Integration</div>
+<a class="side-link" href="11-transport-webhook-and-polling.html">Webhook & Polling</a>
+<a class="side-link active" href="12-telegram-api-reference.html">Telegram API Reference</a>
+</div>
+<div class="side-group"><div class="side-group-title">Other Topics</div>
+<a class="side-link" href="13-localization.html">Localization (i18n)</a>
+<a class="side-link" href="14-testing.html">Testing</a>
+<a class="side-link" href="15-deployment.html">Deployment</a>
+<a class="side-link" href="16-advanced-features.html">Advanced Features</a>
+</div>
+</nav>
+  </aside>
+  <main id="content" class="docs-content">
+    <div class="docs-article">
+      <h1 id="complete-telegram-api-reference">Complete Telegram API Reference</h1>
+<p>The static <code>Api\Telegram</code> facade is the single entry point to every
+Bot API method. Each method returns a fluent, immutable object
+(every setter returns a new cloned instance), so you can reuse a
+request as a "template" without worrying about accidental mutation.</p>
+<pre><code class="language-php">use Aicrion\Tandroid\Api\Telegram;
+
+Telegram::message()
+    -&gt;to($chatId)
+    -&gt;text('Hello, world')
+    -&gt;replyTo($messageId)
+    -&gt;markup($keyboard-&gt;render()['reply_markup'])
+    -&gt;send();
+</code></pre>
+<p><code>Telegram::configure($httpClient, $token)</code> is called automatically
+by <code>Kernel::boot()</code> — in your own application code you'll almost
+never need to call it manually.</p>
+<h2 id="full-method-table">Full Method Table</h2>
+<table>
+<thead>
+<tr>
+<th>Facade method</th>
+<th>Returns</th>
+<th>Corresponding Bot API</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>message()</code></td>
+<td><code>SendMessageRequest</code></td>
+<td><code>sendMessage</code></td>
+</tr>
+<tr>
+<td><code>edit($chatId, $messageId)</code></td>
+<td><code>MessageEditor</code></td>
+<td><code>editMessageText</code>/<code>editMessageReplyMarkup</code></td>
+</tr>
+<tr>
+<td><code>message_($fromChatId, $messageId)</code></td>
+<td><code>MessageForwarder</code></td>
+<td><code>forwardMessage</code>/<code>copyMessage</code></td>
+</tr>
+<tr>
+<td><code>reaction($chatId, $messageId)</code></td>
+<td><code>ReactionRequest</code></td>
+<td><code>setMessageReaction</code></td>
+</tr>
+<tr>
+<td><code>photo()</code></td>
+<td><code>Media\SendPhotoRequest</code></td>
+<td><code>sendPhoto</code></td>
+</tr>
+<tr>
+<td><code>video()</code></td>
+<td><code>Media\SendVideoRequest</code></td>
+<td><code>sendVideo</code></td>
+</tr>
+<tr>
+<td><code>document()</code></td>
+<td><code>Media\SendDocumentRequest</code></td>
+<td><code>sendDocument</code></td>
+</tr>
+<tr>
+<td><code>audio()</code></td>
+<td><code>Media\SendAudioRequest</code></td>
+<td><code>sendAudio</code></td>
+</tr>
+<tr>
+<td><code>voice()</code></td>
+<td><code>Media\SendVoiceRequest</code></td>
+<td><code>sendVoice</code></td>
+</tr>
+<tr>
+<td><code>animation()</code></td>
+<td><code>Media\SendAnimationRequest</code></td>
+<td><code>sendAnimation</code></td>
+</tr>
+<tr>
+<td><code>videoNote()</code></td>
+<td><code>Media\SendVideoNoteRequest</code></td>
+<td><code>sendVideoNote</code></td>
+</tr>
+<tr>
+<td><code>location()</code></td>
+<td><code>Media\SendLocationRequest</code></td>
+<td><code>sendLocation</code></td>
+</tr>
+<tr>
+<td><code>venue()</code></td>
+<td><code>Media\SendVenueRequest</code></td>
+<td><code>sendVenue</code></td>
+</tr>
+<tr>
+<td><code>contact()</code></td>
+<td><code>Media\SendContactRequest</code></td>
+<td><code>sendContact</code></td>
+</tr>
+<tr>
+<td><code>dice()</code></td>
+<td><code>Media\SendDiceRequest</code></td>
+<td><code>sendDice</code></td>
+</tr>
+<tr>
+<td><code>poll()</code></td>
+<td><code>Media\SendPollRequest</code></td>
+<td><code>sendPoll</code></td>
+</tr>
+<tr>
+<td><code>mediaGroup()</code></td>
+<td><code>Media\MediaGroupRequest</code></td>
+<td><code>sendMediaGroup</code></td>
+</tr>
+<tr>
+<td><code>chatAction()</code></td>
+<td><code>ChatActionRequest</code></td>
+<td><code>sendChatAction</code></td>
+</tr>
+<tr>
+<td><code>chat($chatId)</code></td>
+<td><code>Admin\ChatAdmin</code></td>
+<td>ban/restrict/promote/pin/...</td>
+</tr>
+<tr>
+<td><code>inviteLinks($chatId)</code></td>
+<td><code>Admin\ChatInviteLinkManager</code></td>
+<td>create/edit/revoke invite link</td>
+</tr>
+<tr>
+<td><code>joinRequests()</code></td>
+<td><code>Invite\JoinRequestManager</code></td>
+<td>approve/decline chat join request</td>
+</tr>
+<tr>
+<td><code>forum($chatId)</code></td>
+<td><code>Forum\ForumTopicManager</code></td>
+<td>forum topic management</td>
+</tr>
+<tr>
+<td><code>business($businessConnectionId)</code></td>
+<td><code>Business\BusinessAccount</code></td>
+<td>Telegram Business API</td>
+</tr>
+<tr>
+<td><code>gifts()</code></td>
+<td><code>Gifts\GiftManager</code></td>
+<td>send/manage gifts</td>
+</tr>
+<tr>
+<td><code>stickers()</code></td>
+<td><code>Stickers\StickerSetManager</code></td>
+<td>sticker set management</td>
+</tr>
+<tr>
+<td><code>invoice()</code></td>
+<td><code>Payments\InvoiceRequest</code></td>
+<td><code>sendInvoice</code></td>
+</tr>
+<tr>
+<td><code>preCheckout()</code></td>
+<td><code>Payments\PreCheckoutHandler</code></td>
+<td><code>answerPreCheckoutQuery</code></td>
+</tr>
+<tr>
+<td><code>starTransactions()</code></td>
+<td><code>Payments\StarTransactions</code></td>
+<td>Telegram Stars transactions</td>
+</tr>
+<tr>
+<td><code>inline($inlineQueryId)</code></td>
+<td><code>Inline\InlineQueryAnswer</code></td>
+<td><code>answerInlineQuery</code></td>
+</tr>
+<tr>
+<td><code>webApp($webAppQueryId)</code></td>
+<td><code>Inline\WebAppQueryAnswer</code></td>
+<td><code>answerWebAppQuery</code></td>
+</tr>
+<tr>
+<td><code>guestQuery($guestQueryId)</code></td>
+<td><code>Guest\GuestQueryAnswer</code></td>
+<td><code>answerGuestQuery</code> (Guest mode — see <a href="16-advanced-features.md">Advanced Features</a>)</td>
+</tr>
+<tr>
+<td><code>callback($callbackQueryId)</code></td>
+<td><code>CallbackQueryAnswer</code></td>
+<td><code>answerCallbackQuery</code></td>
+</tr>
+<tr>
+<td><code>commands()</code></td>
+<td><code>Menu\CommandMenu</code></td>
+<td><code>setMyCommands</code>/<code>getMyCommands</code></td>
+</tr>
+<tr>
+<td><code>chatInfo($chatId)</code></td>
+<td><code>Info\ChatInfo</code></td>
+<td><code>getChat</code>/<code>getChatMember</code>/...</td>
+</tr>
+<tr>
+<td><code>botInfo()</code></td>
+<td><code>Info\BotInfo</code></td>
+<td><code>getMe</code>/<code>setMyName</code>/...</td>
+</tr>
+<tr>
+<td><code>webhook()</code></td>
+<td><code>Kernel\Transport\WebhookManager</code></td>
+<td><code>setWebhook</code>/<code>deleteWebhook</code>/<code>getWebhookInfo</code></td>
+</tr>
+<tr>
+<td><code>polling()</code></td>
+<td><code>Kernel\Transport\PollingManager</code></td>
+<td><code>getUpdates</code></td>
+</tr>
+<tr>
+<td><code>managedAccess()</code></td>
+<td><code>Managed\ManagedBotAccess</code></td>
+<td>manage access for managed bots (see <a href="16-advanced-features.md">Advanced Features</a>)</td>
+</tr>
+</tbody>
+</table>
+<h2 id="example-send-edit-and-react">Example: Send, Edit, and React</h2>
+<pre><code class="language-php">$sent = Telegram::message()-&gt;to($chatId)-&gt;text('Processing... ⏳')-&gt;send();
+
+Telegram::edit($chatId, $sent['result']['message_id'])
+    -&gt;text('Done ✅')
+    -&gt;send(); // see MessageEditor for the exact signature
+
+Telegram::reaction($chatId, $sent['result']['message_id'])
+    -&gt;emoji('👍')
+    -&gt;send();
+</code></pre>
+<h2 id="example-chat-administration">Example: Chat Administration</h2>
+<pre><code class="language-php">Telegram::chat($chatId)-&gt;ban(userId: 123456);
+Telegram::chat($chatId)-&gt;promote(userId: 123456, canPinMessages: true);
+Telegram::inviteLinks($chatId)-&gt;create(name: 'VIP Invite', memberLimit: 50);
+</code></pre>
+<h2 id="example-answering-a-callback-query-with-a-custom-toast">Example: Answering a Callback Query with a Custom Toast</h2>
+<p>Every callback query is answered by default by <code>ActivityManager</code>
+with an empty response (<code>Telegram::callback($id)-&gt;send()</code>) to stop
+the client-side loading spinner. For a custom toast, call this
+yourself from your Activity — the subsequent automatic reply from
+<code>ActivityManager</code> is harmless since Telegram ignores a duplicate
+<code>answerCallbackQuery</code>:</p>
+<pre><code class="language-php">Telegram::callback($update-&gt;raw['callback_query']['id'])
+    -&gt;toast('Option saved successfully', asAlert: false)
+    -&gt;send();
+</code></pre>
+<h2 id="raw-access-escape-hatch">Raw Access (Escape Hatch)</h2>
+<p>If a Bot API method doesn't yet have a dedicated wrapper, every
+internal request class uses
+<code>Symfony\Contracts\HttpClient\HttpClientInterface</code> — you can use the
+same HTTP client directly:</p>
+<pre><code class="language-php">$kernel-&gt;httpClient()-&gt;request('POST', &quot;https://api.telegram.org/bot{$token}/someNewMethod&quot;, [
+    'json' =&gt; ['chat_id' =&gt; $chatId, /* ... */],
+]);
+</code></pre>
+      <div class="docs-pagination">
+        <a href="11-transport-webhook-and-polling.html">&larr; Webhook & Polling</a><a href="13-localization.html">Localization (i18n) &rarr;</a>
+      </div>
+    </div>
+  </main>
+</div>
+<script>
+(function(){
+  const r=document.documentElement,t=document.querySelector('[data-theme-toggle]');
+  let d=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';
+  r.setAttribute('data-theme',d);
+  t&&t.addEventListener('click',()=>{d=d==='dark'?'light':'dark';r.setAttribute('data-theme',d);});
+  const s=document.querySelector('[data-sidebar]'),st=document.querySelector('[data-sidebar-toggle]');
+  st&&st.addEventListener('click',()=>s.classList.toggle('open'));
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Advanced Features — Aicrion Tandroid Docs</title>
+<link rel="stylesheet" href="../assets/style.css">
+<link rel="stylesheet" href="../assets/docs.css">
+</head>
+<body>
+<a class="skip" href="#content">Skip to content</a>
+<button class="btn theme" data-theme-toggle aria-label="Toggle theme">Theme</button>
+<button class="btn sidebar-toggle" data-sidebar-toggle aria-label="Toggle sidebar">Menu</button>
+<div class="docs-shell">
+  <aside class="docs-sidebar" data-sidebar>
+    <div class="sidebar-brand">
+      <a href="../index.html" class="logo">
+        <svg class="logo-mark" viewBox="0 0 48 48" fill="none" width="28" height="28"><path d="M24 6l14 8v20l-14 8-14-8V14l14-8Z" stroke="currentColor" stroke-width="2.5"/></svg>
+        <span>Aicrion Tandroid</span>
+      </a>
+    </div>
+    <nav class="sidebar-nav">
+<a class="side-link" href="00-index.html">Home</a>
+<div class="side-group"><div class="side-group-title">Getting Started</div>
+<a class="side-link" href="01-installation.html">Installation</a>
+<a class="side-link" href="02-configuration.html">Configuration</a>
+</div>
+<div class="side-group"><div class="side-group-title">Core Architecture</div>
+<a class="side-link" href="03-architecture.html">Kernel & Boot Lifecycle</a>
+<a class="side-link" href="04-activities-and-intents.html">Activities & Intents</a>
+<a class="side-link" href="05-views-and-widgets.html">Views & Widgets</a>
+<a class="side-link" href="06-viewmodel-and-state.html">ViewModel & State</a>
+</div>
+<div class="side-group"><div class="side-group-title">Data & Infrastructure</div>
+<a class="side-link" href="07-database-and-doctrine.html">Database & Doctrine</a>
+<a class="side-link" href="08-caching-and-redis.html">Caching & Redis</a>
+</div>
+<div class="side-group"><div class="side-group-title">Extensibility</div>
+<a class="side-link" href="09-plugins.html">Plugin System</a>
+<a class="side-link" href="10-broadcasts.html">Broadcasts</a>
+</div>
+<div class="side-group"><div class="side-group-title">Telegram Integration</div>
+<a class="side-link" href="11-transport-webhook-and-polling.html">Webhook & Polling</a>
+<a class="side-link" href="12-telegram-api-reference.html">Telegram API Reference</a>
+</div>
+<div class="side-group"><div class="side-group-title">Other Topics</div>
+<a class="side-link" href="13-localization.html">Localization (i18n)</a>
+<a class="side-link" href="14-testing.html">Testing</a>
+<a class="side-link" href="15-deployment.html">Deployment</a>
+<a class="side-link active" href="16-advanced-features.html">Advanced Features</a>
+</div>
+</nav>
+  </aside>
+  <main id="content" class="docs-content">
+    <div class="docs-article">
+      <h1 id="advanced-features-remote-intents-guest-mode-managed-bots">Advanced Features: Remote Intents, Guest Mode, Managed Bots</h1>
+<p>This chapter covers three higher-level features built on top of
+Telegram Bot API version 9.6/10.0+. If the Bot API version you're
+working with doesn't support these methods, feel free to ignore
+these sections — the rest of the framework works fine without them.</p>
+<h2 id="bot-to-bot-communication-remote-intent">Bot-to-Bot Communication (Remote Intent)</h2>
+<p><code>Remote\RemoteIntent</code> is the cross-process equivalent of <code>Intent</code>:
+instead of navigating to a local Activity, it addresses a
+structured message to another bot (by username).</p>
+<pre><code class="language-php">use Aicrion\Tandroid\Remote\{RemoteIntent, BotToBotClient};
+
+$remote = RemoteIntent::to('copywriter_bot', 'DRAFT_REQUEST')
+    -&gt;with('brief', 'Write ad copy for Product X')
+    -&gt;with('reply_to_chat', $chatId);
+
+(new BotToBotClient($httpClient, $token))-&gt;send($remote);
+</code></pre>
+<p>On the receiving side, the incoming bot-to-bot message is decoded
+back into a <code>RemoteIntent</code> with <code>BotToBotClient::decodeIncoming()</code>,
+and a local Intent is built from it:</p>
+<pre><code class="language-php">$remoteIntent = BotToBotClient::decodeIncoming($rawIncomingMessage);
+$localIntent = Intent::to(DraftRequestActivity::class)
+    -&gt;putExtra('brief', $remoteIntent-&gt;toArray()['payload']['brief']);
+</code></pre>
+<p>This is exactly the pattern shown in
+<code>plugins/greeter/src/RelayActivity.php</code>: it takes a human request and
+relays it to another specialist bot.</p>
+<h2 id="guest-mode">Guest Mode</h2>
+<p>When a user invokes the bot via <code>@mention</code> inside a chat the bot
+hasn't been added to, <code>Guest\GuestContext</code> holds the constraints of
+that interaction:</p>
+<pre><code class="language-php">final class GuestContext
+{
+    public readonly int $hostChatId;
+    public readonly int $mentioningUserId;
+    public readonly bool $isGuestInvocation;
+    public readonly ?string $guestQueryId;
+}
+</code></pre>
+<p>Two important rules:</p>
+<ol>
+<li><strong>Before any operation that assumes full membership in the chat</strong>
+   (checking admin status, reading the member list), call
+   <code>$guestContext-&gt;assertFullAccess()</code> — if the interaction really is
+   a guest invocation, this method throws a <code>RuntimeException</code> to
+   prevent incorrect access.</li>
+<li><strong>A reply in guest mode should not be sent with a plain
+   <code>sendMessage</code></strong> — since the bot doesn't have persistent membership
+   in that chat. Instead:</li>
+</ol>
+<pre><code class="language-php">Telegram::guestQuery($guestContext-&gt;answerQueryId())
+    -&gt;reply('This is your reply as a guest mention.');
+</code></pre>
+<blockquote>
+<p>Currently, building a <code>GuestContext</code> from a raw Update (detecting
+whether it's actually a guest mention) is part of your host
+project's logic — this class only provides the data structure and
+safety rules; wiring it automatically into <code>ActivityManager</code> is
+still on the roadmap (see "Known Limitations" below).</p>
+</blockquote>
+<h2 id="managed-bots">Managed Bots</h2>
+<p><code>Managed\BotFactory</code> lets a parent bot create independent child bots
+for each customer/tenant — instead of routing everything through a
+single shared token:</p>
+<pre><code class="language-php">use Aicrion\Tandroid\Managed\BotFactory;
+
+$factory = new BotFactory($httpClient, parentToken: $parentBotToken);
+
+$childBot = $factory-&gt;createManagedBot(name: &quot;Ali's Shop Bot&quot;, username: 'ali_shop_bot');
+// $childBot-&gt;botId, $childBot-&gt;username, $childBot-&gt;token
+
+$factory-&gt;rotateToken($childBot-&gt;botId); // safe token rotation
+$factory-&gt;revoke($childBot-&gt;botId);      // fully remove the child bot
+</code></pre>
+<p>Every <code>Managed\ManagedBot</code> is a simple object carrying an ID/
+username/token. To actually run it as a fully independent instance,
+build a separate <code>Kernel</code> with a <code>FrameworkConfig</code> specific to that
+token:</p>
+<pre><code class="language-php">$childConfig = FrameworkConfig::fromFile(__DIR__ . '/config/aicrion.yaml')-&gt;withBotToken($childBot-&gt;token);
+$childKernel = new Kernel($childConfig)-&gt;boot();
+</code></pre>
+<h2 id="known-limitations-honestly-stated">Known Limitations (Honestly Stated)</h2>
+<p>These three features work fully at the HTTP level (sending/receiving
+requests to the Bot API), but they are <strong>not yet automatically wired
+into <code>Kernel</code>/<code>ActivityManager</code></strong> — meaning:</p>
+<ul>
+<li>Automatically detecting that an incoming Update is a guest mention
+  or a bot-to-bot message, and automatically building a
+  <code>GuestContext</code>/<code>RemoteIntent</code> from it, is currently your code's
+  responsibility (you can add this logic in a custom <code>UpdateMapper</code>
+  or a middleware layer before <code>Kernel::handle()</code>).</li>
+<li>Running multiple <code>ManagedBot</code>s concurrently usually means multiple
+  processes/webhook entry points (each with its own config); the
+  framework doesn't yet have a built-in orchestrator for running
+  multiple Kernels in a single process.</li>
+</ul>
+<p>These limitations are documented intentionally so this section
+accurately reflects the code's real behavior, not an idealized
+architecture.</p>
+      <div class="docs-pagination">
+        <a href="15-deployment.html">&larr; Deployment</a><span></span>
+      </div>
+    </div>
+  </main>
+</div>
+<script>
+(function(){
+  const r=document.documentElement,t=document.querySelector('[data-theme-toggle]');
+  let d=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';
+  r.setAttribute('data-theme',d);
+  t&&t.addEventListener('click',()=>{d=d==='dark'?'light':'dark';r.setAttribute('data-theme',d);});
+  const s=document.querySelector('[data-sidebar]'),st=document.querySelector('[data-sidebar-toggle]');
+  st&&st.addEventListener('click',()=>s.classList.toggle('open'));
+})();
+</script>
+</body>
+</html>

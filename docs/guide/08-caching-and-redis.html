@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Caching & Redis — Aicrion Tandroid Docs</title>
+<link rel="stylesheet" href="../assets/style.css">
+<link rel="stylesheet" href="../assets/docs.css">
+</head>
+<body>
+<a class="skip" href="#content">Skip to content</a>
+<button class="btn theme" data-theme-toggle aria-label="Toggle theme">Theme</button>
+<button class="btn sidebar-toggle" data-sidebar-toggle aria-label="Toggle sidebar">Menu</button>
+<div class="docs-shell">
+  <aside class="docs-sidebar" data-sidebar>
+    <div class="sidebar-brand">
+      <a href="../index.html" class="logo">
+        <svg class="logo-mark" viewBox="0 0 48 48" fill="none" width="28" height="28"><path d="M24 6l14 8v20l-14 8-14-8V14l14-8Z" stroke="currentColor" stroke-width="2.5"/></svg>
+        <span>Aicrion Tandroid</span>
+      </a>
+    </div>
+    <nav class="sidebar-nav">
+<a class="side-link" href="00-index.html">Home</a>
+<div class="side-group"><div class="side-group-title">Getting Started</div>
+<a class="side-link" href="01-installation.html">Installation</a>
+<a class="side-link" href="02-configuration.html">Configuration</a>
+</div>
+<div class="side-group"><div class="side-group-title">Core Architecture</div>
+<a class="side-link" href="03-architecture.html">Kernel & Boot Lifecycle</a>
+<a class="side-link" href="04-activities-and-intents.html">Activities & Intents</a>
+<a class="side-link" href="05-views-and-widgets.html">Views & Widgets</a>
+<a class="side-link" href="06-viewmodel-and-state.html">ViewModel & State</a>
+</div>
+<div class="side-group"><div class="side-group-title">Data & Infrastructure</div>
+<a class="side-link" href="07-database-and-doctrine.html">Database & Doctrine</a>
+<a class="side-link active" href="08-caching-and-redis.html">Caching & Redis</a>
+</div>
+<div class="side-group"><div class="side-group-title">Extensibility</div>
+<a class="side-link" href="09-plugins.html">Plugin System</a>
+<a class="side-link" href="10-broadcasts.html">Broadcasts</a>
+</div>
+<div class="side-group"><div class="side-group-title">Telegram Integration</div>
+<a class="side-link" href="11-transport-webhook-and-polling.html">Webhook & Polling</a>
+<a class="side-link" href="12-telegram-api-reference.html">Telegram API Reference</a>
+</div>
+<div class="side-group"><div class="side-group-title">Other Topics</div>
+<a class="side-link" href="13-localization.html">Localization (i18n)</a>
+<a class="side-link" href="14-testing.html">Testing</a>
+<a class="side-link" href="15-deployment.html">Deployment</a>
+<a class="side-link" href="16-advanced-features.html">Advanced Features</a>
+</div>
+</nav>
+  </aside>
+  <main id="content" class="docs-content">
+    <div class="docs-article">
+      <h1 id="caching-and-redis">Caching and Redis</h1>
+<p>The framework uses a single, PSR-6-compatible cache layer
+(<code>Psr\Cache\CacheItemPoolInterface</code>) throughout: <code>BackStackStore</code>
+(navigation stack), <code>StateStore</code> (ViewModels), and tracking each
+chat's "first seen" state for Broadcasts — all share the same pool.</p>
+<h2 id="automatic-fallback-no-manual-setup">Automatic Fallback — No Manual Setup</h2>
+<p><code>Cache\CachePoolFactory::create()</code> builds a
+<code>Symfony\Component\Cache\Adapter\ChainAdapter</code>:</p>
+<ol>
+<li>If <code>cache.redis_dsn</code> is set in the config, it attempts to connect
+   to Redis.</li>
+<li>If the DSN is empty <strong>or</strong> the connection fails, it silently
+   (without throwing) falls back to only
+   <code>Symfony\Component\Cache\Adapter\FilesystemAdapter</code> (the
+   <code>var/cache</code> folder).</li>
+</ol>
+<p>This means on shared hosting where Redis isn't available, just leave
+<code>redis_dsn</code> empty or omit it entirely — the framework works with the
+filesystem cache without any extra code on your part. On a VPS/Docker
+setup with Redis available, just set the DSN:</p>
+<pre><code class="language-yaml">cache:
+  redis_dsn: '%env(AICRION_REDIS_DSN)%'
+</code></pre>
+<pre><code class="language-bash">export AICRION_REDIS_DSN=&quot;redis://127.0.0.1:6379&quot;
+</code></pre>
+<h2 id="why-redis-is-strongly-recommended-for-polling">Why Redis Is Strongly Recommended for Polling</h2>
+<p>In webhook mode, every request is independent, so the filesystem
+cache is fine. But if you run multiple <code>bin/poll.php</code> workers/
+processes in parallel (or multiple servers behind a webhook load
+balancer), you must use Redis so each user's navigation stack and
+ViewModel stay shared and consistent across all workers — the
+filesystem cache is local to each process.</p>
+<h2 id="using-the-cache-directly-in-your-own-plugins">Using the Cache Directly in Your Own Plugins</h2>
+<p>Any service that type-hints <code>Psr\Cache\CacheItemPoolInterface</code> in
+its constructor automatically receives the same shared pool from the
+DI Container:</p>
+<pre><code class="language-php">final class RateLimiter
+{
+    public function __construct(
+        private readonly \Psr\Cache\CacheItemPoolInterface $cache,
+    ) {}
+
+    public function tooManyAttempts(int $userId): bool
+    {
+        $item = $this-&gt;cache-&gt;getItem(&quot;ratelimit.$userId&quot;);
+
+        return $item-&gt;isHit() &amp;&amp; $item-&gt;get() &gt;= 5;
+    }
+}
+</code></pre>
+<h2 id="internal-framework-keys-for-debugging">Internal Framework Keys (for Debugging)</h2>
+<table>
+<thead>
+<tr>
+<th>Key prefix</th>
+<th>Used by</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>aicrion.backstack.{chat_id}</code></td>
+<td><code>Kernel\BackStackStore</code></td>
+</tr>
+<tr>
+<td><code>aicrion.viewmodel.{ViewModel_FQCN}.{chat_id}</code></td>
+<td><code>Kernel\ViewModel\StateStore</code></td>
+</tr>
+<tr>
+<td><code>aicrion.seen_chat.{chat_id}</code></td>
+<td><code>Kernel\Kernel</code> (detects a chat's first-seen state for <code>UserJoinedEvent</code>)</td>
+</tr>
+</tbody>
+</table>
+<p>If, during development, you need to reset a specific user's state,
+just delete these keys from Redis/<code>var/cache</code>.</p>
+      <div class="docs-pagination">
+        <a href="07-database-and-doctrine.html">&larr; Database & Doctrine</a><a href="09-plugins.html">Plugin System &rarr;</a>
+      </div>
+    </div>
+  </main>
+</div>
+<script>
+(function(){
+  const r=document.documentElement,t=document.querySelector('[data-theme-toggle]');
+  let d=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';
+  r.setAttribute('data-theme',d);
+  t&&t.addEventListener('click',()=>{d=d==='dark'?'light':'dark';r.setAttribute('data-theme',d);});
+  const s=document.querySelector('[data-sidebar]'),st=document.querySelector('[data-sidebar-toggle]');
+  st&&st.addEventListener('click',()=>s.classList.toggle('open'));
+})();
+</script>
+</body>
+</html>
