@@ -1,0 +1,63 @@
+name: Deploy Docs
+
+# Builds the documentation site from the single-source Markdown files in
+# docs/guide/*.md (see docs/build.py) and publishes it to GitHub Pages.
+#
+# NOTE: this replaces the old setup where docs/guide/*.html files were
+# committed by hand alongside the .md files. There is now exactly ONE
+# file per guide page (the .md); the HTML is generated here, on every
+# push, and never committed to the repository.
+#
+# One-time setup required: in the repo's Settings -> Pages, set
+# "Source" to "GitHub Actions" (instead of "Deploy from a branch").
+
+on:
+  push:
+    branches: [ main, master ]
+    paths:
+      - 'docs/**'
+      - '.github/workflows/docs.yml'
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install docs build dependencies
+        run: pip install -r docs/requirements.txt
+
+      - name: Build docs site
+        run: python3 docs/build.py --out site
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

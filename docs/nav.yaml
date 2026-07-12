@@ -1,0 +1,37 @@
+# Single source of truth for the docs sidebar / navigation / pagination order.
+# Each entry: slug (matches docs/guide/<slug>.md), title (short nav/browser-tab title).
+# top-level "home" entry is docs/guide/index.md, always first, not in any group.
+home:
+  slug: index
+  title: Documentation Home
+
+groups:
+  - name: Getting Started
+    items:
+      - { slug: installation, title: Installation }
+      - { slug: configuration, title: Configuration }
+      - { slug: tutorial, title: Complete Walkthrough Tutorial }
+  - name: Core Architecture
+    items:
+      - { slug: architecture, title: Kernel & Boot Lifecycle }
+      - { slug: activities-and-intents, title: Activities & Intents }
+      - { slug: views-and-widgets, title: Views & Widgets }
+      - { slug: viewmodel-and-state, title: ViewModel & State }
+  - name: Data & Infrastructure
+    items:
+      - { slug: database-and-doctrine, title: Database & Doctrine }
+      - { slug: caching-and-redis, title: Caching & Redis }
+  - name: Extensibility
+    items:
+      - { slug: plugins, title: Plugin System }
+      - { slug: broadcasts, title: Broadcasts }
+  - name: Telegram Integration
+    items:
+      - { slug: transport-webhook-and-polling, title: Webhook & Polling }
+      - { slug: telegram-api-reference, title: Telegram API Reference }
+  - name: Other Topics
+    items:
+      - { slug: localization, title: Localization (i18n) }
+      - { slug: testing, title: Testing }
+      - { slug: deployment, title: Deployment }
+      - { slug: advanced-features, title: Advanced Features }

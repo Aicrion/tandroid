@@ -510,4 +510,3 @@ Common symptoms of an outdated installed copy:
 
 Those messages usually mean the bot project is still running an older
 installed package, not the latest source you just changed.
-
