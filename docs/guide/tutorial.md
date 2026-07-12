@@ -208,7 +208,7 @@ final class StartActivity extends BotActivity
     public function onCreate(Intent $intent): ?NavigationRequest
     {
         $keyboard = Keyboard::inline()
-            ->row(Button::action('👤 My Profile', to: ProfileActivity::class));
+            ->row(Button::actionReplace('👤 My Profile', to: ProfileActivity::class));
 
         $this->setContentView(
             View::message('Welcome to my first Tandroid bot! 👋')
@@ -228,8 +228,10 @@ What is happening here:
   app's launcher Activity.
 - `onCreate()` is the only method you are required to implement.
 - `setContentView()` declares what gets sent back to the user.
-- `Button::action(...)` builds an inline button whose tap will be
-  routed, as an explicit Intent, straight to `ProfileActivity`.
+- `Button::actionReplace(...)` builds an inline button whose tap will be
+  routed, as an explicit Intent, straight to `ProfileActivity`, while
+  replacing the current Telegram message in place. Use plain
+  `Button::action(...)` when you want chat-style history instead.
 
 ## Step 7 — Write a Second Activity and Navigate to It
 
@@ -255,7 +257,7 @@ final class ProfileActivity extends BotActivity
         $userId = $this->update()->userId;
 
         $keyboard = Keyboard::inline()
-            ->row(Button::action('⬅️ Back', to: StartActivity::class));
+            ->row(Button::actionReplace('⬅️ Back', to: StartActivity::class));
 
         $this->setContentView(
             View::message("Your Telegram user ID is: {$userId}")
@@ -408,7 +410,7 @@ final class ProfileActivity extends BotActivity
         $viewModel->visitCount++;
 
         $keyboard = Keyboard::inline()
-            ->row(Button::action('⬅️ Back', to: StartActivity::class));
+            ->row(Button::actionReplace('⬅️ Back', to: StartActivity::class));
 
         $this->setContentView(
             View::message("Visits to this screen: {$viewModel->visitCount}")

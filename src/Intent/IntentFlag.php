@@ -14,4 +14,6 @@ enum IntentFlag
     case SingleTop;
     case NewTask;
     case NoHistory;
+    case ReplaceMessage;
+    case PushMessage;
 }

@@ -37,7 +37,8 @@ final class ActivityManager
         private readonly ?StateStore $stateStore = null,
     ) {}
 
-    public function dispatch(Update $update): ?View
+    /** @return array{view:?View,intentFlags:list<IntentFlag>} */
+    public function dispatch(Update $update): array
     {
         $intent = $this->intentResolver->resolve($update);
         $view = $this->handle($update, $intent, depth: 0);
@@ -53,7 +54,7 @@ final class ActivityManager
             }
         }
 
-        return $view;
+        return ['view' => $view, 'intentFlags' => $intent->getFlags()];
     }
 
     private function handle(Update $update, Intent $intent, int $depth): ?View

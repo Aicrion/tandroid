@@ -6,6 +6,7 @@ namespace Aicrion\Tandroid\Kernel;
 
 use Aicrion\Tandroid\Attribute\IntentFilter;
 use Aicrion\Tandroid\Intent\Intent;
+use Aicrion\Tandroid\Intent\IntentFlag;
 use Aicrion\Tandroid\Update\Update;
 use Aicrion\Tandroid\Update\UpdateType;
 
@@ -35,6 +36,15 @@ final class IntentResolver
 
                 foreach ($decoded['p'] ?? [] as $key => $value) {
                     $intent = $intent->putExtra($key, $value);
+                }
+
+                foreach ($decoded['f'] ?? [] as $flagName) {
+                    foreach (IntentFlag::cases() as $flag) {
+                        if ($flag->name === $flagName) {
+                            $intent = $intent->withFlag($flag);
+                            break;
+                        }
+                    }
                 }
 
                 return $intent;

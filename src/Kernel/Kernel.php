@@ -10,6 +10,7 @@ use Aicrion\Tandroid\Broadcast\Event\UserJoinedEvent;
 use Aicrion\Tandroid\Cache\CachePoolFactory;
 use Aicrion\Tandroid\Config\FrameworkConfig;
 use Aicrion\Tandroid\Database\EntityManagerFactory;
+use Aicrion\Tandroid\Intent\IntentFlag;
 use Aicrion\Tandroid\Kernel\ViewModel\StateStore;
 use Aicrion\Tandroid\Package\PackageManager;
 use Aicrion\Tandroid\Update\Update;
@@ -151,20 +152,21 @@ final class Kernel
 
         $this->publishFirstSeenBroadcast($update);
 
-        $view = $this->activityManager->dispatch($update);
+        $result = $this->activityManager->dispatch($update);
 
-        if ($view !== null) {
-            $this->deliver($update, $view);
+        if ($result['view'] !== null) {
+            $this->deliver($update, $result['view'], $result['intentFlags']);
         }
 
-        return $view;
+        return $result['view'];
     }
 
     /**
      * Sends the rendered View back to the chat that produced the
      * triggering Update, via the framework's fluent Telegram facade.
      */
-    private function deliver(Update $update, View $view): void
+    /** @param list<IntentFlag> $intentFlags */
+    private function deliver(Update $update, View $view, array $intentFlags = []): void
     {
         $rendered = $view->render();
 
