@@ -3,9 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>ViewModel & State — Aicrion Tandroid Docs</title>
+<title>ViewModel & State — Tandroid Docs</title>
 <link rel="stylesheet" href="../assets/style.css">
 <link rel="stylesheet" href="../assets/docs.css">
+<link rel="stylesheet" href="../assets/pygments.css">
 </head>
 <body>
 <a class="skip" href="#content">Skip to content</a>
@@ -15,51 +16,51 @@
   <aside class="docs-sidebar" data-sidebar>
     <div class="sidebar-brand">
       <a href="../index.html" class="logo">
-        <svg class="logo-mark" viewBox="0 0 48 48" fill="none" width="28" height="28"><path d="M24 6l14 8v20l-14 8-14-8V14l14-8Z" stroke="currentColor" stroke-width="2.5"/></svg>
-        <span>Aicrion Tandroid</span>
+        <svg class="logo-mark" viewBox="0 0 48 48" fill="none" width="26" height="26"><path d="M24 6l14 8v20l-14 8-14-8V14l14-8Z" stroke="currentColor" stroke-width="2.5"/></svg>
+        <span>Tandroid</span>
       </a>
     </div>
     <nav class="sidebar-nav">
-<a class="side-link" href="00-index.html">Home</a>
+<a class="side-link" href="index.html">Home</a>
 <div class="side-group collapsed" data-group="group-0">
 <button type="button" class="side-group-header" data-group-toggle="group-0"><span>Getting Started</span><span class="chevron">&#9660;</span></button>
 <div class="side-group-items">
-<a class="side-link" href="01-installation.html">Installation</a>
-<a class="side-link" href="02-configuration.html">Configuration</a>
+<a class="side-link" href="installation.html">Installation</a>
+<a class="side-link" href="configuration.html">Configuration</a>
 </div></div>
 <div class="side-group" data-group="group-1">
 <button type="button" class="side-group-header" data-group-toggle="group-1"><span>Core Architecture</span><span class="chevron">&#9660;</span></button>
 <div class="side-group-items">
-<a class="side-link" href="03-architecture.html">Kernel & Boot Lifecycle</a>
-<a class="side-link" href="04-activities-and-intents.html">Activities & Intents</a>
-<a class="side-link" href="05-views-and-widgets.html">Views & Widgets</a>
-<a class="side-link active" href="06-viewmodel-and-state.html">ViewModel & State</a>
+<a class="side-link" href="architecture.html">Kernel & Boot Lifecycle</a>
+<a class="side-link" href="activities-and-intents.html">Activities & Intents</a>
+<a class="side-link" href="views-and-widgets.html">Views & Widgets</a>
+<a class="side-link active" href="viewmodel-and-state.html">ViewModel & State</a>
 </div></div>
 <div class="side-group collapsed" data-group="group-2">
 <button type="button" class="side-group-header" data-group-toggle="group-2"><span>Data & Infrastructure</span><span class="chevron">&#9660;</span></button>
 <div class="side-group-items">
-<a class="side-link" href="07-database-and-doctrine.html">Database & Doctrine</a>
-<a class="side-link" href="08-caching-and-redis.html">Caching & Redis</a>
+<a class="side-link" href="database-and-doctrine.html">Database & Doctrine</a>
+<a class="side-link" href="caching-and-redis.html">Caching & Redis</a>
 </div></div>
 <div class="side-group collapsed" data-group="group-3">
 <button type="button" class="side-group-header" data-group-toggle="group-3"><span>Extensibility</span><span class="chevron">&#9660;</span></button>
 <div class="side-group-items">
-<a class="side-link" href="09-plugins.html">Plugin System</a>
-<a class="side-link" href="10-broadcasts.html">Broadcasts</a>
+<a class="side-link" href="plugins.html">Plugin System</a>
+<a class="side-link" href="broadcasts.html">Broadcasts</a>
 </div></div>
 <div class="side-group collapsed" data-group="group-4">
 <button type="button" class="side-group-header" data-group-toggle="group-4"><span>Telegram Integration</span><span class="chevron">&#9660;</span></button>
 <div class="side-group-items">
-<a class="side-link" href="11-transport-webhook-and-polling.html">Webhook & Polling</a>
-<a class="side-link" href="12-telegram-api-reference.html">Telegram API Reference</a>
+<a class="side-link" href="transport-webhook-and-polling.html">Webhook & Polling</a>
+<a class="side-link" href="telegram-api-reference.html">Telegram API Reference</a>
 </div></div>
 <div class="side-group collapsed" data-group="group-5">
 <button type="button" class="side-group-header" data-group-toggle="group-5"><span>Other Topics</span><span class="chevron">&#9660;</span></button>
 <div class="side-group-items">
-<a class="side-link" href="13-localization.html">Localization (i18n)</a>
-<a class="side-link" href="14-testing.html">Testing</a>
-<a class="side-link" href="15-deployment.html">Deployment</a>
-<a class="side-link" href="16-advanced-features.html">Advanced Features</a>
+<a class="side-link" href="localization.html">Localization (i18n)</a>
+<a class="side-link" href="testing.html">Testing</a>
+<a class="side-link" href="deployment.html">Deployment</a>
+<a class="side-link" href="advanced-features.html">Advanced Features</a>
 </div></div>
 </nav>
   </aside>
@@ -73,23 +74,24 @@ solution is exactly what Android calls
 <code>androidx.lifecycle.ViewModel</code>: a state holder that outlives the
 Activity itself.</p>
 <h2 id="creating-a-viewmodel">Creating a ViewModel</h2>
-<pre><code class="language-php">use Aicrion\Tandroid\Kernel\ViewModel\ViewModel;
+<div class="codehilite"><pre><span></span><code><span class="x">use Aicrion\Tandroid\Kernel\ViewModel\ViewModel;</span>
 
-final class CartViewModel extends ViewModel
-{
-    public function addItem(string $sku): void
-    {
-        $items = $this-&gt;get('items', []);
-        $items[] = $sku;
-        $this-&gt;set('items', $items);
-    }
+<span class="x">final class CartViewModel extends ViewModel</span>
+<span class="x">{</span>
+<span class="x">    public function addItem(string $sku): void</span>
+<span class="x">    {</span>
+<span class="x">        $items = $this-&gt;get(&#39;items&#39;, []);</span>
+<span class="x">        $items[] = $sku;</span>
+<span class="x">        $this-&gt;set(&#39;items&#39;, $items);</span>
+<span class="x">    }</span>
 
-    public function items(): array
-    {
-        return $this-&gt;get('items', []);
-    }
-}
-</code></pre>
+<span class="x">    public function items(): array</span>
+<span class="x">    {</span>
+<span class="x">        return $this-&gt;get(&#39;items&#39;, []);</span>
+<span class="x">    }</span>
+<span class="x">}</span>
+</code></pre></div>
+
 <p>The base <code>ViewModel</code> exposes just two protected methods to
 subclasses: <code>get(string $key, mixed $default = null)</code> and
 <code>set(string $key, mixed $value)</code>. All state is kept in an internal
@@ -98,25 +100,26 @@ array that gets serialized/deserialized via <code>hydrate()</code>/
 <h2 id="using-it-in-an-activity">Using It in an Activity</h2>
 <p>By combining <code>HasViewModel</code> onto any <code>BotActivity</code>, the protected
 <code>viewModel()</code> method becomes available:</p>
-<pre><code class="language-php">use Aicrion\Tandroid\Activity\{BotActivity, HasViewModel, NavigationRequest};
-use Aicrion\Tandroid\Intent\Intent;
-use Aicrion\Tandroid\View\View;
+<div class="codehilite"><pre><span></span><code><span class="x">use Aicrion\Tandroid\Activity\{BotActivity, HasViewModel, NavigationRequest};</span>
+<span class="x">use Aicrion\Tandroid\Intent\Intent;</span>
+<span class="x">use Aicrion\Tandroid\View\View;</span>
 
-final class CartActivity extends BotActivity
-{
-    use HasViewModel;
+<span class="x">final class CartActivity extends BotActivity</span>
+<span class="x">{</span>
+<span class="x">    use HasViewModel;</span>
 
-    public function onCreate(Intent $intent): ?NavigationRequest
-    {
-        $cart = $this-&gt;viewModel(CartViewModel::class);
-        $cart-&gt;addItem($intent-&gt;getExtra('sku'));
+<span class="x">    public function onCreate(Intent $intent): ?NavigationRequest</span>
+<span class="x">    {</span>
+<span class="x">        $cart = $this-&gt;viewModel(CartViewModel::class);</span>
+<span class="x">        $cart-&gt;addItem($intent-&gt;getExtra(&#39;sku&#39;));</span>
 
-        $this-&gt;setContentView(View::message('Cart items: ' . count($cart-&gt;items())));
+<span class="x">        $this-&gt;setContentView(View::message(&#39;Cart items: &#39; . count($cart-&gt;items())));</span>
 
-        return null;
-    }
-}
-</code></pre>
+<span class="x">        return null;</span>
+<span class="x">    }</span>
+<span class="x">}</span>
+</code></pre></div>
+
 <p>That's it. You don't need to persist anything yourself —
 <code>ActivityManager</code> automatically calls <code>persistViewModel()</code> on any
 Activity using <code>HasViewModel</code> right after every lifecycle hook
@@ -141,8 +144,9 @@ completes.</p>
 <h2 id="the-scope-of-a-viewmodel">The Scope of a ViewModel</h2>
 <p>The storage key is built from a combination of the user's <code>chat_id</code>
 and the ViewModel class's FQCN:</p>
-<pre><code>aicrion.viewmodel.{ViewModel_FQCN_underscored}.{chat_id}
-</code></pre>
+<div class="codehilite"><pre><span></span><code>aicrion.viewmodel.{ViewModel_FQCN_underscored}.{chat_id}
+</code></pre></div>
+
 <p>This means a <code>CartViewModel</code> shared across multiple Activities (e.g.
 <code>ProductActivity</code> → <code>CartActivity</code> → <code>CheckoutActivity</code>) all running
 for the same user <strong>see the same shared state</strong> — exactly like a
@@ -150,8 +154,9 @@ ViewModel surviving Android recreating the Activity on a screen
 rotation.</p>
 <p>To explicitly clear a ViewModel from cache (e.g. after an order
 completes):</p>
-<pre><code class="language-php">$this-&gt;stateStore-&gt;clear(CartViewModel::class, $this-&gt;update-&gt;chatId);
-</code></pre>
+<div class="codehilite"><pre><span></span><code><span class="x">$this-&gt;stateStore-&gt;clear(CartViewModel::class, $this-&gt;update-&gt;chatId);</span>
+</code></pre></div>
+
 <p>(Since <code>HasViewModel</code> defines this property as <code>private</code> within your
 own class, it's directly accessible from your Activity's methods —
 no separate getter needed.)</p>
@@ -179,7 +184,7 @@ no separate getter needed.)</p>
 </tbody>
 </table>
       <div class="docs-pagination">
-        <a href="05-views-and-widgets.html">&larr; Views & Widgets</a><a href="07-database-and-doctrine.html">Database & Doctrine &rarr;</a>
+        <a href="views-and-widgets.html">&larr; Views & Widgets</a><a href="database-and-doctrine.html">Database & Doctrine &rarr;</a>
       </div>
     </div>
   </main>

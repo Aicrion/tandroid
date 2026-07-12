@@ -73,7 +73,7 @@ foreach (glob($pattern) as $manifestFile) {
 After discovery, `Kernel::boot()` continues in this order:
 
 1. Runs each plugin's pending migrations
-   ([Database and Doctrine](07-database-and-doctrine.md)).
+   ([Database and Doctrine](database-and-doctrine.md)).
 2. Builds the `EntityManager` using the Entities collected from all
    plugins.
 3. `autowire`s every declared Activity in the DI Container.

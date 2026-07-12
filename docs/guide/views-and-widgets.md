@@ -60,7 +60,7 @@ An `action` button automatically encodes `to` and `payload` into
 `callback_data` as JSON (`{"a": "...", "p": {...}}`) — that exact
 structure is what `Kernel\IntentResolver` on the receiving side
 converts into an explicit Intent (see
-[Activities and Intents](04-activities-and-intents.md)).
+[Activities and Intents](activities-and-intents.md)).
 
 `Widget\Keyboard` arranges buttons row by row — exactly like a
 vertical `LinearLayout` where each row is itself a horizontal
@@ -106,7 +106,7 @@ Every tap on an option sends a `callback_data` shaped like
 `{"w":"checkbox","n":"interests","v":"sport","c":true}` —
 your Activity is responsible for reading `n`/`v`/`c` from
 `update->callbackData` (or via `Intent`) and updating the actual
-state (usually in a [ViewModel](06-viewmodel-and-state.md)).
+state (usually in a [ViewModel](viewmodel-and-state.md)).
 
 ## Multi-Step Form (FormWidget)
 
@@ -193,4 +193,4 @@ and subsequent edits.
 
 Wherever widgets or forms need to keep state across multiple user
 taps (like `$savedAnswers`/`$currentStep` above), read
-[ViewModel and State Management](06-viewmodel-and-state.md).
+[ViewModel and State Management](viewmodel-and-state.md).

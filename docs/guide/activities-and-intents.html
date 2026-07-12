@@ -3,9 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Activities & Intents — Aicrion Tandroid Docs</title>
+<title>Activities & Intents — Tandroid Docs</title>
 <link rel="stylesheet" href="../assets/style.css">
 <link rel="stylesheet" href="../assets/docs.css">
+<link rel="stylesheet" href="../assets/pygments.css">
 </head>
 <body>
 <a class="skip" href="#content">Skip to content</a>
@@ -15,51 +16,51 @@
   <aside class="docs-sidebar" data-sidebar>
     <div class="sidebar-brand">
       <a href="../index.html" class="logo">
-        <svg class="logo-mark" viewBox="0 0 48 48" fill="none" width="28" height="28"><path d="M24 6l14 8v20l-14 8-14-8V14l14-8Z" stroke="currentColor" stroke-width="2.5"/></svg>
-        <span>Aicrion Tandroid</span>
+        <svg class="logo-mark" viewBox="0 0 48 48" fill="none" width="26" height="26"><path d="M24 6l14 8v20l-14 8-14-8V14l14-8Z" stroke="currentColor" stroke-width="2.5"/></svg>
+        <span>Tandroid</span>
       </a>
     </div>
     <nav class="sidebar-nav">
-<a class="side-link" href="00-index.html">Home</a>
+<a class="side-link" href="index.html">Home</a>
 <div class="side-group collapsed" data-group="group-0">
 <button type="button" class="side-group-header" data-group-toggle="group-0"><span>Getting Started</span><span class="chevron">&#9660;</span></button>
 <div class="side-group-items">
-<a class="side-link" href="01-installation.html">Installation</a>
-<a class="side-link" href="02-configuration.html">Configuration</a>
+<a class="side-link" href="installation.html">Installation</a>
+<a class="side-link" href="configuration.html">Configuration</a>
 </div></div>
 <div class="side-group" data-group="group-1">
 <button type="button" class="side-group-header" data-group-toggle="group-1"><span>Core Architecture</span><span class="chevron">&#9660;</span></button>
 <div class="side-group-items">
-<a class="side-link" href="03-architecture.html">Kernel & Boot Lifecycle</a>
-<a class="side-link active" href="04-activities-and-intents.html">Activities & Intents</a>
-<a class="side-link" href="05-views-and-widgets.html">Views & Widgets</a>
-<a class="side-link" href="06-viewmodel-and-state.html">ViewModel & State</a>
+<a class="side-link" href="architecture.html">Kernel & Boot Lifecycle</a>
+<a class="side-link active" href="activities-and-intents.html">Activities & Intents</a>
+<a class="side-link" href="views-and-widgets.html">Views & Widgets</a>
+<a class="side-link" href="viewmodel-and-state.html">ViewModel & State</a>
 </div></div>
 <div class="side-group collapsed" data-group="group-2">
 <button type="button" class="side-group-header" data-group-toggle="group-2"><span>Data & Infrastructure</span><span class="chevron">&#9660;</span></button>
 <div class="side-group-items">
-<a class="side-link" href="07-database-and-doctrine.html">Database & Doctrine</a>
-<a class="side-link" href="08-caching-and-redis.html">Caching & Redis</a>
+<a class="side-link" href="database-and-doctrine.html">Database & Doctrine</a>
+<a class="side-link" href="caching-and-redis.html">Caching & Redis</a>
 </div></div>
 <div class="side-group collapsed" data-group="group-3">
 <button type="button" class="side-group-header" data-group-toggle="group-3"><span>Extensibility</span><span class="chevron">&#9660;</span></button>
 <div class="side-group-items">
-<a class="side-link" href="09-plugins.html">Plugin System</a>
-<a class="side-link" href="10-broadcasts.html">Broadcasts</a>
+<a class="side-link" href="plugins.html">Plugin System</a>
+<a class="side-link" href="broadcasts.html">Broadcasts</a>
 </div></div>
 <div class="side-group collapsed" data-group="group-4">
 <button type="button" class="side-group-header" data-group-toggle="group-4"><span>Telegram Integration</span><span class="chevron">&#9660;</span></button>
 <div class="side-group-items">
-<a class="side-link" href="11-transport-webhook-and-polling.html">Webhook & Polling</a>
-<a class="side-link" href="12-telegram-api-reference.html">Telegram API Reference</a>
+<a class="side-link" href="transport-webhook-and-polling.html">Webhook & Polling</a>
+<a class="side-link" href="telegram-api-reference.html">Telegram API Reference</a>
 </div></div>
 <div class="side-group collapsed" data-group="group-5">
 <button type="button" class="side-group-header" data-group-toggle="group-5"><span>Other Topics</span><span class="chevron">&#9660;</span></button>
 <div class="side-group-items">
-<a class="side-link" href="13-localization.html">Localization (i18n)</a>
-<a class="side-link" href="14-testing.html">Testing</a>
-<a class="side-link" href="15-deployment.html">Deployment</a>
-<a class="side-link" href="16-advanced-features.html">Advanced Features</a>
+<a class="side-link" href="localization.html">Localization (i18n)</a>
+<a class="side-link" href="testing.html">Testing</a>
+<a class="side-link" href="deployment.html">Deployment</a>
+<a class="side-link" href="advanced-features.html">Advanced Features</a>
 </div></div>
 </nav>
   </aside>
@@ -71,23 +72,24 @@ Android calls <code>Activity</code> and <code>Intent</code>. Every "screen" or "
 of the bot is a <code>BotActivity</code>; navigation between them happens via
 <code>Intent</code>.</p>
 <h2 id="creating-an-activity">Creating an Activity</h2>
-<pre><code class="language-php">use Aicrion\Tandroid\Activity\BotActivity;
-use Aicrion\Tandroid\Activity\NavigationRequest;
-use Aicrion\Tandroid\Attribute\IntentFilter;
-use Aicrion\Tandroid\Intent\Intent;
-use Aicrion\Tandroid\View\View;
+<div class="codehilite"><pre><span></span><code><span class="x">use Aicrion\Tandroid\Activity\BotActivity;</span>
+<span class="x">use Aicrion\Tandroid\Activity\NavigationRequest;</span>
+<span class="x">use Aicrion\Tandroid\Attribute\IntentFilter;</span>
+<span class="x">use Aicrion\Tandroid\Intent\Intent;</span>
+<span class="x">use Aicrion\Tandroid\View\View;</span>
 
-#[IntentFilter(action: 'MAIN', category: 'LAUNCHER')]
-final class StartActivity extends BotActivity
-{
-    public function onCreate(Intent $intent): ?NavigationRequest
-    {
-        $this-&gt;setContentView(View::message('Welcome 👋'));
+<span class="x">#[IntentFilter(action: &#39;MAIN&#39;, category: &#39;LAUNCHER&#39;)]</span>
+<span class="x">final class StartActivity extends BotActivity</span>
+<span class="x">{</span>
+<span class="x">    public function onCreate(Intent $intent): ?NavigationRequest</span>
+<span class="x">    {</span>
+<span class="x">        $this-&gt;setContentView(View::message(&#39;Welcome 👋&#39;));</span>
 
-        return null;
-    }
-}
-</code></pre>
+<span class="x">        return null;</span>
+<span class="x">    }</span>
+<span class="x">}</span>
+</code></pre></div>
+
 <p>Every Activity must implement <code>onCreate()</code>. Four other hooks are
 optional and default to a no-op implementation: <code>onResume()</code>,
 <code>onNewIntent()</code>, <code>onPause()</code>, <code>onDestroy()</code>.</p>
@@ -132,30 +134,32 @@ optional and default to a no-op implementation: <code>onResume()</code>,
 Activity is <strong>freshly instantiated on every request</strong> — exactly like
 Android recreating an Activity on a configuration change (screen
 rotation). If you need state that persists across Activities, use a
-<a href="06-viewmodel-and-state.html">ViewModel</a>, not regular class properties.</p>
+<a href="viewmodel-and-state.html">ViewModel</a>, not regular class properties.</p>
 <h2 id="navigation-chains-with-navigationrequest">Navigation Chains with NavigationRequest</h2>
 <p><code>BotActivity</code> exposes two protected methods to subclasses:</p>
-<pre><code class="language-php">protected function startActivity(Intent $intent): NavigationRequest;
-protected function finishWithResult(array $result = []): NavigationRequest;
-</code></pre>
+<div class="codehilite"><pre><span></span><code><span class="x">protected function startActivity(Intent $intent): NavigationRequest;</span>
+<span class="x">protected function finishWithResult(array $result = []): NavigationRequest;</span>
+</code></pre></div>
+
 <p>When one of the lifecycle hooks (<code>onCreate</code>, <code>onNewIntent</code>,
 <code>onResume</code>) returns a <code>NavigationRequest</code> (instead of <code>null</code>),
 <code>ActivityManager</code> immediately follows it — <strong>within the same
 incoming Update, with no extra round-trip to Telegram</strong>:</p>
-<pre><code class="language-php">final class GatewayActivity extends BotActivity
-{
-    public function onCreate(Intent $intent): ?NavigationRequest
-    {
-        if ($this-&gt;userIsAdmin()) {
-            return $this-&gt;startActivity(Intent::to(AdminPanelActivity::class));
-        }
+<div class="codehilite"><pre><span></span><code><span class="x">final class GatewayActivity extends BotActivity</span>
+<span class="x">{</span>
+<span class="x">    public function onCreate(Intent $intent): ?NavigationRequest</span>
+<span class="x">    {</span>
+<span class="x">        if ($this-&gt;userIsAdmin()) {</span>
+<span class="x">            return $this-&gt;startActivity(Intent::to(AdminPanelActivity::class));</span>
+<span class="x">        }</span>
 
-        $this-&gt;setContentView(View::message('Access restricted.'));
+<span class="x">        $this-&gt;setContentView(View::message(&#39;Access restricted.&#39;));</span>
 
-        return null;
-    }
-}
-</code></pre>
+<span class="x">        return null;</span>
+<span class="x">    }</span>
+<span class="x">}</span>
+</code></pre></div>
+
 <p>If <code>finishWithResult()</code> is returned, <code>ActivityManager</code> behaves like
 pressing the Back button: it pops the current Activity off the
 stack, restores the previous Activity, and re-runs its <code>onResume()</code>.</p>
@@ -168,18 +172,20 @@ against infinite navigation loops.</p>
 <h2 id="intent-explicit-vs-implicit">Intent — Explicit vs. Implicit</h2>
 <p><code>Intent\Intent</code> has the exact same two modes as
 <code>android.content.Intent</code>:</p>
-<pre><code class="language-php">// Explicit: directly targets an Activity
-Intent::to(ProfileActivity::class);
+<div class="codehilite"><pre><span></span><code><span class="x">// Explicit: directly targets an Activity</span>
+<span class="x">Intent::to(ProfileActivity::class);</span>
 
-// Implicit: matched against IntentFilters by action/category
-Intent::action('VIEW_PROFILE');
-</code></pre>
+<span class="x">// Implicit: matched against IntentFilters by action/category</span>
+<span class="x">Intent::action(&#39;VIEW_PROFILE&#39;);</span>
+</code></pre></div>
+
 <p>Adding extras is fluent and immutable — every <code>putExtra()</code> returns a
 new instance:</p>
-<pre><code class="language-php">$intent = Intent::to(OrderActivity::class)
-    -&gt;putExtra('order_id', 42)
-    -&gt;withFlag(IntentFlag::ClearBackStack);
-</code></pre>
+<div class="codehilite"><pre><span></span><code><span class="x">$intent = Intent::to(OrderActivity::class)</span>
+<span class="x">    -&gt;putExtra(&#39;order_id&#39;, 42)</span>
+<span class="x">    -&gt;withFlag(IntentFlag::ClearBackStack);</span>
+</code></pre></div>
+
 <h3 id="navigation-flags-intentflag">Navigation Flags (IntentFlag)</h3>
 <table>
 <thead>
@@ -208,17 +214,18 @@ new instance:</p>
 </tbody>
 </table>
 <h2 id="intentfilter-how-an-update-reaches-an-activity">IntentFilter — How an Update Reaches an Activity</h2>
-<pre><code class="language-php">#[Attribute(Attribute::TARGET_CLASS | Attribute::IS_REPEATABLE)]
-final class IntentFilter
-{
-    public function __construct(
-        public readonly string $action,
-        public readonly ?string $category = null,
-        public readonly ?string $pattern = null,
-        public readonly int $priority = 0,
-    ) {}
-}
-</code></pre>
+<div class="codehilite"><pre><span></span><code><span class="x">#[Attribute(Attribute::TARGET_CLASS | Attribute::IS_REPEATABLE)]</span>
+<span class="x">final class IntentFilter</span>
+<span class="x">{</span>
+<span class="x">    public function __construct(</span>
+<span class="x">        public readonly string $action,</span>
+<span class="x">        public readonly ?string $category = null,</span>
+<span class="x">        public readonly ?string $pattern = null,</span>
+<span class="x">        public readonly int $priority = 0,</span>
+<span class="x">    ) {}</span>
+<span class="x">}</span>
+</code></pre></div>
+
 <p><code>Kernel\IntentResolver::resolve()</code> converts an incoming Update into
 an Intent like this:</p>
 <ol>
@@ -234,9 +241,10 @@ an Intent like this:</p>
 <li><strong>If no Activity matches</strong>, the Intent is routed to
    <code>Kernel\FallbackActivityMarker</code> (the built-in "404 Activity").</li>
 </ol>
-<pre><code class="language-php">#[IntentFilter(action: 'RELAY_TO_SPECIALIST', pattern: '/^\/ask /')]
-final class RelayActivity extends BotActivity { /* ... */ }
-</code></pre>
+<div class="codehilite"><pre><span></span><code><span class="x">#[IntentFilter(action: &#39;RELAY_TO_SPECIALIST&#39;, pattern: &#39;/^\/ask /&#39;)]</span>
+<span class="x">final class RelayActivity extends BotActivity { /* ... */ }</span>
+</code></pre></div>
+
 <h2 id="back-stack">Back Stack</h2>
 <p><code>Kernel\BackStackStore</code> keeps each user's stack (keyed by <code>chat_id</code>)
 in cache (Redis or filesystem). Every time an Activity finishes
@@ -244,20 +252,22 @@ running successfully (and the navigation chain completes), a new
 <code>Activity\BackStackEntry</code> is pushed — unless the Intent has the
 <code>NoHistory</code> flag.</p>
 <p>Activities can indirectly request to go back:</p>
-<pre><code class="language-php">return $this-&gt;finishWithResult(['choice' =&gt; 'confirmed']);
-</code></pre>
+<div class="codehilite"><pre><span></span><code><span class="x">return $this-&gt;finishWithResult([&#39;choice&#39; =&gt; &#39;confirmed&#39;]);</span>
+</code></pre></div>
+
 <h2 id="deep-links-direct-entry-with-a-start-parameter">Deep Links — Direct Entry with a /start Parameter</h2>
 <p><code>Kernel\DeepLinkResolver</code> converts a <code>/start &lt;payload&gt;</code> parameter
 (like <code>t.me/YourBot?start=order:id=42</code>) into an explicit Intent:</p>
-<pre><code class="language-php">$resolver = new DeepLinkResolver();
-$resolver-&gt;registerRoute('order', OrderActivity::class);
+<div class="codehilite"><pre><span></span><code><span class="x">$resolver = new DeepLinkResolver();</span>
+<span class="x">$resolver-&gt;registerRoute(&#39;order&#39;, OrderActivity::class);</span>
 
-$payload = DeepLinkResolver::extractStartPayload($update-&gt;text); // &quot;order:id=42&quot;
-$intent = $resolver-&gt;resolve($payload); // Intent::to(OrderActivity::class)-&gt;putExtra('id', '42')
-</code></pre>
+<span class="x">$payload = DeepLinkResolver::extractStartPayload($update-&gt;text); // &quot;order:id=42&quot;</span>
+<span class="x">$intent = $resolver-&gt;resolve($payload); // Intent::to(OrderActivity::class)-&gt;putExtra(&#39;id&#39;, &#39;42&#39;)</span>
+</code></pre></div>
+
 <p>The payload format is <code>route:key1=val1,key2=val2</code>.</p>
       <div class="docs-pagination">
-        <a href="03-architecture.html">&larr; Kernel & Boot Lifecycle</a><a href="05-views-and-widgets.html">Views & Widgets &rarr;</a>
+        <a href="architecture.html">&larr; Kernel & Boot Lifecycle</a><a href="views-and-widgets.html">Views & Widgets &rarr;</a>
       </div>
     </div>
   </main>

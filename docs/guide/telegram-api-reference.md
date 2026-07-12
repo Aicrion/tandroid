@@ -54,14 +54,14 @@ never need to call it manually.
 | `starTransactions()` | `Payments\StarTransactions` | Telegram Stars transactions |
 | `inline($inlineQueryId)` | `Inline\InlineQueryAnswer` | `answerInlineQuery` |
 | `webApp($webAppQueryId)` | `Inline\WebAppQueryAnswer` | `answerWebAppQuery` |
-| `guestQuery($guestQueryId)` | `Guest\GuestQueryAnswer` | `answerGuestQuery` (Guest mode — see [Advanced Features](16-advanced-features.md)) |
+| `guestQuery($guestQueryId)` | `Guest\GuestQueryAnswer` | `answerGuestQuery` (Guest mode — see [Advanced Features](advanced-features.md)) |
 | `callback($callbackQueryId)` | `CallbackQueryAnswer` | `answerCallbackQuery` |
 | `commands()` | `Menu\CommandMenu` | `setMyCommands`/`getMyCommands` |
 | `chatInfo($chatId)` | `Info\ChatInfo` | `getChat`/`getChatMember`/... |
 | `botInfo()` | `Info\BotInfo` | `getMe`/`setMyName`/... |
 | `webhook()` | `Kernel\Transport\WebhookManager` | `setWebhook`/`deleteWebhook`/`getWebhookInfo` |
 | `polling()` | `Kernel\Transport\PollingManager` | `getUpdates` |
-| `managedAccess()` | `Managed\ManagedBotAccess` | manage access for managed bots (see [Advanced Features](16-advanced-features.md)) |
+| `managedAccess()` | `Managed\ManagedBotAccess` | manage access for managed bots (see [Advanced Features](advanced-features.md)) |
 
 ## Example: Send, Edit, and React
 

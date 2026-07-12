@@ -88,7 +88,7 @@ database:
 
 The practical usage of this connection (Entities, Repositories,
 Migrations) is covered in
-[Database and Doctrine](07-database-and-doctrine.md).
+[Database and Doctrine](database-and-doctrine.md).
 
 ## Cache/Redis Configuration
 
@@ -101,7 +101,7 @@ If `redis_dsn` is empty, or the Redis connection fails at boot time,
 `Cache\CachePoolFactory` silently and automatically falls back to
 using only the filesystem adapter (`var/cache`) — this is exactly
 what lets it work on shared hosting without Redis. Full details in
-[Caching and Redis](08-caching-and-redis.md).
+[Caching and Redis](caching-and-redis.md).
 
 ## Plugins Path
 

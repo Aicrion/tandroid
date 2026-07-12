@@ -44,7 +44,7 @@ Most shared hosts restrict provisioning a separate MySQL service or
 Redis access. SQLite is just a plain file in `var/` — no separate
 process, no network port, no permissions beyond writing a file. If
 your host does offer MySQL, you can still switch to it per
-[Configuration](02-configuration.md).
+[Configuration](configuration.md).
 
 ## VPS / Docker
 
@@ -110,4 +110,4 @@ server {
       they're not downloadable through a browser.
 - [ ] For production, wrap `EntityManagerFactory` with a metadata
       caching layer (see the performance note in
-      [Database and Doctrine](07-database-and-doctrine.md)).
+      [Database and Doctrine](database-and-doctrine.md)).

@@ -44,7 +44,7 @@ Key point: since PHP doesn't keep state between requests, every
 Activity is **freshly instantiated on every request** — exactly like
 Android recreating an Activity on a configuration change (screen
 rotation). If you need state that persists across Activities, use a
-[ViewModel](06-viewmodel-and-state.md), not regular class properties.
+[ViewModel](viewmodel-and-state.md), not regular class properties.
 
 ## Navigation Chains with NavigationRequest
 

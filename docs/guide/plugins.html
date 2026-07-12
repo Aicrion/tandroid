@@ -3,9 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Plugin System — Aicrion Tandroid Docs</title>
+<title>Plugin System — Tandroid Docs</title>
 <link rel="stylesheet" href="../assets/style.css">
 <link rel="stylesheet" href="../assets/docs.css">
+<link rel="stylesheet" href="../assets/pygments.css">
 </head>
 <body>
 <a class="skip" href="#content">Skip to content</a>
@@ -15,51 +16,51 @@
   <aside class="docs-sidebar" data-sidebar>
     <div class="sidebar-brand">
       <a href="../index.html" class="logo">
-        <svg class="logo-mark" viewBox="0 0 48 48" fill="none" width="28" height="28"><path d="M24 6l14 8v20l-14 8-14-8V14l14-8Z" stroke="currentColor" stroke-width="2.5"/></svg>
-        <span>Aicrion Tandroid</span>
+        <svg class="logo-mark" viewBox="0 0 48 48" fill="none" width="26" height="26"><path d="M24 6l14 8v20l-14 8-14-8V14l14-8Z" stroke="currentColor" stroke-width="2.5"/></svg>
+        <span>Tandroid</span>
       </a>
     </div>
     <nav class="sidebar-nav">
-<a class="side-link" href="00-index.html">Home</a>
+<a class="side-link" href="index.html">Home</a>
 <div class="side-group collapsed" data-group="group-0">
 <button type="button" class="side-group-header" data-group-toggle="group-0"><span>Getting Started</span><span class="chevron">&#9660;</span></button>
 <div class="side-group-items">
-<a class="side-link" href="01-installation.html">Installation</a>
-<a class="side-link" href="02-configuration.html">Configuration</a>
+<a class="side-link" href="installation.html">Installation</a>
+<a class="side-link" href="configuration.html">Configuration</a>
 </div></div>
 <div class="side-group collapsed" data-group="group-1">
 <button type="button" class="side-group-header" data-group-toggle="group-1"><span>Core Architecture</span><span class="chevron">&#9660;</span></button>
 <div class="side-group-items">
-<a class="side-link" href="03-architecture.html">Kernel & Boot Lifecycle</a>
-<a class="side-link" href="04-activities-and-intents.html">Activities & Intents</a>
-<a class="side-link" href="05-views-and-widgets.html">Views & Widgets</a>
-<a class="side-link" href="06-viewmodel-and-state.html">ViewModel & State</a>
+<a class="side-link" href="architecture.html">Kernel & Boot Lifecycle</a>
+<a class="side-link" href="activities-and-intents.html">Activities & Intents</a>
+<a class="side-link" href="views-and-widgets.html">Views & Widgets</a>
+<a class="side-link" href="viewmodel-and-state.html">ViewModel & State</a>
 </div></div>
 <div class="side-group collapsed" data-group="group-2">
 <button type="button" class="side-group-header" data-group-toggle="group-2"><span>Data & Infrastructure</span><span class="chevron">&#9660;</span></button>
 <div class="side-group-items">
-<a class="side-link" href="07-database-and-doctrine.html">Database & Doctrine</a>
-<a class="side-link" href="08-caching-and-redis.html">Caching & Redis</a>
+<a class="side-link" href="database-and-doctrine.html">Database & Doctrine</a>
+<a class="side-link" href="caching-and-redis.html">Caching & Redis</a>
 </div></div>
 <div class="side-group" data-group="group-3">
 <button type="button" class="side-group-header" data-group-toggle="group-3"><span>Extensibility</span><span class="chevron">&#9660;</span></button>
 <div class="side-group-items">
-<a class="side-link active" href="09-plugins.html">Plugin System</a>
-<a class="side-link" href="10-broadcasts.html">Broadcasts</a>
+<a class="side-link active" href="plugins.html">Plugin System</a>
+<a class="side-link" href="broadcasts.html">Broadcasts</a>
 </div></div>
 <div class="side-group collapsed" data-group="group-4">
 <button type="button" class="side-group-header" data-group-toggle="group-4"><span>Telegram Integration</span><span class="chevron">&#9660;</span></button>
 <div class="side-group-items">
-<a class="side-link" href="11-transport-webhook-and-polling.html">Webhook & Polling</a>
-<a class="side-link" href="12-telegram-api-reference.html">Telegram API Reference</a>
+<a class="side-link" href="transport-webhook-and-polling.html">Webhook & Polling</a>
+<a class="side-link" href="telegram-api-reference.html">Telegram API Reference</a>
 </div></div>
 <div class="side-group collapsed" data-group="group-5">
 <button type="button" class="side-group-header" data-group-toggle="group-5"><span>Other Topics</span><span class="chevron">&#9660;</span></button>
 <div class="side-group-items">
-<a class="side-link" href="13-localization.html">Localization (i18n)</a>
-<a class="side-link" href="14-testing.html">Testing</a>
-<a class="side-link" href="15-deployment.html">Deployment</a>
-<a class="side-link" href="16-advanced-features.html">Advanced Features</a>
+<a class="side-link" href="localization.html">Localization (i18n)</a>
+<a class="side-link" href="testing.html">Testing</a>
+<a class="side-link" href="deployment.html">Deployment</a>
+<a class="side-link" href="advanced-features.html">Advanced Features</a>
 </div></div>
 </nav>
   </aside>
@@ -71,8 +72,8 @@ like every app installed on Android has its own Activities,
 permissions, and database. <code>Package\PackageManager</code> is the
 equivalent of <code>PackageManagerService</code>.</p>
 <h2 id="plugin-structure">Plugin Structure</h2>
-<pre><code>plugins/greeter/
-├── manifest.php              # this plugin's AndroidManifest.xml
+<div class="codehilite"><pre><span></span><code>plugins/greeter/
+├── manifest.php              # this plugin&#39;s AndroidManifest.xml
 ├── migrations/
 │   ├── migrations.php
 │   └── versions/
@@ -86,22 +87,24 @@ equivalent of <code>PackageManagerService</code>.</p>
     │   └── Subscriber.php
     └── Repository/
         └── SubscriberRepository.php
-</code></pre>
-<h2 id="writing-manifestphp">Writing manifest.php</h2>
-<pre><code class="language-php">use Aicrion\Tandroid\Package\Manifest;
-use Aicrion\Tandroid\Package\Permission;
-use Greeter\Entity\Subscriber;
-use Greeter\{ProfileActivity, RelayActivity, StartActivity, WelcomeReceiver};
+</code></pre></div>
 
-return Manifest::define(
-    package: 'greeter',
-    version: '1.0.0',
-    activities: [StartActivity::class, ProfileActivity::class, RelayActivity::class],
-    permissions: [Permission::SendMessage, Permission::BroadcastEvents],
-    entities: [Subscriber::class],
-    receivers: [WelcomeReceiver::class],
-);
-</code></pre>
+<h2 id="writing-manifestphp">Writing manifest.php</h2>
+<div class="codehilite"><pre><span></span><code><span class="x">use Aicrion\Tandroid\Package\Manifest;</span>
+<span class="x">use Aicrion\Tandroid\Package\Permission;</span>
+<span class="x">use Greeter\Entity\Subscriber;</span>
+<span class="x">use Greeter\{ProfileActivity, RelayActivity, StartActivity, WelcomeReceiver};</span>
+
+<span class="x">return Manifest::define(</span>
+<span class="x">    package: &#39;greeter&#39;,</span>
+<span class="x">    version: &#39;1.0.0&#39;,</span>
+<span class="x">    activities: [StartActivity::class, ProfileActivity::class, RelayActivity::class],</span>
+<span class="x">    permissions: [Permission::SendMessage, Permission::BroadcastEvents],</span>
+<span class="x">    entities: [Subscriber::class],</span>
+<span class="x">    receivers: [WelcomeReceiver::class],</span>
+<span class="x">);</span>
+</code></pre></div>
+
 <table>
 <thead>
 <tr>
@@ -152,16 +155,17 @@ for things that are actually "installed."</p>
 </blockquote>
 <h2 id="the-discovery-cycle">The Discovery Cycle</h2>
 <p><code>PackageManager::discover()</code> runs on every <code>Kernel::boot()</code>:</p>
-<pre><code class="language-php">$pattern = &quot;{plugins_path}/*/manifest.php&quot;;
+<div class="codehilite"><pre><span></span><code><span class="x">$pattern = &quot;{plugins_path}/*/manifest.php&quot;;</span>
 
-foreach (glob($pattern) as $manifestFile) {
-    $manifest = require $manifestFile; // must return a Manifest
-}
-</code></pre>
+<span class="x">foreach (glob($pattern) as $manifestFile) {</span>
+<span class="x">    $manifest = require $manifestFile; // must return a Manifest</span>
+<span class="x">}</span>
+</code></pre></div>
+
 <p>After discovery, <code>Kernel::boot()</code> continues in this order:</p>
 <ol>
 <li>Runs each plugin's pending migrations
-   (<a href="07-database-and-doctrine.html">Database and Doctrine</a>).</li>
+   (<a href="database-and-doctrine.html">Database and Doctrine</a>).</li>
 <li>Builds the <code>EntityManager</code> using the Entities collected from all
    plugins.</li>
 <li><code>autowire</code>s every declared Activity in the DI Container.</li>
@@ -176,10 +180,11 @@ autoloader for every discovered plugin via <code>spl_autoload_register()</code>:
 the first namespace segment (which must match the plugin's root
 class name exactly, e.g. <code>Greeter</code>) maps directly to that plugin's
 <code>src/</code> folder:</p>
-<pre><code>Greeter\StartActivity              → plugins/greeter/src/StartActivity.php
+<div class="codehilite"><pre><span></span><code>Greeter\StartActivity              → plugins/greeter/src/StartActivity.php
 Greeter\Entity\Subscriber          → plugins/greeter/src/Entity/Subscriber.php
 Greeter\Repository\SubscriberRepository → plugins/greeter/src/Repository/SubscriberRepository.php
-</code></pre>
+</code></pre></div>
+
 <p>This means your plugin's <code>src/</code> folder structure just needs to match
 its internal namespaces under this convention — the exact same one
 Composer's PSR-4 uses — without needing to build a separate
@@ -187,8 +192,9 @@ Composer's PSR-4 uses — without needing to build a separate
 <h2 id="installing-a-new-plugin">Installing a New Plugin</h2>
 <p>Installing a plugin means simply <strong>copying its folder into
 <code>plugins/</code></strong>:</p>
-<pre><code class="language-bash">cp -r /path/to/awesome-plugin plugins/awesome-plugin
-</code></pre>
+<div class="codehilite"><pre><span></span><code>cp<span class="w"> </span>-r<span class="w"> </span>/path/to/awesome-plugin<span class="w"> </span>plugins/awesome-plugin
+</code></pre></div>
+
 <p>On the next request (webhook or polling), <code>Kernel::boot()</code> will:</p>
 <ul>
 <li>discover the new plugin,</li>
@@ -211,7 +217,7 @@ simple Activity, an Activity with navigation, an Activity making a
 bot-to-bot call, Entity+Migration, a Receiver) in the smallest
 possible form.</p>
       <div class="docs-pagination">
-        <a href="08-caching-and-redis.html">&larr; Caching & Redis</a><a href="10-broadcasts.html">Broadcasts &rarr;</a>
+        <a href="caching-and-redis.html">&larr; Caching & Redis</a><a href="broadcasts.html">Broadcasts &rarr;</a>
       </div>
     </div>
   </main>

@@ -34,7 +34,7 @@ class Subscriber
 ```
 
 Every Entity must be declared in the plugin's `manifest.php` (see
-[Plugins](09-plugins.md)):
+[Plugins](plugins.md)):
 
 ```php
 return Manifest::define(
@@ -85,7 +85,7 @@ final class SubscriberRepository
 
 Any database Doctrine DBAL supports is usable via the `database`
 section in `config/aicrion.yaml`: SQLite, MySQL/MariaDB, PostgreSQL.
-The format is documented in [Configuration](02-configuration.md).
+The format is documented in [Configuration](configuration.md).
 There's no driver-specific code in the framework — everything flows
 through Doctrine's standard `DriverManager::getConnection()`.
 

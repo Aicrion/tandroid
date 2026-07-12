@@ -3,9 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Telegram API Reference — Aicrion Tandroid Docs</title>
+<title>Telegram API Reference — Tandroid Docs</title>
 <link rel="stylesheet" href="../assets/style.css">
 <link rel="stylesheet" href="../assets/docs.css">
+<link rel="stylesheet" href="../assets/pygments.css">
 </head>
 <body>
 <a class="skip" href="#content">Skip to content</a>
@@ -15,51 +16,51 @@
   <aside class="docs-sidebar" data-sidebar>
     <div class="sidebar-brand">
       <a href="../index.html" class="logo">
-        <svg class="logo-mark" viewBox="0 0 48 48" fill="none" width="28" height="28"><path d="M24 6l14 8v20l-14 8-14-8V14l14-8Z" stroke="currentColor" stroke-width="2.5"/></svg>
-        <span>Aicrion Tandroid</span>
+        <svg class="logo-mark" viewBox="0 0 48 48" fill="none" width="26" height="26"><path d="M24 6l14 8v20l-14 8-14-8V14l14-8Z" stroke="currentColor" stroke-width="2.5"/></svg>
+        <span>Tandroid</span>
       </a>
     </div>
     <nav class="sidebar-nav">
-<a class="side-link" href="00-index.html">Home</a>
+<a class="side-link" href="index.html">Home</a>
 <div class="side-group collapsed" data-group="group-0">
 <button type="button" class="side-group-header" data-group-toggle="group-0"><span>Getting Started</span><span class="chevron">&#9660;</span></button>
 <div class="side-group-items">
-<a class="side-link" href="01-installation.html">Installation</a>
-<a class="side-link" href="02-configuration.html">Configuration</a>
+<a class="side-link" href="installation.html">Installation</a>
+<a class="side-link" href="configuration.html">Configuration</a>
 </div></div>
 <div class="side-group collapsed" data-group="group-1">
 <button type="button" class="side-group-header" data-group-toggle="group-1"><span>Core Architecture</span><span class="chevron">&#9660;</span></button>
 <div class="side-group-items">
-<a class="side-link" href="03-architecture.html">Kernel & Boot Lifecycle</a>
-<a class="side-link" href="04-activities-and-intents.html">Activities & Intents</a>
-<a class="side-link" href="05-views-and-widgets.html">Views & Widgets</a>
-<a class="side-link" href="06-viewmodel-and-state.html">ViewModel & State</a>
+<a class="side-link" href="architecture.html">Kernel & Boot Lifecycle</a>
+<a class="side-link" href="activities-and-intents.html">Activities & Intents</a>
+<a class="side-link" href="views-and-widgets.html">Views & Widgets</a>
+<a class="side-link" href="viewmodel-and-state.html">ViewModel & State</a>
 </div></div>
 <div class="side-group collapsed" data-group="group-2">
 <button type="button" class="side-group-header" data-group-toggle="group-2"><span>Data & Infrastructure</span><span class="chevron">&#9660;</span></button>
 <div class="side-group-items">
-<a class="side-link" href="07-database-and-doctrine.html">Database & Doctrine</a>
-<a class="side-link" href="08-caching-and-redis.html">Caching & Redis</a>
+<a class="side-link" href="database-and-doctrine.html">Database & Doctrine</a>
+<a class="side-link" href="caching-and-redis.html">Caching & Redis</a>
 </div></div>
 <div class="side-group collapsed" data-group="group-3">
 <button type="button" class="side-group-header" data-group-toggle="group-3"><span>Extensibility</span><span class="chevron">&#9660;</span></button>
 <div class="side-group-items">
-<a class="side-link" href="09-plugins.html">Plugin System</a>
-<a class="side-link" href="10-broadcasts.html">Broadcasts</a>
+<a class="side-link" href="plugins.html">Plugin System</a>
+<a class="side-link" href="broadcasts.html">Broadcasts</a>
 </div></div>
 <div class="side-group" data-group="group-4">
 <button type="button" class="side-group-header" data-group-toggle="group-4"><span>Telegram Integration</span><span class="chevron">&#9660;</span></button>
 <div class="side-group-items">
-<a class="side-link" href="11-transport-webhook-and-polling.html">Webhook & Polling</a>
-<a class="side-link active" href="12-telegram-api-reference.html">Telegram API Reference</a>
+<a class="side-link" href="transport-webhook-and-polling.html">Webhook & Polling</a>
+<a class="side-link active" href="telegram-api-reference.html">Telegram API Reference</a>
 </div></div>
 <div class="side-group collapsed" data-group="group-5">
 <button type="button" class="side-group-header" data-group-toggle="group-5"><span>Other Topics</span><span class="chevron">&#9660;</span></button>
 <div class="side-group-items">
-<a class="side-link" href="13-localization.html">Localization (i18n)</a>
-<a class="side-link" href="14-testing.html">Testing</a>
-<a class="side-link" href="15-deployment.html">Deployment</a>
-<a class="side-link" href="16-advanced-features.html">Advanced Features</a>
+<a class="side-link" href="localization.html">Localization (i18n)</a>
+<a class="side-link" href="testing.html">Testing</a>
+<a class="side-link" href="deployment.html">Deployment</a>
+<a class="side-link" href="advanced-features.html">Advanced Features</a>
 </div></div>
 </nav>
   </aside>
@@ -70,15 +71,16 @@
 Bot API method. Each method returns a fluent, immutable object
 (every setter returns a new cloned instance), so you can reuse a
 request as a "template" without worrying about accidental mutation.</p>
-<pre><code class="language-php">use Aicrion\Tandroid\Api\Telegram;
+<div class="codehilite"><pre><span></span><code><span class="x">use Aicrion\Tandroid\Api\Telegram;</span>
 
-Telegram::message()
-    -&gt;to($chatId)
-    -&gt;text('Hello, world')
-    -&gt;replyTo($messageId)
-    -&gt;markup($keyboard-&gt;render()['reply_markup'])
-    -&gt;send();
-</code></pre>
+<span class="x">Telegram::message()</span>
+<span class="x">    -&gt;to($chatId)</span>
+<span class="x">    -&gt;text(&#39;Hello, world&#39;)</span>
+<span class="x">    -&gt;replyTo($messageId)</span>
+<span class="x">    -&gt;markup($keyboard-&gt;render()[&#39;reply_markup&#39;])</span>
+<span class="x">    -&gt;send();</span>
+</code></pre></div>
+
 <p><code>Telegram::configure($httpClient, $token)</code> is called automatically
 by <code>Kernel::boot()</code> — in your own application code you'll almost
 never need to call it manually.</p>
@@ -245,7 +247,7 @@ never need to call it manually.</p>
 <tr>
 <td><code>guestQuery($guestQueryId)</code></td>
 <td><code>Guest\GuestQueryAnswer</code></td>
-<td><code>answerGuestQuery</code> (Guest mode — see <a href="16-advanced-features.html">Advanced Features</a>)</td>
+<td><code>answerGuestQuery</code> (Guest mode — see <a href="advanced-features.html">Advanced Features</a>)</td>
 </tr>
 <tr>
 <td><code>callback($callbackQueryId)</code></td>
@@ -280,26 +282,28 @@ never need to call it manually.</p>
 <tr>
 <td><code>managedAccess()</code></td>
 <td><code>Managed\ManagedBotAccess</code></td>
-<td>manage access for managed bots (see <a href="16-advanced-features.html">Advanced Features</a>)</td>
+<td>manage access for managed bots (see <a href="advanced-features.html">Advanced Features</a>)</td>
 </tr>
 </tbody>
 </table>
 <h2 id="example-send-edit-and-react">Example: Send, Edit, and React</h2>
-<pre><code class="language-php">$sent = Telegram::message()-&gt;to($chatId)-&gt;text('Processing... ⏳')-&gt;send();
+<div class="codehilite"><pre><span></span><code><span class="x">$sent = Telegram::message()-&gt;to($chatId)-&gt;text(&#39;Processing... ⏳&#39;)-&gt;send();</span>
 
-Telegram::edit($chatId, $sent['result']['message_id'])
-    -&gt;text('Done ✅')
-    -&gt;send(); // see MessageEditor for the exact signature
+<span class="x">Telegram::edit($chatId, $sent[&#39;result&#39;][&#39;message_id&#39;])</span>
+<span class="x">    -&gt;text(&#39;Done ✅&#39;)</span>
+<span class="x">    -&gt;send(); // see MessageEditor for the exact signature</span>
 
-Telegram::reaction($chatId, $sent['result']['message_id'])
-    -&gt;emoji('👍')
-    -&gt;send();
-</code></pre>
+<span class="x">Telegram::reaction($chatId, $sent[&#39;result&#39;][&#39;message_id&#39;])</span>
+<span class="x">    -&gt;emoji(&#39;👍&#39;)</span>
+<span class="x">    -&gt;send();</span>
+</code></pre></div>
+
 <h2 id="example-chat-administration">Example: Chat Administration</h2>
-<pre><code class="language-php">Telegram::chat($chatId)-&gt;ban(userId: 123456);
-Telegram::chat($chatId)-&gt;promote(userId: 123456, canPinMessages: true);
-Telegram::inviteLinks($chatId)-&gt;create(name: 'VIP Invite', memberLimit: 50);
-</code></pre>
+<div class="codehilite"><pre><span></span><code><span class="x">Telegram::chat($chatId)-&gt;ban(userId: 123456);</span>
+<span class="x">Telegram::chat($chatId)-&gt;promote(userId: 123456, canPinMessages: true);</span>
+<span class="x">Telegram::inviteLinks($chatId)-&gt;create(name: &#39;VIP Invite&#39;, memberLimit: 50);</span>
+</code></pre></div>
+
 <h2 id="example-answering-a-callback-query-with-a-custom-toast">Example: Answering a Callback Query with a Custom Toast</h2>
 <p>Every callback query is answered by default by <code>ActivityManager</code>
 with an empty response (<code>Telegram::callback($id)-&gt;send()</code>) to stop
@@ -307,21 +311,22 @@ the client-side loading spinner. For a custom toast, call this
 yourself from your Activity — the subsequent automatic reply from
 <code>ActivityManager</code> is harmless since Telegram ignores a duplicate
 <code>answerCallbackQuery</code>:</p>
-<pre><code class="language-php">Telegram::callback($update-&gt;raw['callback_query']['id'])
-    -&gt;toast('Option saved successfully', asAlert: false)
-    -&gt;send();
-</code></pre>
+<div class="codehilite"><pre><span></span><code><span class="x">Telegram::callback($update-&gt;raw[&#39;callback_query&#39;][&#39;id&#39;])</span>
+<span class="x">    -&gt;toast(&#39;Option saved successfully&#39;, asAlert: false)</span>
+<span class="x">    -&gt;send();</span>
+</code></pre></div>
+
 <h2 id="raw-access-escape-hatch">Raw Access (Escape Hatch)</h2>
 <p>If a Bot API method doesn't yet have a dedicated wrapper, every
 internal request class uses
 <code>Symfony\Contracts\HttpClient\HttpClientInterface</code> — you can use the
 same HTTP client directly:</p>
-<pre><code class="language-php">$kernel-&gt;httpClient()-&gt;request('POST', &quot;https://api.telegram.org/bot{$token}/someNewMethod&quot;, [
-    'json' =&gt; ['chat_id' =&gt; $chatId, /* ... */],
-]);
-</code></pre>
+<div class="codehilite"><pre><span></span><code><span class="x">$kernel-&gt;httpClient()-&gt;request(&#39;POST&#39;, &quot;https://api.telegram.org/bot{$token}/someNewMethod&quot;, [</span>
+<span class="x">    &#39;json&#39; =&gt; [&#39;chat_id&#39; =&gt; $chatId, /* ... */],</span>
+<span class="x">]);</span>
+</code></pre></div>
       <div class="docs-pagination">
-        <a href="11-transport-webhook-and-polling.html">&larr; Webhook & Polling</a><a href="13-localization.html">Localization (i18n) &rarr;</a>
+        <a href="transport-webhook-and-polling.html">&larr; Webhook & Polling</a><a href="localization.html">Localization (i18n) &rarr;</a>
       </div>
     </div>
   </main>

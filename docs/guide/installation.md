@@ -71,7 +71,7 @@ bot:
   mode: webhook # webhook | polling
 ```
 
-The full config system is documented in [Configuration](02-configuration.md).
+The full config system is documented in [Configuration](configuration.md).
 
 ## Running Your First Bot
 
@@ -109,5 +109,5 @@ will fire, replying with a welcome message and a "My Profile" button.
 
 ## Next Step
 
-The [Kernel and Boot Lifecycle](03-architecture.md) chapter explains
+The [Kernel and Boot Lifecycle](architecture.md) chapter explains
 exactly what happens when `Kernel::boot()` is called.

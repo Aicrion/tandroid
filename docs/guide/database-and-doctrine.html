@@ -3,9 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Database & Doctrine — Aicrion Tandroid Docs</title>
+<title>Database & Doctrine — Tandroid Docs</title>
 <link rel="stylesheet" href="../assets/style.css">
 <link rel="stylesheet" href="../assets/docs.css">
+<link rel="stylesheet" href="../assets/pygments.css">
 </head>
 <body>
 <a class="skip" href="#content">Skip to content</a>
@@ -15,51 +16,51 @@
   <aside class="docs-sidebar" data-sidebar>
     <div class="sidebar-brand">
       <a href="../index.html" class="logo">
-        <svg class="logo-mark" viewBox="0 0 48 48" fill="none" width="28" height="28"><path d="M24 6l14 8v20l-14 8-14-8V14l14-8Z" stroke="currentColor" stroke-width="2.5"/></svg>
-        <span>Aicrion Tandroid</span>
+        <svg class="logo-mark" viewBox="0 0 48 48" fill="none" width="26" height="26"><path d="M24 6l14 8v20l-14 8-14-8V14l14-8Z" stroke="currentColor" stroke-width="2.5"/></svg>
+        <span>Tandroid</span>
       </a>
     </div>
     <nav class="sidebar-nav">
-<a class="side-link" href="00-index.html">Home</a>
+<a class="side-link" href="index.html">Home</a>
 <div class="side-group collapsed" data-group="group-0">
 <button type="button" class="side-group-header" data-group-toggle="group-0"><span>Getting Started</span><span class="chevron">&#9660;</span></button>
 <div class="side-group-items">
-<a class="side-link" href="01-installation.html">Installation</a>
-<a class="side-link" href="02-configuration.html">Configuration</a>
+<a class="side-link" href="installation.html">Installation</a>
+<a class="side-link" href="configuration.html">Configuration</a>
 </div></div>
 <div class="side-group collapsed" data-group="group-1">
 <button type="button" class="side-group-header" data-group-toggle="group-1"><span>Core Architecture</span><span class="chevron">&#9660;</span></button>
 <div class="side-group-items">
-<a class="side-link" href="03-architecture.html">Kernel & Boot Lifecycle</a>
-<a class="side-link" href="04-activities-and-intents.html">Activities & Intents</a>
-<a class="side-link" href="05-views-and-widgets.html">Views & Widgets</a>
-<a class="side-link" href="06-viewmodel-and-state.html">ViewModel & State</a>
+<a class="side-link" href="architecture.html">Kernel & Boot Lifecycle</a>
+<a class="side-link" href="activities-and-intents.html">Activities & Intents</a>
+<a class="side-link" href="views-and-widgets.html">Views & Widgets</a>
+<a class="side-link" href="viewmodel-and-state.html">ViewModel & State</a>
 </div></div>
 <div class="side-group" data-group="group-2">
 <button type="button" class="side-group-header" data-group-toggle="group-2"><span>Data & Infrastructure</span><span class="chevron">&#9660;</span></button>
 <div class="side-group-items">
-<a class="side-link active" href="07-database-and-doctrine.html">Database & Doctrine</a>
-<a class="side-link" href="08-caching-and-redis.html">Caching & Redis</a>
+<a class="side-link active" href="database-and-doctrine.html">Database & Doctrine</a>
+<a class="side-link" href="caching-and-redis.html">Caching & Redis</a>
 </div></div>
 <div class="side-group collapsed" data-group="group-3">
 <button type="button" class="side-group-header" data-group-toggle="group-3"><span>Extensibility</span><span class="chevron">&#9660;</span></button>
 <div class="side-group-items">
-<a class="side-link" href="09-plugins.html">Plugin System</a>
-<a class="side-link" href="10-broadcasts.html">Broadcasts</a>
+<a class="side-link" href="plugins.html">Plugin System</a>
+<a class="side-link" href="broadcasts.html">Broadcasts</a>
 </div></div>
 <div class="side-group collapsed" data-group="group-4">
 <button type="button" class="side-group-header" data-group-toggle="group-4"><span>Telegram Integration</span><span class="chevron">&#9660;</span></button>
 <div class="side-group-items">
-<a class="side-link" href="11-transport-webhook-and-polling.html">Webhook & Polling</a>
-<a class="side-link" href="12-telegram-api-reference.html">Telegram API Reference</a>
+<a class="side-link" href="transport-webhook-and-polling.html">Webhook & Polling</a>
+<a class="side-link" href="telegram-api-reference.html">Telegram API Reference</a>
 </div></div>
 <div class="side-group collapsed" data-group="group-5">
 <button type="button" class="side-group-header" data-group-toggle="group-5"><span>Other Topics</span><span class="chevron">&#9660;</span></button>
 <div class="side-group-items">
-<a class="side-link" href="13-localization.html">Localization (i18n)</a>
-<a class="side-link" href="14-testing.html">Testing</a>
-<a class="side-link" href="15-deployment.html">Deployment</a>
-<a class="side-link" href="16-advanced-features.html">Advanced Features</a>
+<a class="side-link" href="localization.html">Localization (i18n)</a>
+<a class="side-link" href="testing.html">Testing</a>
+<a class="side-link" href="deployment.html">Deployment</a>
+<a class="side-link" href="advanced-features.html">Advanced Features</a>
 </div></div>
 </nav>
   </aside>
@@ -74,35 +75,37 @@ exactly like each Android app's separate data tables under
 <h2 id="defining-an-entity">Defining an Entity</h2>
 <p>Entities are defined with standard Doctrine PHP 8 attributes —
 nothing framework-specific here:</p>
-<pre><code class="language-php">namespace Greeter\Entity;
+<div class="codehilite"><pre><span></span><code><span class="x">namespace Greeter\Entity;</span>
 
-use Doctrine\ORM\Mapping as ORM;
+<span class="x">use Doctrine\ORM\Mapping as ORM;</span>
 
-#[ORM\Entity(repositoryClass: \Greeter\Repository\SubscriberRepository::class)]
-#[ORM\Table(name: 'greeter_subscribers')]
-class Subscriber
-{
-    #[ORM\Id, ORM\GeneratedValue, ORM\Column(type: 'integer')]
-    private ?int $id = null;
+<span class="x">#[ORM\Entity(repositoryClass: \Greeter\Repository\SubscriberRepository::class)]</span>
+<span class="x">#[ORM\Table(name: &#39;greeter_subscribers&#39;)]</span>
+<span class="x">class Subscriber</span>
+<span class="x">{</span>
+<span class="x">    #[ORM\Id, ORM\GeneratedValue, ORM\Column(type: &#39;integer&#39;)]</span>
+<span class="x">    private ?int $id = null;</span>
 
-    #[ORM\Column(type: 'bigint', unique: true)]
-    private int $chatId;
+<span class="x">    #[ORM\Column(type: &#39;bigint&#39;, unique: true)]</span>
+<span class="x">    private int $chatId;</span>
 
-    #[ORM\Column(type: 'string', length: 8)]
-    private string $locale = 'en';
+<span class="x">    #[ORM\Column(type: &#39;string&#39;, length: 8)]</span>
+<span class="x">    private string $locale = &#39;en&#39;;</span>
 
-    // ... getters/setters
-}
-</code></pre>
+<span class="x">    // ... getters/setters</span>
+<span class="x">}</span>
+</code></pre></div>
+
 <p>Every Entity must be declared in the plugin's <code>manifest.php</code> (see
-<a href="09-plugins.html">Plugins</a>):</p>
-<pre><code class="language-php">return Manifest::define(
-    package: 'greeter',
-    version: '1.0.0',
-    entities: [\Greeter\Entity\Subscriber::class],
-    // ...
-);
-</code></pre>
+<a href="plugins.html">Plugins</a>):</p>
+<div class="codehilite"><pre><span></span><code><span class="x">return Manifest::define(</span>
+<span class="x">    package: &#39;greeter&#39;,</span>
+<span class="x">    version: &#39;1.0.0&#39;,</span>
+<span class="x">    entities: [\Greeter\Entity\Subscriber::class],</span>
+<span class="x">    // ...</span>
+<span class="x">);</span>
+</code></pre></div>
+
 <h2 id="how-the-entitymanager-is-built">How the EntityManager Is Built</h2>
 <p>On every <code>Kernel::boot()</code>, <code>Database\EntityManagerFactory</code> collects
 the list of all Entities declared across <strong>every</strong> installed
@@ -111,34 +114,35 @@ single shared <code>Doctrine\ORM\EntityManagerInterface</code> — the exact
 instance registered in the DI Container, which any
 Repository/service can receive automatically just by type-hinting it
 in its constructor:</p>
-<pre><code class="language-php">namespace Greeter\Repository;
+<div class="codehilite"><pre><span></span><code><span class="x">namespace Greeter\Repository;</span>
 
-use Doctrine\ORM\EntityManagerInterface;
-use Greeter\Entity\Subscriber;
+<span class="x">use Doctrine\ORM\EntityManagerInterface;</span>
+<span class="x">use Greeter\Entity\Subscriber;</span>
 
-final class SubscriberRepository
-{
-    public function __construct(
-        private readonly EntityManagerInterface $entityManager,
-    ) {}
+<span class="x">final class SubscriberRepository</span>
+<span class="x">{</span>
+<span class="x">    public function __construct(</span>
+<span class="x">        private readonly EntityManagerInterface $entityManager,</span>
+<span class="x">    ) {}</span>
 
-    public function findByChatId(int $chatId): ?Subscriber
-    {
-        return $this-&gt;entityManager-&gt;getRepository(Subscriber::class)
-            -&gt;findOneBy(['chatId' =&gt; $chatId]);
-    }
+<span class="x">    public function findByChatId(int $chatId): ?Subscriber</span>
+<span class="x">    {</span>
+<span class="x">        return $this-&gt;entityManager-&gt;getRepository(Subscriber::class)</span>
+<span class="x">            -&gt;findOneBy([&#39;chatId&#39; =&gt; $chatId]);</span>
+<span class="x">    }</span>
 
-    public function save(Subscriber $subscriber): void
-    {
-        $this-&gt;entityManager-&gt;persist($subscriber);
-        $this-&gt;entityManager-&gt;flush();
-    }
-}
-</code></pre>
+<span class="x">    public function save(Subscriber $subscriber): void</span>
+<span class="x">    {</span>
+<span class="x">        $this-&gt;entityManager-&gt;persist($subscriber);</span>
+<span class="x">        $this-&gt;entityManager-&gt;flush();</span>
+<span class="x">    }</span>
+<span class="x">}</span>
+</code></pre></div>
+
 <h2 id="support-for-multiple-database-types">Support for Multiple Database Types</h2>
 <p>Any database Doctrine DBAL supports is usable via the <code>database</code>
 section in <code>config/aicrion.yaml</code>: SQLite, MySQL/MariaDB, PostgreSQL.
-The format is documented in <a href="02-configuration.html">Configuration</a>.
+The format is documented in <a href="configuration.html">Configuration</a>.
 There's no driver-specific code in the framework — everything flows
 through Doctrine's standard <code>DriverManager::getConnection()</code>.</p>
 <h2 id="automatic-migrations-no-cli-command-required">Automatic Migrations — No CLI Command Required</h2>
@@ -146,26 +150,28 @@ through Doctrine's standard <code>DriverManager::getConnection()</code>.</p>
 <strong>pending migrations run automatically on every <code>boot()</code></strong>, exactly
 like installing an Android app that builds/updates its internal
 database schema on first run.</p>
-<pre><code>plugins/greeter/
+<div class="codehilite"><pre><span></span><code>plugins/greeter/
 ├── manifest.php
 ├── migrations/
 │   ├── migrations.php          # Doctrine Migrations config for this plugin
 │   └── versions/
 │       └── Version20260101000000.php
 └── src/
-</code></pre>
+</code></pre></div>
+
 <h3 id="the-migrationsmigrationsphp-file">The <code>migrations/migrations.php</code> File</h3>
 <p>This is a standard
 <code>Doctrine\Migrations\Configuration\Migration\PhpFile</code> file — an
 array specifying the migrations path and the <strong>tracking table name
 specific to this plugin</strong>:</p>
-<pre><code class="language-php">return [
-    'migrations_paths' =&gt; ['Greeter\\Migrations' =&gt; __DIR__ . '/versions'],
-    'table_storage' =&gt; [
-        'table_name' =&gt; 'aicrion_migrations_greeter',
-    ],
-];
-</code></pre>
+<div class="codehilite"><pre><span></span><code><span class="x">return [</span>
+<span class="x">    &#39;migrations_paths&#39; =&gt; [&#39;Greeter\\Migrations&#39; =&gt; __DIR__ . &#39;/versions&#39;],</span>
+<span class="x">    &#39;table_storage&#39; =&gt; [</span>
+<span class="x">        &#39;table_name&#39; =&gt; &#39;aicrion_migrations_greeter&#39;,</span>
+<span class="x">    ],</span>
+<span class="x">];</span>
+</code></pre></div>
+
 <p>Because each plugin has its own migration tracking table
 (<code>aicrion_migrations_&lt;package&gt;</code>), two plugins never collide on
 migration version numbering — exactly like each Android app having
@@ -187,28 +193,29 @@ for each plugin, which:</p>
 the bot (or run <code>bin/poll.php</code>) — that plugin's tables are created
 automatically.</p>
 <h3 id="writing-a-migration">Writing a Migration</h3>
-<pre><code class="language-php">namespace Greeter\Migrations;
+<div class="codehilite"><pre><span></span><code><span class="x">namespace Greeter\Migrations;</span>
 
-use Doctrine\DBAL\Schema\Schema;
-use Doctrine\Migrations\AbstractMigration;
+<span class="x">use Doctrine\DBAL\Schema\Schema;</span>
+<span class="x">use Doctrine\Migrations\AbstractMigration;</span>
 
-final class Version20260101000000 extends AbstractMigration
-{
-    public function up(Schema $schema): void
-    {
-        $table = $schema-&gt;createTable('greeter_subscribers');
-        $table-&gt;addColumn('id', 'integer', ['autoincrement' =&gt; true]);
-        $table-&gt;addColumn('chat_id', 'bigint', ['unique' =&gt; true]);
-        $table-&gt;addColumn('locale', 'string', ['length' =&gt; 8, 'default' =&gt; 'en']);
-        $table-&gt;setPrimaryKey(['id']);
-    }
+<span class="x">final class Version20260101000000 extends AbstractMigration</span>
+<span class="x">{</span>
+<span class="x">    public function up(Schema $schema): void</span>
+<span class="x">    {</span>
+<span class="x">        $table = $schema-&gt;createTable(&#39;greeter_subscribers&#39;);</span>
+<span class="x">        $table-&gt;addColumn(&#39;id&#39;, &#39;integer&#39;, [&#39;autoincrement&#39; =&gt; true]);</span>
+<span class="x">        $table-&gt;addColumn(&#39;chat_id&#39;, &#39;bigint&#39;, [&#39;unique&#39; =&gt; true]);</span>
+<span class="x">        $table-&gt;addColumn(&#39;locale&#39;, &#39;string&#39;, [&#39;length&#39; =&gt; 8, &#39;default&#39; =&gt; &#39;en&#39;]);</span>
+<span class="x">        $table-&gt;setPrimaryKey([&#39;id&#39;]);</span>
+<span class="x">    }</span>
 
-    public function down(Schema $schema): void
-    {
-        $schema-&gt;dropTable('greeter_subscribers');
-    }
-}
-</code></pre>
+<span class="x">    public function down(Schema $schema): void</span>
+<span class="x">    {</span>
+<span class="x">        $schema-&gt;dropTable(&#39;greeter_subscribers&#39;);</span>
+<span class="x">    }</span>
+<span class="x">}</span>
+</code></pre></div>
+
 <h2 id="production-performance-note">Production Performance Note</h2>
 <p><code>EntityManagerFactory</code> runs with <code>isDevMode: true</code> by default (i.e.
 Doctrine metadata isn't cached, and attributes are re-read on every
@@ -217,7 +224,7 @@ boot). For high traffic in production, add a metadata caching layer
 project, or keep the result of <code>boot()</code> alive at the process level
 (a long-running worker instead of one-request-per-process).</p>
       <div class="docs-pagination">
-        <a href="06-viewmodel-and-state.html">&larr; ViewModel & State</a><a href="08-caching-and-redis.html">Caching & Redis &rarr;</a>
+        <a href="viewmodel-and-state.html">&larr; ViewModel & State</a><a href="caching-and-redis.html">Caching & Redis &rarr;</a>
       </div>
     </div>
   </main>

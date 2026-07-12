@@ -38,7 +38,7 @@ below, in this exact order:
    `PackageManager::runPendingMigrations()` invokes
    `Package\MigrationRunner` for each plugin — no CLI command
    required. Full details in
-   [Database and Doctrine](07-database-and-doctrine.md).
+   [Database and Doctrine](database-and-doctrine.md).
 7. **Build the EntityManager.**
    `Database\EntityManagerFactory::create()` uses the list of
    entities from every plugin (`Manifest::$entities`) to build a
@@ -72,12 +72,12 @@ $view = $kernel->handle($update);
 
 1. If this is the first time this `chat_id` has been seen, the
    `Broadcast\Event\UserJoinedEvent` event is published (see
-   [Broadcasts](10-broadcasts.md) for details).
+   [Broadcasts](broadcasts.md) for details).
 2. `ActivityManager::dispatch($update)` is called — this method
    resolves the appropriate Intent, instantiates the target
    Activity, runs its lifecycle, and if a `NavigationRequest` is
    returned, follows the navigation chain right then and there (see
-   [Activities and Intents](04-activities-and-intents.md)).
+   [Activities and Intents](activities-and-intents.md)).
 3. If a `View` was produced, it is sent immediately through
    `Api\Telegram::message()` to the same chat — the host code
    (`webhook.php`/`bin/poll.php`) doesn't need to send the reply

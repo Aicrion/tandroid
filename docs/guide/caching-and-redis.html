@@ -3,9 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Caching & Redis — Aicrion Tandroid Docs</title>
+<title>Caching & Redis — Tandroid Docs</title>
 <link rel="stylesheet" href="../assets/style.css">
 <link rel="stylesheet" href="../assets/docs.css">
+<link rel="stylesheet" href="../assets/pygments.css">
 </head>
 <body>
 <a class="skip" href="#content">Skip to content</a>
@@ -15,51 +16,51 @@
   <aside class="docs-sidebar" data-sidebar>
     <div class="sidebar-brand">
       <a href="../index.html" class="logo">
-        <svg class="logo-mark" viewBox="0 0 48 48" fill="none" width="28" height="28"><path d="M24 6l14 8v20l-14 8-14-8V14l14-8Z" stroke="currentColor" stroke-width="2.5"/></svg>
-        <span>Aicrion Tandroid</span>
+        <svg class="logo-mark" viewBox="0 0 48 48" fill="none" width="26" height="26"><path d="M24 6l14 8v20l-14 8-14-8V14l14-8Z" stroke="currentColor" stroke-width="2.5"/></svg>
+        <span>Tandroid</span>
       </a>
     </div>
     <nav class="sidebar-nav">
-<a class="side-link" href="00-index.html">Home</a>
+<a class="side-link" href="index.html">Home</a>
 <div class="side-group collapsed" data-group="group-0">
 <button type="button" class="side-group-header" data-group-toggle="group-0"><span>Getting Started</span><span class="chevron">&#9660;</span></button>
 <div class="side-group-items">
-<a class="side-link" href="01-installation.html">Installation</a>
-<a class="side-link" href="02-configuration.html">Configuration</a>
+<a class="side-link" href="installation.html">Installation</a>
+<a class="side-link" href="configuration.html">Configuration</a>
 </div></div>
 <div class="side-group collapsed" data-group="group-1">
 <button type="button" class="side-group-header" data-group-toggle="group-1"><span>Core Architecture</span><span class="chevron">&#9660;</span></button>
 <div class="side-group-items">
-<a class="side-link" href="03-architecture.html">Kernel & Boot Lifecycle</a>
-<a class="side-link" href="04-activities-and-intents.html">Activities & Intents</a>
-<a class="side-link" href="05-views-and-widgets.html">Views & Widgets</a>
-<a class="side-link" href="06-viewmodel-and-state.html">ViewModel & State</a>
+<a class="side-link" href="architecture.html">Kernel & Boot Lifecycle</a>
+<a class="side-link" href="activities-and-intents.html">Activities & Intents</a>
+<a class="side-link" href="views-and-widgets.html">Views & Widgets</a>
+<a class="side-link" href="viewmodel-and-state.html">ViewModel & State</a>
 </div></div>
 <div class="side-group" data-group="group-2">
 <button type="button" class="side-group-header" data-group-toggle="group-2"><span>Data & Infrastructure</span><span class="chevron">&#9660;</span></button>
 <div class="side-group-items">
-<a class="side-link" href="07-database-and-doctrine.html">Database & Doctrine</a>
-<a class="side-link active" href="08-caching-and-redis.html">Caching & Redis</a>
+<a class="side-link" href="database-and-doctrine.html">Database & Doctrine</a>
+<a class="side-link active" href="caching-and-redis.html">Caching & Redis</a>
 </div></div>
 <div class="side-group collapsed" data-group="group-3">
 <button type="button" class="side-group-header" data-group-toggle="group-3"><span>Extensibility</span><span class="chevron">&#9660;</span></button>
 <div class="side-group-items">
-<a class="side-link" href="09-plugins.html">Plugin System</a>
-<a class="side-link" href="10-broadcasts.html">Broadcasts</a>
+<a class="side-link" href="plugins.html">Plugin System</a>
+<a class="side-link" href="broadcasts.html">Broadcasts</a>
 </div></div>
 <div class="side-group collapsed" data-group="group-4">
 <button type="button" class="side-group-header" data-group-toggle="group-4"><span>Telegram Integration</span><span class="chevron">&#9660;</span></button>
 <div class="side-group-items">
-<a class="side-link" href="11-transport-webhook-and-polling.html">Webhook & Polling</a>
-<a class="side-link" href="12-telegram-api-reference.html">Telegram API Reference</a>
+<a class="side-link" href="transport-webhook-and-polling.html">Webhook & Polling</a>
+<a class="side-link" href="telegram-api-reference.html">Telegram API Reference</a>
 </div></div>
 <div class="side-group collapsed" data-group="group-5">
 <button type="button" class="side-group-header" data-group-toggle="group-5"><span>Other Topics</span><span class="chevron">&#9660;</span></button>
 <div class="side-group-items">
-<a class="side-link" href="13-localization.html">Localization (i18n)</a>
-<a class="side-link" href="14-testing.html">Testing</a>
-<a class="side-link" href="15-deployment.html">Deployment</a>
-<a class="side-link" href="16-advanced-features.html">Advanced Features</a>
+<a class="side-link" href="localization.html">Localization (i18n)</a>
+<a class="side-link" href="testing.html">Testing</a>
+<a class="side-link" href="deployment.html">Deployment</a>
+<a class="side-link" href="advanced-features.html">Advanced Features</a>
 </div></div>
 </nav>
   </aside>
@@ -85,11 +86,13 @@ chat's "first seen" state for Broadcasts — all share the same pool.</p>
 <code>redis_dsn</code> empty or omit it entirely — the framework works with the
 filesystem cache without any extra code on your part. On a VPS/Docker
 setup with Redis available, just set the DSN:</p>
-<pre><code class="language-yaml">cache:
-  redis_dsn: '%env(AICRION_REDIS_DSN)%'
-</code></pre>
-<pre><code class="language-bash">export AICRION_REDIS_DSN=&quot;redis://127.0.0.1:6379&quot;
-</code></pre>
+<div class="codehilite"><pre><span></span><code><span class="nt">cache</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">redis_dsn</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;%env(AICRION_REDIS_DSN)%&#39;</span>
+</code></pre></div>
+
+<div class="codehilite"><pre><span></span><code><span class="nb">export</span><span class="w"> </span><span class="nv">AICRION_REDIS_DSN</span><span class="o">=</span><span class="s2">&quot;redis://127.0.0.1:6379&quot;</span>
+</code></pre></div>
+
 <h2 id="why-redis-is-strongly-recommended-for-polling">Why Redis Is Strongly Recommended for Polling</h2>
 <p>In webhook mode, every request is independent, so the filesystem
 cache is fine. But if you run multiple <code>bin/poll.php</code> workers/
@@ -101,20 +104,21 @@ filesystem cache is local to each process.</p>
 <p>Any service that type-hints <code>Psr\Cache\CacheItemPoolInterface</code> in
 its constructor automatically receives the same shared pool from the
 DI Container:</p>
-<pre><code class="language-php">final class RateLimiter
-{
-    public function __construct(
-        private readonly \Psr\Cache\CacheItemPoolInterface $cache,
-    ) {}
+<div class="codehilite"><pre><span></span><code><span class="x">final class RateLimiter</span>
+<span class="x">{</span>
+<span class="x">    public function __construct(</span>
+<span class="x">        private readonly \Psr\Cache\CacheItemPoolInterface $cache,</span>
+<span class="x">    ) {}</span>
 
-    public function tooManyAttempts(int $userId): bool
-    {
-        $item = $this-&gt;cache-&gt;getItem(&quot;ratelimit.$userId&quot;);
+<span class="x">    public function tooManyAttempts(int $userId): bool</span>
+<span class="x">    {</span>
+<span class="x">        $item = $this-&gt;cache-&gt;getItem(&quot;ratelimit.$userId&quot;);</span>
 
-        return $item-&gt;isHit() &amp;&amp; $item-&gt;get() &gt;= 5;
-    }
-}
-</code></pre>
+<span class="x">        return $item-&gt;isHit() &amp;&amp; $item-&gt;get() &gt;= 5;</span>
+<span class="x">    }</span>
+<span class="x">}</span>
+</code></pre></div>
+
 <h2 id="internal-framework-keys-for-debugging">Internal Framework Keys (for Debugging)</h2>
 <table>
 <thead>
@@ -141,7 +145,7 @@ DI Container:</p>
 <p>If, during development, you need to reset a specific user's state,
 just delete these keys from Redis/<code>var/cache</code>.</p>
       <div class="docs-pagination">
-        <a href="07-database-and-doctrine.html">&larr; Database & Doctrine</a><a href="09-plugins.html">Plugin System &rarr;</a>
+        <a href="database-and-doctrine.html">&larr; Database & Doctrine</a><a href="plugins.html">Plugin System &rarr;</a>
       </div>
     </div>
   </main>
