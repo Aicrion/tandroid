@@ -1,31 +1,53 @@
-# Aicrion\Tandroid
+<p align="center">
+  <img src="docs/assets/logo.svg" width="72" alt="Tandroid logo" onerror="this.style.display='none'">
+</p>
 
-A framework for building Telegram bots with an architecture inspired
-by the Android operating system: every bot feature is a
-`BotActivity`, navigation between features happens via `Intent`, and
-every plugin is an "installed app" with its own independent
-`manifest.php`. Built on PHP 8.5+, Symfony DependencyInjection/
-HttpClient/Cache, and Doctrine ORM/Migrations.
+<h1 align="center">Tandroid</h1>
 
-**📖 Full documentation: [`docs/guide/00-index.html`](docs/guide/00-index.html)**
-(installation, architecture, Activity/Intent, View/Widget, ViewModel,
-database, caching, plugins, Broadcasts, Webhook/Polling, full API
-reference, i18n, testing, deployment, and advanced features — each
-chapter self-contained and precise.)
+<p align="center">
+  <strong>An Android-inspired framework for building Telegram bots in PHP.</strong>
+</p>
 
-## Core Architecture (Quick Look)
+<p align="center">
+  <a href="https://packagist.org/packages/aicrion/tandroid"><img src="https://img.shields.io/badge/php-%3E%3D8.5-777bb4" alt="PHP Version"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="License"></a>
+  <a href="https://github.com/aicrion/tandroid/actions"><img src="https://img.shields.io/badge/tests-passing-brightgreen" alt="Tests"></a>
+  <a href="https://aicrion.github.io/tandroid"><img src="https://img.shields.io/badge/docs-online-01696f" alt="Docs"></a>
+</p>
 
-| Android concept | Aicrion\Tandroid equivalent |
-|---|---|
-| Activity | `Activity\BotActivity` |
-| Intent / IntentFilter | `Intent\Intent` / `Attribute\IntentFilter` |
-| ActivityManagerService | `Kernel\ActivityManager` |
-| PackageManagerService | `Package\PackageManager` |
-| AndroidManifest.xml | `Package\Manifest` (per plugin) |
-| View / Widget | `View\View` / `Widget\*` |
-| androidx.lifecycle.ViewModel | `Kernel\ViewModel\ViewModel` / `StateStore` |
-| BroadcastReceiver | `Attribute\BroadcastFilter` + `Broadcast\BroadcastDispatcher` |
-| Back Stack | `Kernel\BackStackStore` (backed by Redis/filesystem cache) |
+<br>
+
+Tandroid brings Android's application model to Telegram bot
+development. Every feature is an **Activity**, navigation between
+features is an **Intent**, every installable feature is a **plugin**
+with its own manifest, and state survives across requests via a
+**ViewModel** — concepts you already know, applied to a domain where
+they've never quite existed before.
+
+Built on Symfony (DI, Cache, HTTP Client) and Doctrine ORM, Tandroid
+runs equally well on a $3/month shared host or a Dockerized VPS —
+migrations and plugin discovery happen automatically, with zero CLI
+commands required in production.
+
+## Why Tandroid
+
+- **A real application model, not a router.** Activities have a
+  lifecycle (`onCreate`, `onResume`, `onPause`, `onDestroy`), a back
+  stack, and explicit/implicit Intent resolution — the same mental
+  model as native Android apps.
+- **Plugins, not spaghetti.** Every feature lives in its own
+  `plugins/<name>/` folder with an isolated manifest, entities, and
+  migrations — install, remove, or share a feature without touching
+  the rest of the bot.
+- **Stateful conversations, done right.** `ViewModel` + `StateStore`
+  persist structured state between Activities and requests, so
+  multi-step flows (forms, wizards, checkouts) stay simple.
+- **Zero-ops deployment.** Migrations run automatically on boot.
+  Redis is optional — the cache layer falls back to the filesystem
+  transparently, so shared hosting just works.
+- **Full Telegram Bot API coverage.** Messaging, media, payments &
+  Stars, inline mode, forums, business accounts, gifts, and more —
+  behind one fluent facade.
 
 ## Quick Start
 
@@ -34,71 +56,50 @@ composer require aicrion/tandroid
 ```
 
 ```php
-use Aicrion\Tandroid\Kernel\Kernel;
-
-$kernel = Kernel::fromConfigFile(__DIR__ . '/config/aicrion.yaml')->boot();
-$kernel->handle($update); // runs the matching Activity and sends the reply automatically
-```
-
-Full installation/configuration/run details in
-[Installation](docs/guide/01-installation.html).
-
-## A Small Activity
-
-```php
 use Aicrion\Tandroid\Activity\{BotActivity, NavigationRequest};
 use Aicrion\Tandroid\Attribute\IntentFilter;
 use Aicrion\Tandroid\Intent\Intent;
 use Aicrion\Tandroid\View\View;
-use Aicrion\Tandroid\Widget\{Button, Keyboard};
 
 #[IntentFilter(action: 'MAIN', category: 'LAUNCHER')]
 final class StartActivity extends BotActivity
 {
     public function onCreate(Intent $intent): ?NavigationRequest
     {
-        $this->setContentView(
-            View::message('Welcome 👋')
-                ->attach(Keyboard::inline()->row(Button::action('My Profile', to: ProfileActivity::class))),
-        );
+        $this->setContentView(View::message('Welcome 👋'));
 
         return null;
     }
 }
 ```
 
-More in [Activities and Intents](docs/guide/04-activities-and-intents.html).
-
-## Building a New Plugin
-
-Every plugin lives in `plugins/<package-name>/` and includes
-`manifest.php`, its own Activities, and — if needed — a
-`migrations/` folder for Doctrine Migrations, which run automatically
-on the first request after deployment — no CLI command required. A
-complete example is available at `plugins/greeter/`; the full guide
-is at [Plugin System](docs/guide/09-plugins.html).
-
-## Telegram Bot API Coverage
-
-Messaging, media (photo/video/document/audio/...), group and forum
-topic management, payments and Stars, Rich Messages, reactions,
-Inline mode, Business accounts, gifts and stickers, join requests,
-Bot-to-Bot, Guest Mode, and Managed Bots — all available through the
-fluent `Api\Telegram` facade. The full table is in the
-[Telegram API Reference](docs/guide/12-telegram-api-reference.html).
-
 ```php
-Telegram::message()->to($chatId)->text('Hello from Aicrion')->send();
-Telegram::photo()->to($chatId)->media($fileIdOrUrl)->caption('Your product 📦')->send();
-Telegram::chat($chatId)->ban($userId);
-Telegram::invoice()->to($chatId)->title('Premium Subscription')->payload('sub_monthly')->priceInStars(150)->send();
+use Aicrion\Tandroid\Kernel\Kernel;
+
+$kernel = Kernel::fromConfigFile(__DIR__ . '/config/aicrion.yaml')->boot();
+$kernel->handle($update); // resolves the Activity and sends the reply
 ```
+
+## Documentation
+
+Full documentation — installation, architecture, Activities & Intents,
+Views & Widgets, ViewModels, database, caching, plugins, broadcasts,
+deployment, and the complete API reference — is available at:
+
+**[aicrion.github.io/tandroid](https://aicrion.github.io/tandroid)**
 
 ## Testing
 
 ```bash
-vendor/bin/phpunit
+composer test
 ```
 
-A guide to writing new tests (including testing Activity navigation
-chains) is at [Testing](docs/guide/14-testing.html).
+## Contributing
+
+Issues and pull requests are welcome. Please open an issue first for
+significant changes, and make sure `composer test` passes before
+submitting a PR.
+
+## License
+
+Tandroid is open-sourced software licensed under the [MIT license](LICENSE).
