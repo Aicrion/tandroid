@@ -479,3 +479,33 @@ From here, every other chapter in the sidebar goes deeper on one of
 these building blocks — Views/Widgets, the Kernel's boot lifecycle,
 Doctrine entities, caching, plugins with migrations, Broadcasts,
 localization, and the full Telegram API surface.
+
+
+## Troubleshooting the Tutorial
+
+If you update Tandroid itself after already installing it in your bot
+project, remember to refresh the installed vendor copy:
+
+```bash
+composer update aicrion/tandroid
+```
+
+or, if you are developing against a local path/VCS repository, run:
+
+```bash
+composer update
+```
+
+Otherwise you may still be executing an older copy from `vendor/`
+that does not include recent fixes.
+
+Common symptoms of an outdated installed copy:
+
+- Warnings mentioning `ReflectionProperty::setAccessible()` in
+  `ActivityManager`
+- Errors like `Call to undefined method ...::update()` when following
+  the tutorial exactly
+
+Those messages usually mean the bot project is still running an older
+installed package, not the latest source you just changed.
+

@@ -146,11 +146,7 @@ final class ActivityManager
 
     private function extractExtras(Intent $intent): array
     {
-        $reflection = new \ReflectionObject($intent);
-        $property = $reflection->getProperty('extras');
-        $property->setAccessible(true);
-
-        return $property->getValue($intent);
+        return $intent->getExtras();
     }
 
     /**

@@ -69,6 +69,11 @@ abstract class BotActivity
         return $this->contentView;
     }
 
+    protected function update(): Update
+    {
+        return $this->update;
+    }
+
     /**
      * Requests navigation to another Activity. The ActivityManager
      * intercepts this call — it does not render or dispatch directly.
