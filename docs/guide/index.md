@@ -1,14 +1,22 @@
-# Aicrion\Tandroid Documentation
+# Tandroid Documentation
 
 The complete reference for a Telegram bot framework built around an
 Android-inspired architecture. This documentation is written
 Laravel-style: every chapter is self-contained, but the order below
 is the recommended learning path.
 
+> **New here?** Skip straight to the
+> [Complete Walkthrough Tutorial](tutorial.md) — a single, start-to-
+> finish guide that takes you from an empty folder to a working bot
+> with two Activities, navigation, persisted state, and both run
+> modes (polling and webhook) tested locally. Every other chapter
+> below explains one concept from that tutorial in depth.
+
 ## Getting Started
 
 - [Installation](installation.md)
 - [Configuration](configuration.md)
+- [Complete Walkthrough Tutorial](tutorial.md)
 
 ## Core Architecture
 

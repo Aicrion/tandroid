@@ -88,6 +88,11 @@ deployment, and the complete API reference — is available at:
 
 **[aicrion.github.io/tandroid](https://aicrion.github.io/tandroid)**
 
+New to Tandroid? Start with the
+[complete walkthrough tutorial](https://aicrion.github.io/tandroid/guide/tutorial.html) —
+it takes you from an empty folder to a working bot with navigation,
+persisted state, and both run modes tested locally.
+
 ## Testing
 
 ```bash
