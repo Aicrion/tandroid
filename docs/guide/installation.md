@@ -19,8 +19,19 @@ composer require aicrion/tandroid
 ```
 
 This pulls in Symfony DependencyInjection, EventDispatcher, Cache,
-Config, Yaml, Messenger, HttpClient, as well as Doctrine ORM/DBAL/
-Migrations and `predis/predis` — no other manual dependencies needed.
+Config, Yaml, Messenger, HttpClient, VarExporter, as well as Doctrine
+ORM/DBAL/Migrations and `predis/predis` — no other manual dependencies
+needed.
+
+> **Why `symfony/var-exporter`?** Doctrine ORM 3.x builds lazy-loaded
+> entity proxies (e.g. for unfetched relations) using either native
+> PHP 8.4+ lazy objects or Symfony's `LazyGhostTrait`. Since the
+> framework's minimum requirement is PHP 8.5, this dependency is
+> pulled in automatically to guarantee proxies work correctly on
+> every supported PHP version. If you ever see
+> `Symfony LazyGhost is not available`, it means this package is
+> missing or outdated — running `composer require symfony/var-exporter:^7.1`
+> (or simply `composer update`) resolves it.
 
 ## Host Application Structure
 

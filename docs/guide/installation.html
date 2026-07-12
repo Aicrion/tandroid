@@ -84,8 +84,20 @@
 </pre></div>
 
 <p>This pulls in Symfony DependencyInjection, EventDispatcher, Cache,
-Config, Yaml, Messenger, HttpClient, as well as Doctrine ORM/DBAL/
-Migrations and <code>predis/predis</code> — no other manual dependencies needed.</p>
+Config, Yaml, Messenger, HttpClient, VarExporter, as well as Doctrine
+ORM/DBAL/Migrations and <code>predis/predis</code> — no other manual dependencies
+needed.</p>
+<blockquote>
+<p><strong>Why <code>symfony/var-exporter</code>?</strong> Doctrine ORM 3.x builds lazy-loaded
+entity proxies (e.g. for unfetched relations) using either native
+PHP 8.4+ lazy objects or Symfony's <code>LazyGhostTrait</code>. Since the
+framework's minimum requirement is PHP 8.5, this dependency is
+pulled in automatically to guarantee proxies work correctly on
+every supported PHP version. If you ever see
+<code>Symfony LazyGhost is not available</code>, it means this package is
+missing or outdated — running <code>composer require symfony/var-exporter:^7.1</code>
+(or simply <code>composer update</code>) resolves it.</p>
+</blockquote>
 <h2 id="host-application-structure">Host Application Structure</h2>
 <p>The framework is designed as a library, not a project skeleton. A
 typical host application looks like this:</p>
