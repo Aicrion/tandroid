@@ -21,34 +21,46 @@
     </div>
     <nav class="sidebar-nav">
 <a class="side-link" href="00-index.html">Home</a>
-<div class="side-group"><div class="side-group-title">Getting Started</div>
+<div class="side-group collapsed" data-group="group-0">
+<button type="button" class="side-group-header" data-group-toggle="group-0"><span>Getting Started</span><span class="chevron">&#9660;</span></button>
+<div class="side-group-items">
 <a class="side-link" href="01-installation.html">Installation</a>
 <a class="side-link" href="02-configuration.html">Configuration</a>
-</div>
-<div class="side-group"><div class="side-group-title">Core Architecture</div>
+</div></div>
+<div class="side-group" data-group="group-1">
+<button type="button" class="side-group-header" data-group-toggle="group-1"><span>Core Architecture</span><span class="chevron">&#9660;</span></button>
+<div class="side-group-items">
 <a class="side-link" href="03-architecture.html">Kernel & Boot Lifecycle</a>
 <a class="side-link active" href="04-activities-and-intents.html">Activities & Intents</a>
 <a class="side-link" href="05-views-and-widgets.html">Views & Widgets</a>
 <a class="side-link" href="06-viewmodel-and-state.html">ViewModel & State</a>
-</div>
-<div class="side-group"><div class="side-group-title">Data & Infrastructure</div>
+</div></div>
+<div class="side-group collapsed" data-group="group-2">
+<button type="button" class="side-group-header" data-group-toggle="group-2"><span>Data & Infrastructure</span><span class="chevron">&#9660;</span></button>
+<div class="side-group-items">
 <a class="side-link" href="07-database-and-doctrine.html">Database & Doctrine</a>
 <a class="side-link" href="08-caching-and-redis.html">Caching & Redis</a>
-</div>
-<div class="side-group"><div class="side-group-title">Extensibility</div>
+</div></div>
+<div class="side-group collapsed" data-group="group-3">
+<button type="button" class="side-group-header" data-group-toggle="group-3"><span>Extensibility</span><span class="chevron">&#9660;</span></button>
+<div class="side-group-items">
 <a class="side-link" href="09-plugins.html">Plugin System</a>
 <a class="side-link" href="10-broadcasts.html">Broadcasts</a>
-</div>
-<div class="side-group"><div class="side-group-title">Telegram Integration</div>
+</div></div>
+<div class="side-group collapsed" data-group="group-4">
+<button type="button" class="side-group-header" data-group-toggle="group-4"><span>Telegram Integration</span><span class="chevron">&#9660;</span></button>
+<div class="side-group-items">
 <a class="side-link" href="11-transport-webhook-and-polling.html">Webhook & Polling</a>
 <a class="side-link" href="12-telegram-api-reference.html">Telegram API Reference</a>
-</div>
-<div class="side-group"><div class="side-group-title">Other Topics</div>
+</div></div>
+<div class="side-group collapsed" data-group="group-5">
+<button type="button" class="side-group-header" data-group-toggle="group-5"><span>Other Topics</span><span class="chevron">&#9660;</span></button>
+<div class="side-group-items">
 <a class="side-link" href="13-localization.html">Localization (i18n)</a>
 <a class="side-link" href="14-testing.html">Testing</a>
 <a class="side-link" href="15-deployment.html">Deployment</a>
 <a class="side-link" href="16-advanced-features.html">Advanced Features</a>
-</div>
+</div></div>
 </nav>
   </aside>
   <main id="content" class="docs-content">
@@ -120,7 +132,7 @@ optional and default to a no-op implementation: <code>onResume()</code>,
 Activity is <strong>freshly instantiated on every request</strong> — exactly like
 Android recreating an Activity on a configuration change (screen
 rotation). If you need state that persists across Activities, use a
-<a href="06-viewmodel-and-state.md">ViewModel</a>, not regular class properties.</p>
+<a href="06-viewmodel-and-state.html">ViewModel</a>, not regular class properties.</p>
 <h2 id="navigation-chains-with-navigationrequest">Navigation Chains with NavigationRequest</h2>
 <p><code>BotActivity</code> exposes two protected methods to subclasses:</p>
 <pre><code class="language-php">protected function startActivity(Intent $intent): NavigationRequest;
@@ -253,11 +265,33 @@ $intent = $resolver-&gt;resolve($payload); // Intent::to(OrderActivity::class)-&
 <script>
 (function(){
   const r=document.documentElement,t=document.querySelector('[data-theme-toggle]');
-  let d=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';
+  let d=localStorage.getItem('aicrion-theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');
   r.setAttribute('data-theme',d);
-  t&&t.addEventListener('click',()=>{d=d==='dark'?'light':'dark';r.setAttribute('data-theme',d);});
+  t&&t.addEventListener('click',()=>{
+    d=d==='dark'?'light':'dark';
+    r.setAttribute('data-theme',d);
+    localStorage.setItem('aicrion-theme',d);
+  });
+
   const s=document.querySelector('[data-sidebar]'),st=document.querySelector('[data-sidebar-toggle]');
   st&&st.addEventListener('click',()=>s.classList.toggle('open'));
+
+  const STORAGE_KEY='aicrion-sidebar-groups';
+  let groupState={};
+  try { groupState=JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}'); } catch(e) {}
+
+  document.querySelectorAll('[data-group-toggle]').forEach(function(btn){
+    const id=btn.getAttribute('data-group-toggle');
+    const group=btn.closest('.side-group');
+    if (Object.prototype.hasOwnProperty.call(groupState, id)) {
+      group.classList.toggle('collapsed', groupState[id]===true);
+    }
+    btn.addEventListener('click',function(){
+      const collapsed=group.classList.toggle('collapsed');
+      groupState[id]=collapsed;
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(groupState));
+    });
+  });
 })();
 </script>
 </body>

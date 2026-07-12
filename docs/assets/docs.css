@@ -4,8 +4,14 @@
 .sidebar-brand{margin-bottom:var(--space-6)}
 .sidebar-brand a{display:flex;align-items:center;gap:var(--space-2);font:700 var(--text-base) var(--font-display)}
 .sidebar-nav{display:flex;flex-direction:column;gap:var(--space-1)}
+
 .side-group{margin-top:var(--space-4)}
-.side-group-title{font-size:var(--text-xs);text-transform:uppercase;letter-spacing:.08em;color:var(--color-text-faint);margin:0 var(--space-3) var(--space-2)}
+.side-group-header{display:flex;align-items:center;justify-content:space-between;width:100%;padding:var(--space-2) var(--space-3);cursor:pointer;background:none;border:0;border-radius:var(--radius-lg);font-size:var(--text-xs);text-transform:uppercase;letter-spacing:.08em;color:var(--color-text-faint);font-weight:700;transition:background var(--transition-interactive)}
+.side-group-header:hover{background:var(--color-surface-2);color:var(--color-text-muted)}
+.side-group-header .chevron{display:inline-block;transition:transform .18s ease;font-size:.8em}
+.side-group.collapsed .chevron{transform:rotate(-90deg)}
+.side-group-items{display:flex;flex-direction:column;gap:var(--space-1);overflow:hidden;max-height:1000px;transition:max-height .25s ease}
+.side-group.collapsed .side-group-items{max-height:0}
 .side-link{display:block;padding:var(--space-2) var(--space-3);border-radius:var(--radius-lg);font-size:var(--text-sm);color:var(--color-text-muted);transition:all var(--transition-interactive)}
 .side-link:hover{background:var(--color-surface-2);color:var(--color-text)}
 .side-link.active{background:var(--color-primary);color:var(--color-text-inverse);font-weight:600}
