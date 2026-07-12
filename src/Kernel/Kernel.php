@@ -175,18 +175,72 @@ final class Kernel
     /**
      * Sends the rendered View back to the chat that produced the
      * triggering Update, via the framework's fluent Telegram facade.
+     *
+     * Honors IntentFlag::ReplaceMessage (set by Button::actionReplace())
+     * by editing the tapped message in place via editMessageText,
+     * instead of sending a new one — the "WindowManager-style
+     * in-place update" the flag promises (see MessageEditor's
+     * docblock). Only possible for a CallbackQuery, since that's the
+     * only Update type carrying the message_id to edit; anything
+     * else always sends a new message regardless of the flag.
+     *
+     * Falls back to sending a new message if the edit itself fails
+     * (e.g. the original message is older than Telegram's ~48h edit
+     * window, or was deleted) so a stale button never silently
+     * drops the response.
      */
     /** @param list<IntentFlag> $intentFlags */
     private function deliver(Update $update, View $view, array $intentFlags = []): void
     {
         $rendered = $view->render();
+        $text = $rendered['text'] ?? '';
+        $replyMarkup = $rendered['reply_markup'] ?? [];
+        $parseMode = $view->parseMode ?? \Aicrion\Tandroid\View\ParseMode::Plain;
+
+        $messageId = $this->replaceableMessageId($update, $intentFlags);
+
+        if ($messageId !== null && $this->tryEdit($update->chatId, $messageId, $text, $replyMarkup, $parseMode)) {
+            return;
+        }
 
         Telegram::message()
             ->to($update->chatId)
-            ->text($rendered['text'] ?? '')
-            ->parseMode($view->parseMode ?? \Aicrion\Tandroid\View\ParseMode::Plain)
-            ->markup($rendered['reply_markup'] ?? [])
+            ->text($text)
+            ->parseMode($parseMode)
+            ->markup($replyMarkup)
             ->send();
+    }
+
+    /**
+     * @param list<IntentFlag> $intentFlags
+     */
+    private function replaceableMessageId(Update $update, array $intentFlags): ?int
+    {
+        if (!in_array(IntentFlag::ReplaceMessage, $intentFlags, strict: true)) {
+            return null;
+        }
+
+        return $update->raw['callback_query']['message']['message_id'] ?? null;
+    }
+
+    private function tryEdit(
+        int|string $chatId,
+        int $messageId,
+        string $text,
+        array $replyMarkup,
+        \Aicrion\Tandroid\View\ParseMode $parseMode,
+    ): bool {
+        try {
+            Telegram::edit($chatId, $messageId)->text(
+                $text,
+                $replyMarkup !== [] ? $replyMarkup : null,
+                $parseMode === \Aicrion\Tandroid\View\ParseMode::Plain ? null : $parseMode->value,
+            );
+
+            return true;
+        } catch (\Throwable) {
+            return false;
+        }
     }
 
     /**
