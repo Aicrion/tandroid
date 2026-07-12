@@ -126,7 +126,10 @@ final class Kernel
             $container->autowire($receiverClass, $receiverClass)->setPublic(true);
         }
 
-        $container->set('service_container', $container);
+        // Symfony's ContainerBuilder already registers 'service_container'
+        // as a synthetic service pointing to itself — calling set() on it
+        // explicitly throws "You cannot set service \"service_container\"."
+        // on modern Symfony versions, so it is intentionally omitted here.
         $container->compile();
 
         // Synthetic services must be set() after compile() completes.
