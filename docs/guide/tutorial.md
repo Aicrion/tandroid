@@ -99,6 +99,47 @@ Nothing else needs to be touched — every subsystem (cache, database,
 locale, HTTP client) is built from this single file. Full reference
 in [Configuration](configuration.html).
 
+
+## Step 4.5 — Teach Composer Where Plugin Classes Live
+
+Before writing any Activity, make sure Composer knows where your
+plugin namespace points.
+
+Open the project's root `composer.json` and add:
+
+```json
+{
+  "autoload": {
+    "psr-4": {
+      "App\\Plugins\\Greeter\\": "plugins/greeter/src/"
+    }
+  }
+}
+```
+
+Then run:
+
+```bash
+composer dump-autoload
+```
+
+From this point on, PHP can resolve classes such as:
+
+```php
+App\Plugins\Greeter\StartActivity
+App\Plugins\Greeter\ProfileActivity
+```
+
+If you skip this step, the framework may discover `plugins/greeter/manifest.php`,
+but boot will still fail with an error like:
+
+```text
+ReflectionException: Class "App\Plugins\Greeter\StartActivity" does not exist
+```
+
+That error means the manifest file was found, but the classes listed
+inside it were not autoloadable.
+
 ## Step 5 — Create Your First Plugin
 
 Every feature in Tandroid — even the very first "Hello World" — is a
@@ -134,6 +175,14 @@ return Manifest::define(
 > Manifests are plain PHP files that `return` a `Manifest` object —
 > exactly like `AndroidManifest.xml`, but there's no XML to parse.
 > Full details in [Plugin System](plugins.html).
+
+Important details about this example:
+
+- The namespace `App\Plugins\Greeter` must exactly match the PSR-4
+  mapping you added to `composer.json`.
+- The file `plugins/greeter/src/StartActivity.php` must declare
+  `namespace App\Plugins\Greeter;`.
+- After any namespace/path change, run `composer dump-autoload` again.
 
 ## Step 6 — Write Your First Activity
 

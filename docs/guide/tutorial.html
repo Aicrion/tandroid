@@ -144,6 +144,35 @@ looks like <code>123456789:AAExampleTokenAbcDefGhiJklMno</code>).</p>
 <p>Nothing else needs to be touched — every subsystem (cache, database,
 locale, HTTP client) is built from this single file. Full reference
 in <a href="configuration.html">Configuration</a>.</p>
+<h2 id="step-45-teach-composer-where-plugin-classes-live">Step 4.5 — Teach Composer Where Plugin Classes Live</h2>
+<p>Before writing any Activity, make sure Composer knows where your
+plugin namespace points.</p>
+<p>Open the project's root <code>composer.json</code> and add:</p>
+<div class="codehilite"><pre><span></span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;autoload&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;psr-4&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;App\\Plugins\\Greeter\\&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;plugins/greeter/src/&quot;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+
+<p>Then run:</p>
+<div class="codehilite"><pre><span></span>composer<span class="w"> </span>dump-autoload
+</pre></div>
+
+<p>From this point on, PHP can resolve classes such as:</p>
+<div class="codehilite"><pre><span></span><span class="nx">App\Plugins\Greeter\StartActivity</span>
+<span class="nx">App\Plugins\Greeter\ProfileActivity</span>
+</pre></div>
+
+<p>If you skip this step, the framework may discover <code>plugins/greeter/manifest.php</code>,
+but boot will still fail with an error like:</p>
+<div class="codehilite"><pre><span></span>ReflectionException: Class &quot;App\Plugins\Greeter\StartActivity&quot; does not exist
+</pre></div>
+
+<p>That error means the manifest file was found, but the classes listed
+inside it were not autoloadable.</p>
 <h2 id="step-5-create-your-first-plugin">Step 5 — Create Your First Plugin</h2>
 <p>Every feature in Tandroid — even the very first "Hello World" — is a
 <strong>plugin</strong>. Create the folder structure:</p>
@@ -176,6 +205,14 @@ in <a href="configuration.html">Configuration</a>.</p>
 exactly like <code>AndroidManifest.xml</code>, but there's no XML to parse.
 Full details in <a href="plugins.html">Plugin System</a>.</p>
 </blockquote>
+<p>Important details about this example:</p>
+<ul>
+<li>The namespace <code>App\Plugins\Greeter</code> must exactly match the PSR-4
+  mapping you added to <code>composer.json</code>.</li>
+<li>The file <code>plugins/greeter/src/StartActivity.php</code> must declare
+  <code>namespace App\Plugins\Greeter;</code>.</li>
+<li>After any namespace/path change, run <code>composer dump-autoload</code> again.</li>
+</ul>
 <h2 id="step-6-write-your-first-activity">Step 6 — Write Your First Activity</h2>
 <p>Create <code>plugins/greeter/src/StartActivity.php</code>:</p>
 <div class="codehilite"><pre><span></span><span class="o">&lt;?</span><span class="nx">php</span>
