@@ -54,6 +54,12 @@ final class Intent
         return $this->extras[$key] ?? $default;
     }
 
+    /** @return array<string, mixed> */
+    public function getExtras(): array
+    {
+        return $this->extras;
+    }
+
     /** @return list<IntentFlag> */
     public function getFlags(): array
     {

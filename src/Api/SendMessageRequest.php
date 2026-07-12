@@ -18,7 +18,7 @@ final class SendMessageRequest
 
     private ?string $text = null;
 
-    private ?ParseMode $parseMode = ParseMode::MarkdownV2;
+    private ?ParseMode $parseMode = ParseMode::Plain;
 
     private ?int $replyToMessageId = null;
 
@@ -74,7 +74,7 @@ final class SendMessageRequest
         $payload = array_filter([
             'chat_id' => $this->chatId,
             'text' => $this->text,
-            'parse_mode' => $this->parseMode?->value,
+            'parse_mode' => ($this->parseMode === null || $this->parseMode === ParseMode::Plain) ? null : $this->parseMode->value,
             'reply_to_message_id' => $this->replyToMessageId,
             'reply_markup' => $this->replyMarkup ?: null,
         ], static fn ($v) => $v !== null);

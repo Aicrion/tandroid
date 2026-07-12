@@ -171,7 +171,7 @@ final class Kernel
         Telegram::message()
             ->to($update->chatId)
             ->text($rendered['text'] ?? '')
-            ->parseMode($view->parseMode ?? \Aicrion\Tandroid\View\ParseMode::MarkdownV2)
+            ->parseMode($view->parseMode ?? \Aicrion\Tandroid\View\ParseMode::Plain)
             ->markup($rendered['reply_markup'] ?? [])
             ->send();
     }

@@ -19,10 +19,10 @@ final class View
 
     private function __construct(
         public readonly string $text,
-        public readonly ?ParseMode $parseMode = ParseMode::MarkdownV2,
+        public readonly ?ParseMode $parseMode = ParseMode::Plain,
     ) {}
 
-    public static function message(string $text, ?ParseMode $parseMode = ParseMode::MarkdownV2): self
+    public static function message(string $text, ?ParseMode $parseMode = ParseMode::Plain): self
     {
         return new self($text, $parseMode);
     }
