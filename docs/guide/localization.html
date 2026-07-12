@@ -73,47 +73,47 @@ entry can be an actual <strong>Closure</strong>, and therefore supports any
 arbitrary expression (pluralization, gender matching, computed
 formatting), not just simple placeholder substitution.</p>
 <h2 id="language-folder-structure">Language Folder Structure</h2>
-<div class="codehilite"><pre><span></span><code>lang/
+<div class="codehilite"><pre><span></span>lang/
 ├── en/
 │   └── order.php
 └── fa/
     └── order.php
-</code></pre></div>
+</pre></div>
 
 <p>Each file is a logical namespace (e.g. <code>order</code>), and the final
 translation key is read as <code>{file}.{key}</code> (e.g. <code>order.created</code>).</p>
 <h2 id="writing-a-language-file">Writing a Language File</h2>
-<div class="codehilite"><pre><span></span><code><span class="x">// lang/en/order.php</span>
-<span class="x">return [</span>
-<span class="x">    // A simple string with :name-style placeholders</span>
-<span class="x">    &#39;greeting&#39; =&gt; &#39;Hello :name, welcome!&#39;,</span>
+<div class="codehilite"><pre><span></span><span class="c1">// lang/en/order.php</span>
+<span class="k">return</span> <span class="p">[</span>
+    <span class="c1">// A simple string with :name-style placeholders</span>
+    <span class="s1">&#39;greeting&#39;</span> <span class="o">=&gt;</span> <span class="s1">&#39;Hello :name, welcome!&#39;</span><span class="p">,</span>
 
-<span class="x">    // A Closure with custom parameters — real pluralization, not just singular/plural</span>
-<span class="x">    &#39;created&#39; =&gt; fn (int $count) =&gt; match (true) {</span>
-<span class="x">        $count === 1 =&gt; &#39;One order was placed successfully ✅&#39;,</span>
-<span class="x">        $count &gt; 1 =&gt; &quot;{$count} orders were placed successfully ✅&quot;,</span>
-<span class="x">        default =&gt; &#39;No orders were placed&#39;,</span>
-<span class="x">    },</span>
+    <span class="c1">// A Closure with custom parameters — real pluralization, not just singular/plural</span>
+    <span class="s1">&#39;created&#39;</span> <span class="o">=&gt;</span> <span class="nx">fn</span> <span class="p">(</span><span class="nx">int</span> <span class="nv">$count</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="k">match</span> <span class="p">(</span><span class="k">true</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nv">$count</span> <span class="o">===</span> <span class="mi">1</span> <span class="o">=&gt;</span> <span class="s1">&#39;One order was placed successfully ✅&#39;</span><span class="p">,</span>
+        <span class="nv">$count</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="o">=&gt;</span> <span class="s2">&quot;</span><span class="si">{</span><span class="nv">$count</span><span class="si">}</span><span class="s2"> orders were placed successfully ✅&quot;</span><span class="p">,</span>
+        <span class="k">default</span> <span class="o">=&gt;</span> <span class="s1">&#39;No orders were placed&#39;</span><span class="p">,</span>
+    <span class="p">},</span>
 
-<span class="x">    // A Closure for computed formatting</span>
-<span class="x">    &#39;total_price&#39; =&gt; fn (int $amount) =&gt; sprintf(&#39;Total: $%s&#39;, number_format($amount)),</span>
-<span class="x">];</span>
-</code></pre></div>
+    <span class="c1">// A Closure for computed formatting</span>
+    <span class="s1">&#39;total_price&#39;</span> <span class="o">=&gt;</span> <span class="nx">fn</span> <span class="p">(</span><span class="nx">int</span> <span class="nv">$amount</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="nb">sprintf</span><span class="p">(</span><span class="s1">&#39;Total: $%s&#39;</span><span class="p">,</span> <span class="nb">number_format</span><span class="p">(</span><span class="nv">$amount</span><span class="p">)),</span>
+<span class="p">];</span>
+</pre></div>
 
 <h2 id="usage">Usage</h2>
-<div class="codehilite"><pre><span></span><code><span class="x">use Aicrion\Tandroid\I18n\Translator;</span>
+<div class="codehilite"><pre><span></span><span class="k">use</span> <span class="nx">Aicrion\Tandroid\I18n\Translator</span><span class="p">;</span>
 
-<span class="x">$translator = Translator::create(langPath: __DIR__ . &#39;/lang&#39;, defaultLocale: &#39;en&#39;);</span>
+<span class="nv">$translator</span> <span class="o">=</span> <span class="nx">Translator</span><span class="o">::</span><span class="na">create</span><span class="p">(</span><span class="nx">langPath</span><span class="o">:</span> <span class="no">__DIR__</span> <span class="o">.</span> <span class="s1">&#39;/lang&#39;</span><span class="p">,</span> <span class="nx">defaultLocale</span><span class="o">:</span> <span class="s1">&#39;en&#39;</span><span class="p">);</span>
 
-<span class="x">$translator-&gt;trans(&#39;order.greeting&#39;, [&#39;name&#39; =&gt; &#39;Alex&#39;]);</span>
-<span class="x">// =&gt; &quot;Hello Alex, welcome!&quot;</span>
+<span class="nv">$translator</span><span class="o">-&gt;</span><span class="na">trans</span><span class="p">(</span><span class="s1">&#39;order.greeting&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;name&#39;</span> <span class="o">=&gt;</span> <span class="s1">&#39;Alex&#39;</span><span class="p">]);</span>
+<span class="c1">// =&gt; &quot;Hello Alex, welcome!&quot;</span>
 
-<span class="x">$translator-&gt;trans(&#39;order.created&#39;, [3]);</span>
-<span class="x">// =&gt; &quot;3 orders were placed successfully ✅&quot;   (Closure parameters are passed positionally)</span>
+<span class="nv">$translator</span><span class="o">-&gt;</span><span class="na">trans</span><span class="p">(</span><span class="s1">&#39;order.created&#39;</span><span class="p">,</span> <span class="p">[</span><span class="mi">3</span><span class="p">]);</span>
+<span class="c1">// =&gt; &quot;3 orders were placed successfully ✅&quot;   (Closure parameters are passed positionally)</span>
 
-<span class="x">$translator-&gt;trans(&#39;order.created&#39;, [3], locale: &#39;fa&#39;);</span>
-<span class="x">// =&gt; &quot;3 سفارش با موفقیت ثبت شد ✅&quot;</span>
-</code></pre></div>
+<span class="nv">$translator</span><span class="o">-&gt;</span><span class="na">trans</span><span class="p">(</span><span class="s1">&#39;order.created&#39;</span><span class="p">,</span> <span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="nx">locale</span><span class="o">:</span> <span class="s1">&#39;fa&#39;</span><span class="p">);</span>
+<span class="c1">// =&gt; &quot;3 سفارش با موفقیت ثبت شد ✅&quot;</span>
+</pre></div>
 
 <h3 id="key-resolution-rules">Key Resolution Rules</h3>
 <ol>
@@ -132,24 +132,24 @@ translation key is read as <code>{file}.{key}</code> (e.g. <code>order.created</
 <p>Since <code>Translator</code> is a regular class, type-hint it in your
 Activity's constructor (or register a shared instance yourself as a
 service in the DI Container):</p>
-<div class="codehilite"><pre><span></span><code><span class="x">final class OrderActivity extends BotActivity</span>
-<span class="x">{</span>
-<span class="x">    public function __construct(</span>
-<span class="x">        private readonly Translator $translator,</span>
-<span class="x">    ) {}</span>
+<div class="codehilite"><pre><span></span><span class="k">final</span> <span class="k">class</span> <span class="nc">OrderActivity</span> <span class="k">extends</span> <span class="nx">BotActivity</span>
+<span class="p">{</span>
+    <span class="k">public</span> <span class="k">function</span> <span class="fm">__construct</span><span class="p">(</span>
+        <span class="k">private</span> <span class="nx">readonly</span> <span class="nx">Translator</span> <span class="nv">$translator</span><span class="p">,</span>
+    <span class="p">)</span> <span class="p">{}</span>
 
-<span class="x">    public function onCreate(Intent $intent): ?NavigationRequest</span>
-<span class="x">    {</span>
-<span class="x">        $locale = $this-&gt;update-&gt;raw[&#39;message&#39;][&#39;from&#39;][&#39;language_code&#39;] ?? &#39;en&#39;;</span>
+    <span class="k">public</span> <span class="k">function</span> <span class="nf">onCreate</span><span class="p">(</span><span class="nx">Intent</span> <span class="nv">$intent</span><span class="p">)</span><span class="o">:</span> <span class="o">?</span><span class="nx">NavigationRequest</span>
+    <span class="p">{</span>
+        <span class="nv">$locale</span> <span class="o">=</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">update</span><span class="o">-&gt;</span><span class="na">raw</span><span class="p">[</span><span class="s1">&#39;message&#39;</span><span class="p">][</span><span class="s1">&#39;from&#39;</span><span class="p">][</span><span class="s1">&#39;language_code&#39;</span><span class="p">]</span> <span class="o">??</span> <span class="s1">&#39;en&#39;</span><span class="p">;</span>
 
-<span class="x">        $this-&gt;setContentView(</span>
-<span class="x">            View::message($this-&gt;translator-&gt;trans(&#39;order.created&#39;, [1], $locale)),</span>
-<span class="x">        );</span>
+        <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">setContentView</span><span class="p">(</span>
+            <span class="nx">View</span><span class="o">::</span><span class="na">message</span><span class="p">(</span><span class="nv">$this</span><span class="o">-&gt;</span><span class="na">translator</span><span class="o">-&gt;</span><span class="na">trans</span><span class="p">(</span><span class="s1">&#39;order.created&#39;</span><span class="p">,</span> <span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="nv">$locale</span><span class="p">)),</span>
+        <span class="p">);</span>
 
-<span class="x">        return null;</span>
-<span class="x">    }</span>
-<span class="x">}</span>
-</code></pre></div>
+        <span class="k">return</span> <span class="k">null</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
 
 <blockquote>
 <p>Note: <code>Translator</code> isn't automatically registered in the DI

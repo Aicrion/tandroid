@@ -86,12 +86,12 @@ chat's "first seen" state for Broadcasts — all share the same pool.</p>
 <code>redis_dsn</code> empty or omit it entirely — the framework works with the
 filesystem cache without any extra code on your part. On a VPS/Docker
 setup with Redis available, just set the DSN:</p>
-<div class="codehilite"><pre><span></span><code><span class="nt">cache</span><span class="p">:</span>
+<div class="codehilite"><pre><span></span><span class="nt">cache</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">redis_dsn</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;%env(AICRION_REDIS_DSN)%&#39;</span>
-</code></pre></div>
+</pre></div>
 
-<div class="codehilite"><pre><span></span><code><span class="nb">export</span><span class="w"> </span><span class="nv">AICRION_REDIS_DSN</span><span class="o">=</span><span class="s2">&quot;redis://127.0.0.1:6379&quot;</span>
-</code></pre></div>
+<div class="codehilite"><pre><span></span><span class="nb">export</span><span class="w"> </span><span class="nv">AICRION_REDIS_DSN</span><span class="o">=</span><span class="s2">&quot;redis://127.0.0.1:6379&quot;</span>
+</pre></div>
 
 <h2 id="why-redis-is-strongly-recommended-for-polling">Why Redis Is Strongly Recommended for Polling</h2>
 <p>In webhook mode, every request is independent, so the filesystem
@@ -104,20 +104,20 @@ filesystem cache is local to each process.</p>
 <p>Any service that type-hints <code>Psr\Cache\CacheItemPoolInterface</code> in
 its constructor automatically receives the same shared pool from the
 DI Container:</p>
-<div class="codehilite"><pre><span></span><code><span class="x">final class RateLimiter</span>
-<span class="x">{</span>
-<span class="x">    public function __construct(</span>
-<span class="x">        private readonly \Psr\Cache\CacheItemPoolInterface $cache,</span>
-<span class="x">    ) {}</span>
+<div class="codehilite"><pre><span></span><span class="k">final</span> <span class="k">class</span> <span class="nc">RateLimiter</span>
+<span class="p">{</span>
+    <span class="k">public</span> <span class="k">function</span> <span class="fm">__construct</span><span class="p">(</span>
+        <span class="k">private</span> <span class="nx">readonly</span> <span class="nx">\Psr\Cache\CacheItemPoolInterface</span> <span class="nv">$cache</span><span class="p">,</span>
+    <span class="p">)</span> <span class="p">{}</span>
 
-<span class="x">    public function tooManyAttempts(int $userId): bool</span>
-<span class="x">    {</span>
-<span class="x">        $item = $this-&gt;cache-&gt;getItem(&quot;ratelimit.$userId&quot;);</span>
+    <span class="k">public</span> <span class="k">function</span> <span class="nf">tooManyAttempts</span><span class="p">(</span><span class="nx">int</span> <span class="nv">$userId</span><span class="p">)</span><span class="o">:</span> <span class="nx">bool</span>
+    <span class="p">{</span>
+        <span class="nv">$item</span> <span class="o">=</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">cache</span><span class="o">-&gt;</span><span class="na">getItem</span><span class="p">(</span><span class="s2">&quot;ratelimit.</span><span class="si">$userId</span><span class="s2">&quot;</span><span class="p">);</span>
 
-<span class="x">        return $item-&gt;isHit() &amp;&amp; $item-&gt;get() &gt;= 5;</span>
-<span class="x">    }</span>
-<span class="x">}</span>
-</code></pre></div>
+        <span class="k">return</span> <span class="nv">$item</span><span class="o">-&gt;</span><span class="na">isHit</span><span class="p">()</span> <span class="o">&amp;&amp;</span> <span class="nv">$item</span><span class="o">-&gt;</span><span class="na">get</span><span class="p">()</span> <span class="o">&gt;=</span> <span class="mi">5</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
 
 <h2 id="internal-framework-keys-for-debugging">Internal Framework Keys (for Debugging)</h2>
 <table>

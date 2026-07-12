@@ -71,15 +71,15 @@
 Bot API method. Each method returns a fluent, immutable object
 (every setter returns a new cloned instance), so you can reuse a
 request as a "template" without worrying about accidental mutation.</p>
-<div class="codehilite"><pre><span></span><code><span class="x">use Aicrion\Tandroid\Api\Telegram;</span>
+<div class="codehilite"><pre><span></span><span class="k">use</span> <span class="nx">Aicrion\Tandroid\Api\Telegram</span><span class="p">;</span>
 
-<span class="x">Telegram::message()</span>
-<span class="x">    -&gt;to($chatId)</span>
-<span class="x">    -&gt;text(&#39;Hello, world&#39;)</span>
-<span class="x">    -&gt;replyTo($messageId)</span>
-<span class="x">    -&gt;markup($keyboard-&gt;render()[&#39;reply_markup&#39;])</span>
-<span class="x">    -&gt;send();</span>
-</code></pre></div>
+<span class="nx">Telegram</span><span class="o">::</span><span class="na">message</span><span class="p">()</span>
+    <span class="o">-&gt;</span><span class="na">to</span><span class="p">(</span><span class="nv">$chatId</span><span class="p">)</span>
+    <span class="o">-&gt;</span><span class="na">text</span><span class="p">(</span><span class="s1">&#39;Hello, world&#39;</span><span class="p">)</span>
+    <span class="o">-&gt;</span><span class="na">replyTo</span><span class="p">(</span><span class="nv">$messageId</span><span class="p">)</span>
+    <span class="o">-&gt;</span><span class="na">markup</span><span class="p">(</span><span class="nv">$keyboard</span><span class="o">-&gt;</span><span class="na">render</span><span class="p">()[</span><span class="s1">&#39;reply_markup&#39;</span><span class="p">])</span>
+    <span class="o">-&gt;</span><span class="na">send</span><span class="p">();</span>
+</pre></div>
 
 <p><code>Telegram::configure($httpClient, $token)</code> is called automatically
 by <code>Kernel::boot()</code> — in your own application code you'll almost
@@ -287,22 +287,22 @@ never need to call it manually.</p>
 </tbody>
 </table>
 <h2 id="example-send-edit-and-react">Example: Send, Edit, and React</h2>
-<div class="codehilite"><pre><span></span><code><span class="x">$sent = Telegram::message()-&gt;to($chatId)-&gt;text(&#39;Processing... ⏳&#39;)-&gt;send();</span>
+<div class="codehilite"><pre><span></span><span class="nv">$sent</span> <span class="o">=</span> <span class="nx">Telegram</span><span class="o">::</span><span class="na">message</span><span class="p">()</span><span class="o">-&gt;</span><span class="na">to</span><span class="p">(</span><span class="nv">$chatId</span><span class="p">)</span><span class="o">-&gt;</span><span class="na">text</span><span class="p">(</span><span class="s1">&#39;Processing... ⏳&#39;</span><span class="p">)</span><span class="o">-&gt;</span><span class="na">send</span><span class="p">();</span>
 
-<span class="x">Telegram::edit($chatId, $sent[&#39;result&#39;][&#39;message_id&#39;])</span>
-<span class="x">    -&gt;text(&#39;Done ✅&#39;)</span>
-<span class="x">    -&gt;send(); // see MessageEditor for the exact signature</span>
+<span class="nx">Telegram</span><span class="o">::</span><span class="na">edit</span><span class="p">(</span><span class="nv">$chatId</span><span class="p">,</span> <span class="nv">$sent</span><span class="p">[</span><span class="s1">&#39;result&#39;</span><span class="p">][</span><span class="s1">&#39;message_id&#39;</span><span class="p">])</span>
+    <span class="o">-&gt;</span><span class="na">text</span><span class="p">(</span><span class="s1">&#39;Done ✅&#39;</span><span class="p">)</span>
+    <span class="o">-&gt;</span><span class="na">send</span><span class="p">();</span> <span class="c1">// see MessageEditor for the exact signature</span>
 
-<span class="x">Telegram::reaction($chatId, $sent[&#39;result&#39;][&#39;message_id&#39;])</span>
-<span class="x">    -&gt;emoji(&#39;👍&#39;)</span>
-<span class="x">    -&gt;send();</span>
-</code></pre></div>
+<span class="nx">Telegram</span><span class="o">::</span><span class="na">reaction</span><span class="p">(</span><span class="nv">$chatId</span><span class="p">,</span> <span class="nv">$sent</span><span class="p">[</span><span class="s1">&#39;result&#39;</span><span class="p">][</span><span class="s1">&#39;message_id&#39;</span><span class="p">])</span>
+    <span class="o">-&gt;</span><span class="na">emoji</span><span class="p">(</span><span class="s1">&#39;👍&#39;</span><span class="p">)</span>
+    <span class="o">-&gt;</span><span class="na">send</span><span class="p">();</span>
+</pre></div>
 
 <h2 id="example-chat-administration">Example: Chat Administration</h2>
-<div class="codehilite"><pre><span></span><code><span class="x">Telegram::chat($chatId)-&gt;ban(userId: 123456);</span>
-<span class="x">Telegram::chat($chatId)-&gt;promote(userId: 123456, canPinMessages: true);</span>
-<span class="x">Telegram::inviteLinks($chatId)-&gt;create(name: &#39;VIP Invite&#39;, memberLimit: 50);</span>
-</code></pre></div>
+<div class="codehilite"><pre><span></span><span class="nx">Telegram</span><span class="o">::</span><span class="na">chat</span><span class="p">(</span><span class="nv">$chatId</span><span class="p">)</span><span class="o">-&gt;</span><span class="na">ban</span><span class="p">(</span><span class="nx">userId</span><span class="o">:</span> <span class="mi">123456</span><span class="p">);</span>
+<span class="nx">Telegram</span><span class="o">::</span><span class="na">chat</span><span class="p">(</span><span class="nv">$chatId</span><span class="p">)</span><span class="o">-&gt;</span><span class="na">promote</span><span class="p">(</span><span class="nx">userId</span><span class="o">:</span> <span class="mi">123456</span><span class="p">,</span> <span class="nx">canPinMessages</span><span class="o">:</span> <span class="k">true</span><span class="p">);</span>
+<span class="nx">Telegram</span><span class="o">::</span><span class="na">inviteLinks</span><span class="p">(</span><span class="nv">$chatId</span><span class="p">)</span><span class="o">-&gt;</span><span class="na">create</span><span class="p">(</span><span class="nx">name</span><span class="o">:</span> <span class="s1">&#39;VIP Invite&#39;</span><span class="p">,</span> <span class="nx">memberLimit</span><span class="o">:</span> <span class="mi">50</span><span class="p">);</span>
+</pre></div>
 
 <h2 id="example-answering-a-callback-query-with-a-custom-toast">Example: Answering a Callback Query with a Custom Toast</h2>
 <p>Every callback query is answered by default by <code>ActivityManager</code>
@@ -311,20 +311,21 @@ the client-side loading spinner. For a custom toast, call this
 yourself from your Activity — the subsequent automatic reply from
 <code>ActivityManager</code> is harmless since Telegram ignores a duplicate
 <code>answerCallbackQuery</code>:</p>
-<div class="codehilite"><pre><span></span><code><span class="x">Telegram::callback($update-&gt;raw[&#39;callback_query&#39;][&#39;id&#39;])</span>
-<span class="x">    -&gt;toast(&#39;Option saved successfully&#39;, asAlert: false)</span>
-<span class="x">    -&gt;send();</span>
-</code></pre></div>
+<div class="codehilite"><pre><span></span><span class="nx">Telegram</span><span class="o">::</span><span class="na">callback</span><span class="p">(</span><span class="nv">$update</span><span class="o">-&gt;</span><span class="na">raw</span><span class="p">[</span><span class="s1">&#39;callback_query&#39;</span><span class="p">][</span><span class="s1">&#39;id&#39;</span><span class="p">])</span>
+    <span class="o">-&gt;</span><span class="na">toast</span><span class="p">(</span><span class="s1">&#39;Option saved successfully&#39;</span><span class="p">,</span> <span class="nx">asAlert</span><span class="o">:</span> <span class="k">false</span><span class="p">)</span>
+    <span class="o">-&gt;</span><span class="na">send</span><span class="p">();</span>
+</pre></div>
 
 <h2 id="raw-access-escape-hatch">Raw Access (Escape Hatch)</h2>
 <p>If a Bot API method doesn't yet have a dedicated wrapper, every
 internal request class uses
 <code>Symfony\Contracts\HttpClient\HttpClientInterface</code> — you can use the
 same HTTP client directly:</p>
-<div class="codehilite"><pre><span></span><code><span class="x">$kernel-&gt;httpClient()-&gt;request(&#39;POST&#39;, &quot;https://api.telegram.org/bot{$token}/someNewMethod&quot;, [</span>
-<span class="x">    &#39;json&#39; =&gt; [&#39;chat_id&#39; =&gt; $chatId, /* ... */],</span>
-<span class="x">]);</span>
-</code></pre></div>
+<div class="codehilite"><pre><span></span><span class="nv">$kernel</span><span class="o">-&gt;</span><span class="na">httpClient</span><span class="p">()</span><span class="o">-&gt;</span><span class="na">request</span><span class="p">(</span><span class="s1">&#39;POST&#39;</span><span class="p">,</span> <span class="s2">&quot;https://api.telegram.org/bot</span><span class="si">{</span><span class="nv">$token</span><span class="si">}</span><span class="s2">/someNewMethod&quot;</span><span class="p">,</span> <span class="p">[</span>
+    <span class="s1">&#39;json&#39;</span> <span class="o">=&gt;</span> <span class="p">[</span><span class="s1">&#39;chat_id&#39;</span> <span class="o">=&gt;</span> <span class="nv">$chatId</span><span class="p">,</span> <span class="cm">/* ... */</span><span class="p">],</span>
+<span class="p">]);</span>
+</pre></div>
+
       <div class="docs-pagination">
         <a href="transport-webhook-and-polling.html">&larr; Webhook & Polling</a><a href="localization.html">Localization (i18n) &rarr;</a>
       </div>

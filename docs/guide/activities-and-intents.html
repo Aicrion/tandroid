@@ -72,23 +72,23 @@ Android calls <code>Activity</code> and <code>Intent</code>. Every "screen" or "
 of the bot is a <code>BotActivity</code>; navigation between them happens via
 <code>Intent</code>.</p>
 <h2 id="creating-an-activity">Creating an Activity</h2>
-<div class="codehilite"><pre><span></span><code><span class="x">use Aicrion\Tandroid\Activity\BotActivity;</span>
-<span class="x">use Aicrion\Tandroid\Activity\NavigationRequest;</span>
-<span class="x">use Aicrion\Tandroid\Attribute\IntentFilter;</span>
-<span class="x">use Aicrion\Tandroid\Intent\Intent;</span>
-<span class="x">use Aicrion\Tandroid\View\View;</span>
+<div class="codehilite"><pre><span></span><span class="k">use</span> <span class="nx">Aicrion\Tandroid\Activity\BotActivity</span><span class="p">;</span>
+<span class="k">use</span> <span class="nx">Aicrion\Tandroid\Activity\NavigationRequest</span><span class="p">;</span>
+<span class="k">use</span> <span class="nx">Aicrion\Tandroid\Attribute\IntentFilter</span><span class="p">;</span>
+<span class="k">use</span> <span class="nx">Aicrion\Tandroid\Intent\Intent</span><span class="p">;</span>
+<span class="k">use</span> <span class="nx">Aicrion\Tandroid\View\View</span><span class="p">;</span>
 
-<span class="x">#[IntentFilter(action: &#39;MAIN&#39;, category: &#39;LAUNCHER&#39;)]</span>
-<span class="x">final class StartActivity extends BotActivity</span>
-<span class="x">{</span>
-<span class="x">    public function onCreate(Intent $intent): ?NavigationRequest</span>
-<span class="x">    {</span>
-<span class="x">        $this-&gt;setContentView(View::message(&#39;Welcome 👋&#39;));</span>
+<span class="p">#[</span><span class="nd">IntentFilter</span><span class="p">(</span><span class="nx">action</span><span class="o">:</span> <span class="s1">&#39;MAIN&#39;</span><span class="p">,</span> <span class="nx">category</span><span class="o">:</span> <span class="s1">&#39;LAUNCHER&#39;</span><span class="p">)]</span>
+<span class="k">final</span> <span class="k">class</span> <span class="nc">StartActivity</span> <span class="k">extends</span> <span class="nx">BotActivity</span>
+<span class="p">{</span>
+    <span class="k">public</span> <span class="k">function</span> <span class="nf">onCreate</span><span class="p">(</span><span class="nx">Intent</span> <span class="nv">$intent</span><span class="p">)</span><span class="o">:</span> <span class="o">?</span><span class="nx">NavigationRequest</span>
+    <span class="p">{</span>
+        <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">setContentView</span><span class="p">(</span><span class="nx">View</span><span class="o">::</span><span class="na">message</span><span class="p">(</span><span class="s1">&#39;Welcome 👋&#39;</span><span class="p">));</span>
 
-<span class="x">        return null;</span>
-<span class="x">    }</span>
-<span class="x">}</span>
-</code></pre></div>
+        <span class="k">return</span> <span class="k">null</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
 
 <p>Every Activity must implement <code>onCreate()</code>. Four other hooks are
 optional and default to a no-op implementation: <code>onResume()</code>,
@@ -137,28 +137,28 @@ rotation). If you need state that persists across Activities, use a
 <a href="viewmodel-and-state.html">ViewModel</a>, not regular class properties.</p>
 <h2 id="navigation-chains-with-navigationrequest">Navigation Chains with NavigationRequest</h2>
 <p><code>BotActivity</code> exposes two protected methods to subclasses:</p>
-<div class="codehilite"><pre><span></span><code><span class="x">protected function startActivity(Intent $intent): NavigationRequest;</span>
-<span class="x">protected function finishWithResult(array $result = []): NavigationRequest;</span>
-</code></pre></div>
+<div class="codehilite"><pre><span></span><span class="k">protected</span> <span class="k">function</span> <span class="nf">startActivity</span><span class="p">(</span><span class="nx">Intent</span> <span class="nv">$intent</span><span class="p">)</span><span class="o">:</span> <span class="nx">NavigationRequest</span><span class="p">;</span>
+<span class="k">protected</span> <span class="k">function</span> <span class="nf">finishWithResult</span><span class="p">(</span><span class="k">array</span> <span class="nv">$result</span> <span class="o">=</span> <span class="p">[])</span><span class="o">:</span> <span class="nx">NavigationRequest</span><span class="p">;</span>
+</pre></div>
 
 <p>When one of the lifecycle hooks (<code>onCreate</code>, <code>onNewIntent</code>,
 <code>onResume</code>) returns a <code>NavigationRequest</code> (instead of <code>null</code>),
 <code>ActivityManager</code> immediately follows it — <strong>within the same
 incoming Update, with no extra round-trip to Telegram</strong>:</p>
-<div class="codehilite"><pre><span></span><code><span class="x">final class GatewayActivity extends BotActivity</span>
-<span class="x">{</span>
-<span class="x">    public function onCreate(Intent $intent): ?NavigationRequest</span>
-<span class="x">    {</span>
-<span class="x">        if ($this-&gt;userIsAdmin()) {</span>
-<span class="x">            return $this-&gt;startActivity(Intent::to(AdminPanelActivity::class));</span>
-<span class="x">        }</span>
+<div class="codehilite"><pre><span></span><span class="k">final</span> <span class="k">class</span> <span class="nc">GatewayActivity</span> <span class="k">extends</span> <span class="nx">BotActivity</span>
+<span class="p">{</span>
+    <span class="k">public</span> <span class="k">function</span> <span class="nf">onCreate</span><span class="p">(</span><span class="nx">Intent</span> <span class="nv">$intent</span><span class="p">)</span><span class="o">:</span> <span class="o">?</span><span class="nx">NavigationRequest</span>
+    <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nv">$this</span><span class="o">-&gt;</span><span class="na">userIsAdmin</span><span class="p">())</span> <span class="p">{</span>
+            <span class="k">return</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">startActivity</span><span class="p">(</span><span class="nx">Intent</span><span class="o">::</span><span class="na">to</span><span class="p">(</span><span class="nx">AdminPanelActivity</span><span class="o">::</span><span class="na">class</span><span class="p">));</span>
+        <span class="p">}</span>
 
-<span class="x">        $this-&gt;setContentView(View::message(&#39;Access restricted.&#39;));</span>
+        <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">setContentView</span><span class="p">(</span><span class="nx">View</span><span class="o">::</span><span class="na">message</span><span class="p">(</span><span class="s1">&#39;Access restricted.&#39;</span><span class="p">));</span>
 
-<span class="x">        return null;</span>
-<span class="x">    }</span>
-<span class="x">}</span>
-</code></pre></div>
+        <span class="k">return</span> <span class="k">null</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
 
 <p>If <code>finishWithResult()</code> is returned, <code>ActivityManager</code> behaves like
 pressing the Back button: it pops the current Activity off the
@@ -172,19 +172,19 @@ against infinite navigation loops.</p>
 <h2 id="intent-explicit-vs-implicit">Intent — Explicit vs. Implicit</h2>
 <p><code>Intent\Intent</code> has the exact same two modes as
 <code>android.content.Intent</code>:</p>
-<div class="codehilite"><pre><span></span><code><span class="x">// Explicit: directly targets an Activity</span>
-<span class="x">Intent::to(ProfileActivity::class);</span>
+<div class="codehilite"><pre><span></span><span class="c1">// Explicit: directly targets an Activity</span>
+<span class="nx">Intent</span><span class="o">::</span><span class="na">to</span><span class="p">(</span><span class="nx">ProfileActivity</span><span class="o">::</span><span class="na">class</span><span class="p">);</span>
 
-<span class="x">// Implicit: matched against IntentFilters by action/category</span>
-<span class="x">Intent::action(&#39;VIEW_PROFILE&#39;);</span>
-</code></pre></div>
+<span class="c1">// Implicit: matched against IntentFilters by action/category</span>
+<span class="nx">Intent</span><span class="o">::</span><span class="na">action</span><span class="p">(</span><span class="s1">&#39;VIEW_PROFILE&#39;</span><span class="p">);</span>
+</pre></div>
 
 <p>Adding extras is fluent and immutable — every <code>putExtra()</code> returns a
 new instance:</p>
-<div class="codehilite"><pre><span></span><code><span class="x">$intent = Intent::to(OrderActivity::class)</span>
-<span class="x">    -&gt;putExtra(&#39;order_id&#39;, 42)</span>
-<span class="x">    -&gt;withFlag(IntentFlag::ClearBackStack);</span>
-</code></pre></div>
+<div class="codehilite"><pre><span></span><span class="nv">$intent</span> <span class="o">=</span> <span class="nx">Intent</span><span class="o">::</span><span class="na">to</span><span class="p">(</span><span class="nx">OrderActivity</span><span class="o">::</span><span class="na">class</span><span class="p">)</span>
+    <span class="o">-&gt;</span><span class="na">putExtra</span><span class="p">(</span><span class="s1">&#39;order_id&#39;</span><span class="p">,</span> <span class="mi">42</span><span class="p">)</span>
+    <span class="o">-&gt;</span><span class="na">withFlag</span><span class="p">(</span><span class="nx">IntentFlag</span><span class="o">::</span><span class="na">ClearBackStack</span><span class="p">);</span>
+</pre></div>
 
 <h3 id="navigation-flags-intentflag">Navigation Flags (IntentFlag)</h3>
 <table>
@@ -214,17 +214,17 @@ new instance:</p>
 </tbody>
 </table>
 <h2 id="intentfilter-how-an-update-reaches-an-activity">IntentFilter — How an Update Reaches an Activity</h2>
-<div class="codehilite"><pre><span></span><code><span class="x">#[Attribute(Attribute::TARGET_CLASS | Attribute::IS_REPEATABLE)]</span>
-<span class="x">final class IntentFilter</span>
-<span class="x">{</span>
-<span class="x">    public function __construct(</span>
-<span class="x">        public readonly string $action,</span>
-<span class="x">        public readonly ?string $category = null,</span>
-<span class="x">        public readonly ?string $pattern = null,</span>
-<span class="x">        public readonly int $priority = 0,</span>
-<span class="x">    ) {}</span>
-<span class="x">}</span>
-</code></pre></div>
+<div class="codehilite"><pre><span></span><span class="p">#[</span><span class="nd">Attribute</span><span class="p">(</span><span class="nx">Attribute</span><span class="o">::</span><span class="na">TARGET_CLASS</span> <span class="o">|</span> <span class="nx">Attribute</span><span class="o">::</span><span class="na">IS_REPEATABLE</span><span class="p">)]</span>
+<span class="k">final</span> <span class="k">class</span> <span class="nc">IntentFilter</span>
+<span class="p">{</span>
+    <span class="k">public</span> <span class="k">function</span> <span class="fm">__construct</span><span class="p">(</span>
+        <span class="k">public</span> <span class="nx">readonly</span> <span class="nx">string</span> <span class="nv">$action</span><span class="p">,</span>
+        <span class="k">public</span> <span class="nx">readonly</span> <span class="o">?</span><span class="nx">string</span> <span class="nv">$category</span> <span class="o">=</span> <span class="k">null</span><span class="p">,</span>
+        <span class="k">public</span> <span class="nx">readonly</span> <span class="o">?</span><span class="nx">string</span> <span class="nv">$pattern</span> <span class="o">=</span> <span class="k">null</span><span class="p">,</span>
+        <span class="k">public</span> <span class="nx">readonly</span> <span class="nx">int</span> <span class="nv">$priority</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="p">)</span> <span class="p">{}</span>
+<span class="p">}</span>
+</pre></div>
 
 <p><code>Kernel\IntentResolver::resolve()</code> converts an incoming Update into
 an Intent like this:</p>
@@ -241,9 +241,9 @@ an Intent like this:</p>
 <li><strong>If no Activity matches</strong>, the Intent is routed to
    <code>Kernel\FallbackActivityMarker</code> (the built-in "404 Activity").</li>
 </ol>
-<div class="codehilite"><pre><span></span><code><span class="x">#[IntentFilter(action: &#39;RELAY_TO_SPECIALIST&#39;, pattern: &#39;/^\/ask /&#39;)]</span>
-<span class="x">final class RelayActivity extends BotActivity { /* ... */ }</span>
-</code></pre></div>
+<div class="codehilite"><pre><span></span><span class="p">#[</span><span class="nd">IntentFilter</span><span class="p">(</span><span class="nx">action</span><span class="o">:</span> <span class="s1">&#39;RELAY_TO_SPECIALIST&#39;</span><span class="p">,</span> <span class="nx">pattern</span><span class="o">:</span> <span class="s1">&#39;/^\/ask /&#39;</span><span class="p">)]</span>
+<span class="k">final</span> <span class="k">class</span> <span class="nc">RelayActivity</span> <span class="k">extends</span> <span class="nx">BotActivity</span> <span class="p">{</span> <span class="cm">/* ... */</span> <span class="p">}</span>
+</pre></div>
 
 <h2 id="back-stack">Back Stack</h2>
 <p><code>Kernel\BackStackStore</code> keeps each user's stack (keyed by <code>chat_id</code>)
@@ -252,18 +252,18 @@ running successfully (and the navigation chain completes), a new
 <code>Activity\BackStackEntry</code> is pushed — unless the Intent has the
 <code>NoHistory</code> flag.</p>
 <p>Activities can indirectly request to go back:</p>
-<div class="codehilite"><pre><span></span><code><span class="x">return $this-&gt;finishWithResult([&#39;choice&#39; =&gt; &#39;confirmed&#39;]);</span>
-</code></pre></div>
+<div class="codehilite"><pre><span></span><span class="k">return</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">finishWithResult</span><span class="p">([</span><span class="s1">&#39;choice&#39;</span> <span class="o">=&gt;</span> <span class="s1">&#39;confirmed&#39;</span><span class="p">]);</span>
+</pre></div>
 
 <h2 id="deep-links-direct-entry-with-a-start-parameter">Deep Links — Direct Entry with a /start Parameter</h2>
 <p><code>Kernel\DeepLinkResolver</code> converts a <code>/start &lt;payload&gt;</code> parameter
 (like <code>t.me/YourBot?start=order:id=42</code>) into an explicit Intent:</p>
-<div class="codehilite"><pre><span></span><code><span class="x">$resolver = new DeepLinkResolver();</span>
-<span class="x">$resolver-&gt;registerRoute(&#39;order&#39;, OrderActivity::class);</span>
+<div class="codehilite"><pre><span></span><span class="nv">$resolver</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">DeepLinkResolver</span><span class="p">();</span>
+<span class="nv">$resolver</span><span class="o">-&gt;</span><span class="na">registerRoute</span><span class="p">(</span><span class="s1">&#39;order&#39;</span><span class="p">,</span> <span class="nx">OrderActivity</span><span class="o">::</span><span class="na">class</span><span class="p">);</span>
 
-<span class="x">$payload = DeepLinkResolver::extractStartPayload($update-&gt;text); // &quot;order:id=42&quot;</span>
-<span class="x">$intent = $resolver-&gt;resolve($payload); // Intent::to(OrderActivity::class)-&gt;putExtra(&#39;id&#39;, &#39;42&#39;)</span>
-</code></pre></div>
+<span class="nv">$payload</span> <span class="o">=</span> <span class="nx">DeepLinkResolver</span><span class="o">::</span><span class="na">extractStartPayload</span><span class="p">(</span><span class="nv">$update</span><span class="o">-&gt;</span><span class="na">text</span><span class="p">);</span> <span class="c1">// &quot;order:id=42&quot;</span>
+<span class="nv">$intent</span> <span class="o">=</span> <span class="nv">$resolver</span><span class="o">-&gt;</span><span class="na">resolve</span><span class="p">(</span><span class="nv">$payload</span><span class="p">);</span> <span class="c1">// Intent::to(OrderActivity::class)-&gt;putExtra(&#39;id&#39;, &#39;42&#39;)</span>
+</pre></div>
 
 <p>The payload format is <code>route:key1=val1,key2=val2</code>.</p>
       <div class="docs-pagination">

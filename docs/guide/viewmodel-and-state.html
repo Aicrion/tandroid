@@ -74,23 +74,23 @@ solution is exactly what Android calls
 <code>androidx.lifecycle.ViewModel</code>: a state holder that outlives the
 Activity itself.</p>
 <h2 id="creating-a-viewmodel">Creating a ViewModel</h2>
-<div class="codehilite"><pre><span></span><code><span class="x">use Aicrion\Tandroid\Kernel\ViewModel\ViewModel;</span>
+<div class="codehilite"><pre><span></span><span class="k">use</span> <span class="nx">Aicrion\Tandroid\Kernel\ViewModel\ViewModel</span><span class="p">;</span>
 
-<span class="x">final class CartViewModel extends ViewModel</span>
-<span class="x">{</span>
-<span class="x">    public function addItem(string $sku): void</span>
-<span class="x">    {</span>
-<span class="x">        $items = $this-&gt;get(&#39;items&#39;, []);</span>
-<span class="x">        $items[] = $sku;</span>
-<span class="x">        $this-&gt;set(&#39;items&#39;, $items);</span>
-<span class="x">    }</span>
+<span class="k">final</span> <span class="k">class</span> <span class="nc">CartViewModel</span> <span class="k">extends</span> <span class="nx">ViewModel</span>
+<span class="p">{</span>
+    <span class="k">public</span> <span class="k">function</span> <span class="nf">addItem</span><span class="p">(</span><span class="nx">string</span> <span class="nv">$sku</span><span class="p">)</span><span class="o">:</span> <span class="nx">void</span>
+    <span class="p">{</span>
+        <span class="nv">$items</span> <span class="o">=</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">get</span><span class="p">(</span><span class="s1">&#39;items&#39;</span><span class="p">,</span> <span class="p">[]);</span>
+        <span class="nv">$items</span><span class="p">[]</span> <span class="o">=</span> <span class="nv">$sku</span><span class="p">;</span>
+        <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">set</span><span class="p">(</span><span class="s1">&#39;items&#39;</span><span class="p">,</span> <span class="nv">$items</span><span class="p">);</span>
+    <span class="p">}</span>
 
-<span class="x">    public function items(): array</span>
-<span class="x">    {</span>
-<span class="x">        return $this-&gt;get(&#39;items&#39;, []);</span>
-<span class="x">    }</span>
-<span class="x">}</span>
-</code></pre></div>
+    <span class="k">public</span> <span class="k">function</span> <span class="nf">items</span><span class="p">()</span><span class="o">:</span> <span class="k">array</span>
+    <span class="p">{</span>
+        <span class="k">return</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">get</span><span class="p">(</span><span class="s1">&#39;items&#39;</span><span class="p">,</span> <span class="p">[]);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
 
 <p>The base <code>ViewModel</code> exposes just two protected methods to
 subclasses: <code>get(string $key, mixed $default = null)</code> and
@@ -100,25 +100,25 @@ array that gets serialized/deserialized via <code>hydrate()</code>/
 <h2 id="using-it-in-an-activity">Using It in an Activity</h2>
 <p>By combining <code>HasViewModel</code> onto any <code>BotActivity</code>, the protected
 <code>viewModel()</code> method becomes available:</p>
-<div class="codehilite"><pre><span></span><code><span class="x">use Aicrion\Tandroid\Activity\{BotActivity, HasViewModel, NavigationRequest};</span>
-<span class="x">use Aicrion\Tandroid\Intent\Intent;</span>
-<span class="x">use Aicrion\Tandroid\View\View;</span>
+<div class="codehilite"><pre><span></span><span class="k">use</span> <span class="nx">Aicrion\Tandroid\Activity\</span><span class="p">{</span><span class="nx">BotActivity</span><span class="p">,</span> <span class="nx">HasViewModel</span><span class="p">,</span> <span class="nx">NavigationRequest</span><span class="p">};</span>
+<span class="k">use</span> <span class="nx">Aicrion\Tandroid\Intent\Intent</span><span class="p">;</span>
+<span class="k">use</span> <span class="nx">Aicrion\Tandroid\View\View</span><span class="p">;</span>
 
-<span class="x">final class CartActivity extends BotActivity</span>
-<span class="x">{</span>
-<span class="x">    use HasViewModel;</span>
+<span class="k">final</span> <span class="k">class</span> <span class="nc">CartActivity</span> <span class="k">extends</span> <span class="nx">BotActivity</span>
+<span class="p">{</span>
+    <span class="k">use</span> <span class="nx">HasViewModel</span><span class="p">;</span>
 
-<span class="x">    public function onCreate(Intent $intent): ?NavigationRequest</span>
-<span class="x">    {</span>
-<span class="x">        $cart = $this-&gt;viewModel(CartViewModel::class);</span>
-<span class="x">        $cart-&gt;addItem($intent-&gt;getExtra(&#39;sku&#39;));</span>
+    <span class="k">public</span> <span class="k">function</span> <span class="nf">onCreate</span><span class="p">(</span><span class="nx">Intent</span> <span class="nv">$intent</span><span class="p">)</span><span class="o">:</span> <span class="o">?</span><span class="nx">NavigationRequest</span>
+    <span class="p">{</span>
+        <span class="nv">$cart</span> <span class="o">=</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">viewModel</span><span class="p">(</span><span class="nx">CartViewModel</span><span class="o">::</span><span class="na">class</span><span class="p">);</span>
+        <span class="nv">$cart</span><span class="o">-&gt;</span><span class="na">addItem</span><span class="p">(</span><span class="nv">$intent</span><span class="o">-&gt;</span><span class="na">getExtra</span><span class="p">(</span><span class="s1">&#39;sku&#39;</span><span class="p">));</span>
 
-<span class="x">        $this-&gt;setContentView(View::message(&#39;Cart items: &#39; . count($cart-&gt;items())));</span>
+        <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">setContentView</span><span class="p">(</span><span class="nx">View</span><span class="o">::</span><span class="na">message</span><span class="p">(</span><span class="s1">&#39;Cart items: &#39;</span> <span class="o">.</span> <span class="nb">count</span><span class="p">(</span><span class="nv">$cart</span><span class="o">-&gt;</span><span class="na">items</span><span class="p">())));</span>
 
-<span class="x">        return null;</span>
-<span class="x">    }</span>
-<span class="x">}</span>
-</code></pre></div>
+        <span class="k">return</span> <span class="k">null</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
 
 <p>That's it. You don't need to persist anything yourself —
 <code>ActivityManager</code> automatically calls <code>persistViewModel()</code> on any
@@ -144,8 +144,8 @@ completes.</p>
 <h2 id="the-scope-of-a-viewmodel">The Scope of a ViewModel</h2>
 <p>The storage key is built from a combination of the user's <code>chat_id</code>
 and the ViewModel class's FQCN:</p>
-<div class="codehilite"><pre><span></span><code>aicrion.viewmodel.{ViewModel_FQCN_underscored}.{chat_id}
-</code></pre></div>
+<div class="codehilite"><pre><span></span>aicrion.viewmodel.{ViewModel_FQCN_underscored}.{chat_id}
+</pre></div>
 
 <p>This means a <code>CartViewModel</code> shared across multiple Activities (e.g.
 <code>ProductActivity</code> → <code>CartActivity</code> → <code>CheckoutActivity</code>) all running
@@ -154,8 +154,8 @@ ViewModel surviving Android recreating the Activity on a screen
 rotation.</p>
 <p>To explicitly clear a ViewModel from cache (e.g. after an order
 completes):</p>
-<div class="codehilite"><pre><span></span><code><span class="x">$this-&gt;stateStore-&gt;clear(CartViewModel::class, $this-&gt;update-&gt;chatId);</span>
-</code></pre></div>
+<div class="codehilite"><pre><span></span><span class="nv">$this</span><span class="o">-&gt;</span><span class="na">stateStore</span><span class="o">-&gt;</span><span class="na">clear</span><span class="p">(</span><span class="nx">CartViewModel</span><span class="o">::</span><span class="na">class</span><span class="p">,</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">update</span><span class="o">-&gt;</span><span class="na">chatId</span><span class="p">);</span>
+</pre></div>
 
 <p>(Since <code>HasViewModel</code> defines this property as <code>private</code> within your
 own class, it's directly accessible from your Activity's methods —

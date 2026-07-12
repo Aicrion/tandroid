@@ -75,22 +75,22 @@ these sections — the rest of the framework works fine without them.</p>
 <p><code>Remote\RemoteIntent</code> is the cross-process equivalent of <code>Intent</code>:
 instead of navigating to a local Activity, it addresses a
 structured message to another bot (by username).</p>
-<div class="codehilite"><pre><span></span><code><span class="x">use Aicrion\Tandroid\Remote\{RemoteIntent, BotToBotClient};</span>
+<div class="codehilite"><pre><span></span><span class="k">use</span> <span class="nx">Aicrion\Tandroid\Remote\</span><span class="p">{</span><span class="nx">RemoteIntent</span><span class="p">,</span> <span class="nx">BotToBotClient</span><span class="p">};</span>
 
-<span class="x">$remote = RemoteIntent::to(&#39;copywriter_bot&#39;, &#39;DRAFT_REQUEST&#39;)</span>
-<span class="x">    -&gt;with(&#39;brief&#39;, &#39;Write ad copy for Product X&#39;)</span>
-<span class="x">    -&gt;with(&#39;reply_to_chat&#39;, $chatId);</span>
+<span class="nv">$remote</span> <span class="o">=</span> <span class="nx">RemoteIntent</span><span class="o">::</span><span class="na">to</span><span class="p">(</span><span class="s1">&#39;copywriter_bot&#39;</span><span class="p">,</span> <span class="s1">&#39;DRAFT_REQUEST&#39;</span><span class="p">)</span>
+    <span class="o">-&gt;</span><span class="na">with</span><span class="p">(</span><span class="s1">&#39;brief&#39;</span><span class="p">,</span> <span class="s1">&#39;Write ad copy for Product X&#39;</span><span class="p">)</span>
+    <span class="o">-&gt;</span><span class="na">with</span><span class="p">(</span><span class="s1">&#39;reply_to_chat&#39;</span><span class="p">,</span> <span class="nv">$chatId</span><span class="p">);</span>
 
-<span class="x">(new BotToBotClient($httpClient, $token))-&gt;send($remote);</span>
-</code></pre></div>
+<span class="p">(</span><span class="k">new</span> <span class="nx">BotToBotClient</span><span class="p">(</span><span class="nv">$httpClient</span><span class="p">,</span> <span class="nv">$token</span><span class="p">))</span><span class="o">-&gt;</span><span class="na">send</span><span class="p">(</span><span class="nv">$remote</span><span class="p">);</span>
+</pre></div>
 
 <p>On the receiving side, the incoming bot-to-bot message is decoded
 back into a <code>RemoteIntent</code> with <code>BotToBotClient::decodeIncoming()</code>,
 and a local Intent is built from it:</p>
-<div class="codehilite"><pre><span></span><code><span class="x">$remoteIntent = BotToBotClient::decodeIncoming($rawIncomingMessage);</span>
-<span class="x">$localIntent = Intent::to(DraftRequestActivity::class)</span>
-<span class="x">    -&gt;putExtra(&#39;brief&#39;, $remoteIntent-&gt;toArray()[&#39;payload&#39;][&#39;brief&#39;]);</span>
-</code></pre></div>
+<div class="codehilite"><pre><span></span><span class="nv">$remoteIntent</span> <span class="o">=</span> <span class="nx">BotToBotClient</span><span class="o">::</span><span class="na">decodeIncoming</span><span class="p">(</span><span class="nv">$rawIncomingMessage</span><span class="p">);</span>
+<span class="nv">$localIntent</span> <span class="o">=</span> <span class="nx">Intent</span><span class="o">::</span><span class="na">to</span><span class="p">(</span><span class="nx">DraftRequestActivity</span><span class="o">::</span><span class="na">class</span><span class="p">)</span>
+    <span class="o">-&gt;</span><span class="na">putExtra</span><span class="p">(</span><span class="s1">&#39;brief&#39;</span><span class="p">,</span> <span class="nv">$remoteIntent</span><span class="o">-&gt;</span><span class="na">toArray</span><span class="p">()[</span><span class="s1">&#39;payload&#39;</span><span class="p">][</span><span class="s1">&#39;brief&#39;</span><span class="p">]);</span>
+</pre></div>
 
 <p>This is exactly the pattern shown in
 <code>plugins/greeter/src/RelayActivity.php</code>: it takes a human request and
@@ -99,14 +99,14 @@ relays it to another specialist bot.</p>
 <p>When a user invokes the bot via <code>@mention</code> inside a chat the bot
 hasn't been added to, <code>Guest\GuestContext</code> holds the constraints of
 that interaction:</p>
-<div class="codehilite"><pre><span></span><code><span class="x">final class GuestContext</span>
-<span class="x">{</span>
-<span class="x">    public readonly int $hostChatId;</span>
-<span class="x">    public readonly int $mentioningUserId;</span>
-<span class="x">    public readonly bool $isGuestInvocation;</span>
-<span class="x">    public readonly ?string $guestQueryId;</span>
-<span class="x">}</span>
-</code></pre></div>
+<div class="codehilite"><pre><span></span><span class="k">final</span> <span class="k">class</span> <span class="nc">GuestContext</span>
+<span class="p">{</span>
+    <span class="k">public</span> <span class="nx">readonly</span> <span class="nx">int</span> <span class="nv">$hostChatId</span><span class="p">;</span>
+    <span class="k">public</span> <span class="nx">readonly</span> <span class="nx">int</span> <span class="nv">$mentioningUserId</span><span class="p">;</span>
+    <span class="k">public</span> <span class="nx">readonly</span> <span class="nx">bool</span> <span class="nv">$isGuestInvocation</span><span class="p">;</span>
+    <span class="k">public</span> <span class="nx">readonly</span> <span class="o">?</span><span class="nx">string</span> <span class="nv">$guestQueryId</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
 
 <p>Two important rules:</p>
 <ol>
@@ -119,9 +119,9 @@ that interaction:</p>
    <code>sendMessage</code></strong> — since the bot doesn't have persistent membership
    in that chat. Instead:</li>
 </ol>
-<div class="codehilite"><pre><span></span><code><span class="x">Telegram::guestQuery($guestContext-&gt;answerQueryId())</span>
-<span class="x">    -&gt;reply(&#39;This is your reply as a guest mention.&#39;);</span>
-</code></pre></div>
+<div class="codehilite"><pre><span></span><span class="nx">Telegram</span><span class="o">::</span><span class="na">guestQuery</span><span class="p">(</span><span class="nv">$guestContext</span><span class="o">-&gt;</span><span class="na">answerQueryId</span><span class="p">())</span>
+    <span class="o">-&gt;</span><span class="na">reply</span><span class="p">(</span><span class="s1">&#39;This is your reply as a guest mention.&#39;</span><span class="p">);</span>
+</pre></div>
 
 <blockquote>
 <p>Currently, building a <code>GuestContext</code> from a raw Update (detecting
@@ -134,24 +134,24 @@ still on the roadmap (see "Known Limitations" below).</p>
 <p><code>Managed\BotFactory</code> lets a parent bot create independent child bots
 for each customer/tenant — instead of routing everything through a
 single shared token:</p>
-<div class="codehilite"><pre><span></span><code><span class="x">use Aicrion\Tandroid\Managed\BotFactory;</span>
+<div class="codehilite"><pre><span></span><span class="k">use</span> <span class="nx">Aicrion\Tandroid\Managed\BotFactory</span><span class="p">;</span>
 
-<span class="x">$factory = new BotFactory($httpClient, parentToken: $parentBotToken);</span>
+<span class="nv">$factory</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">BotFactory</span><span class="p">(</span><span class="nv">$httpClient</span><span class="p">,</span> <span class="nx">parentToken</span><span class="o">:</span> <span class="nv">$parentBotToken</span><span class="p">);</span>
 
-<span class="x">$childBot = $factory-&gt;createManagedBot(name: &quot;Ali&#39;s Shop Bot&quot;, username: &#39;ali_shop_bot&#39;);</span>
-<span class="x">// $childBot-&gt;botId, $childBot-&gt;username, $childBot-&gt;token</span>
+<span class="nv">$childBot</span> <span class="o">=</span> <span class="nv">$factory</span><span class="o">-&gt;</span><span class="na">createManagedBot</span><span class="p">(</span><span class="nx">name</span><span class="o">:</span> <span class="s2">&quot;Ali&#39;s Shop Bot&quot;</span><span class="p">,</span> <span class="nx">username</span><span class="o">:</span> <span class="s1">&#39;ali_shop_bot&#39;</span><span class="p">);</span>
+<span class="c1">// $childBot-&gt;botId, $childBot-&gt;username, $childBot-&gt;token</span>
 
-<span class="x">$factory-&gt;rotateToken($childBot-&gt;botId); // safe token rotation</span>
-<span class="x">$factory-&gt;revoke($childBot-&gt;botId);      // fully remove the child bot</span>
-</code></pre></div>
+<span class="nv">$factory</span><span class="o">-&gt;</span><span class="na">rotateToken</span><span class="p">(</span><span class="nv">$childBot</span><span class="o">-&gt;</span><span class="na">botId</span><span class="p">);</span> <span class="c1">// safe token rotation</span>
+<span class="nv">$factory</span><span class="o">-&gt;</span><span class="na">revoke</span><span class="p">(</span><span class="nv">$childBot</span><span class="o">-&gt;</span><span class="na">botId</span><span class="p">);</span>      <span class="c1">// fully remove the child bot</span>
+</pre></div>
 
 <p>Every <code>Managed\ManagedBot</code> is a simple object carrying an ID/
 username/token. To actually run it as a fully independent instance,
 build a separate <code>Kernel</code> with a <code>FrameworkConfig</code> specific to that
 token:</p>
-<div class="codehilite"><pre><span></span><code><span class="x">$childConfig = FrameworkConfig::fromFile(__DIR__ . &#39;/config/aicrion.yaml&#39;)-&gt;withBotToken($childBot-&gt;token);</span>
-<span class="x">$childKernel = new Kernel($childConfig)-&gt;boot();</span>
-</code></pre></div>
+<div class="codehilite"><pre><span></span><span class="nv">$childConfig</span> <span class="o">=</span> <span class="nx">FrameworkConfig</span><span class="o">::</span><span class="na">fromFile</span><span class="p">(</span><span class="no">__DIR__</span> <span class="o">.</span> <span class="s1">&#39;/config/aicrion.yaml&#39;</span><span class="p">)</span><span class="o">-&gt;</span><span class="na">withBotToken</span><span class="p">(</span><span class="nv">$childBot</span><span class="o">-&gt;</span><span class="na">token</span><span class="p">);</span>
+<span class="nv">$childKernel</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Kernel</span><span class="p">(</span><span class="nv">$childConfig</span><span class="p">)</span><span class="o">-&gt;</span><span class="na">boot</span><span class="p">();</span>
+</pre></div>
 
 <h2 id="known-limitations-honestly-stated">Known Limitations (Honestly Stated)</h2>
 <p>These three features work fully at the HTTP level (sending/receiving

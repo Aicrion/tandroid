@@ -80,8 +80,8 @@
   required, and it works well on shared hosting.</li>
 </ul>
 <h2 id="installing-with-composer">Installing with Composer</h2>
-<div class="codehilite"><pre><span></span><code>composer<span class="w"> </span>require<span class="w"> </span>aicrion/tandroid
-</code></pre></div>
+<div class="codehilite"><pre><span></span>composer<span class="w"> </span>require<span class="w"> </span>aicrion/tandroid
+</pre></div>
 
 <p>This pulls in Symfony DependencyInjection, EventDispatcher, Cache,
 Config, Yaml, Messenger, HttpClient, as well as Doctrine ORM/DBAL/
@@ -89,7 +89,7 @@ Migrations and <code>predis/predis</code> — no other manual dependencies neede
 <h2 id="host-application-structure">Host Application Structure</h2>
 <p>The framework is designed as a library, not a project skeleton. A
 typical host application looks like this:</p>
-<div class="codehilite"><pre><span></span><code>my-bot/
+<div class="codehilite"><pre><span></span>my-bot/
 ├── config/
 │   └── aicrion.yaml        # main configuration
 ├── plugins/
@@ -105,7 +105,7 @@ typical host application looks like this:</p>
 │   └── data.sqlite          # default SQLite database
 ├── vendor/
 └── composer.json
-</code></pre></div>
+</pre></div>
 
 <p>You can copy this very repository as a starter skeleton;
 <code>public/webhook.php</code>, <code>bin/poll.php</code>, and <code>config/aicrion.yaml</code> are
@@ -118,25 +118,25 @@ real plugin looks like.</p>
 <li>Set it as an environment variable (recommended — never hardcode
    the token in <code>aicrion.yaml</code>):</li>
 </ol>
-<div class="codehilite"><pre><span></span><code><span class="nb">export</span><span class="w"> </span><span class="nv">AICRION_BOT_TOKEN</span><span class="o">=</span><span class="s2">&quot;123456:ABC-your-token&quot;</span>
-</code></pre></div>
+<div class="codehilite"><pre><span></span><span class="nb">export</span><span class="w"> </span><span class="nv">AICRION_BOT_TOKEN</span><span class="o">=</span><span class="s2">&quot;123456:ABC-your-token&quot;</span>
+</pre></div>
 
 <ol>
 <li>Check <code>config/aicrion.yaml</code> (it already works out of the box
    because it uses <code>%env(...)%</code>):</li>
 </ol>
-<div class="codehilite"><pre><span></span><code><span class="nt">bot</span><span class="p">:</span>
+<div class="codehilite"><pre><span></span><span class="nt">bot</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">token</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;%env(AICRION_BOT_TOKEN)%&#39;</span>
 <span class="w">  </span><span class="nt">mode</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">webhook</span><span class="w"> </span><span class="c1"># webhook | polling</span>
-</code></pre></div>
+</pre></div>
 
 <p>The full config system is documented in <a href="configuration.html">Configuration</a>.</p>
 <h2 id="running-your-first-bot">Running Your First Bot</h2>
 <p>With the sample <code>greeter</code> plugin bundled in the skeleton, you can
 test immediately:</p>
 <h3 id="polling-mode-for-local-development">Polling Mode (for local development)</h3>
-<div class="codehilite"><pre><span></span><code>php<span class="w"> </span>bin/poll.php
-</code></pre></div>
+<div class="codehilite"><pre><span></span>php<span class="w"> </span>bin/poll.php
+</pre></div>
 
 <p>This runs an infinite loop with a 200ms pause between each
 <code>getUpdates</code> call; press <code>Ctrl+C</code> to stop.</p>
@@ -145,14 +145,14 @@ test immediately:</p>
 <li>Upload <code>public/</code> to a server with valid HTTPS.</li>
 <li>Register the webhook with Telegram:</li>
 </ol>
-<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span><span class="s2">&quot;https://api.telegram.org/bot</span><span class="nv">$AICRION_BOT_TOKEN</span><span class="s2">/setWebhook?url=https://your-domain.com/webhook.php&quot;</span>
-</code></pre></div>
+<div class="codehilite"><pre><span></span>curl<span class="w"> </span><span class="s2">&quot;https://api.telegram.org/bot</span><span class="nv">$AICRION_BOT_TOKEN</span><span class="s2">/setWebhook?url=https://your-domain.com/webhook.php&quot;</span>
+</pre></div>
 
 <p>or using the framework's <code>WebhookManager</code> class:</p>
-<div class="codehilite"><pre><span></span><code><span class="x">use Aicrion\Tandroid\Api\Telegram;</span>
+<div class="codehilite"><pre><span></span><span class="k">use</span> <span class="nx">Aicrion\Tandroid\Api\Telegram</span><span class="p">;</span>
 
-<span class="x">Telegram::webhook()-&gt;set(&#39;https://your-domain.com/webhook.php&#39;);</span>
-</code></pre></div>
+<span class="nx">Telegram</span><span class="o">::</span><span class="na">webhook</span><span class="p">()</span><span class="o">-&gt;</span><span class="na">set</span><span class="p">(</span><span class="s1">&#39;https://your-domain.com/webhook.php&#39;</span><span class="p">);</span>
+</pre></div>
 
 <p>Send <code>/start</code> to the bot and <code>plugins/greeter/src/StartActivity.php</code>
 will fire, replying with a welcome message and a "My Profile" button.</p>

@@ -72,7 +72,7 @@ like every app installed on Android has its own Activities,
 permissions, and database. <code>Package\PackageManager</code> is the
 equivalent of <code>PackageManagerService</code>.</p>
 <h2 id="plugin-structure">Plugin Structure</h2>
-<div class="codehilite"><pre><span></span><code>plugins/greeter/
+<div class="codehilite"><pre><span></span>plugins/greeter/
 ├── manifest.php              # this plugin&#39;s AndroidManifest.xml
 ├── migrations/
 │   ├── migrations.php
@@ -87,23 +87,23 @@ equivalent of <code>PackageManagerService</code>.</p>
     │   └── Subscriber.php
     └── Repository/
         └── SubscriberRepository.php
-</code></pre></div>
+</pre></div>
 
 <h2 id="writing-manifestphp">Writing manifest.php</h2>
-<div class="codehilite"><pre><span></span><code><span class="x">use Aicrion\Tandroid\Package\Manifest;</span>
-<span class="x">use Aicrion\Tandroid\Package\Permission;</span>
-<span class="x">use Greeter\Entity\Subscriber;</span>
-<span class="x">use Greeter\{ProfileActivity, RelayActivity, StartActivity, WelcomeReceiver};</span>
+<div class="codehilite"><pre><span></span><span class="k">use</span> <span class="nx">Aicrion\Tandroid\Package\Manifest</span><span class="p">;</span>
+<span class="k">use</span> <span class="nx">Aicrion\Tandroid\Package\Permission</span><span class="p">;</span>
+<span class="k">use</span> <span class="nx">Greeter\Entity\Subscriber</span><span class="p">;</span>
+<span class="k">use</span> <span class="nx">Greeter\</span><span class="p">{</span><span class="nx">ProfileActivity</span><span class="p">,</span> <span class="nx">RelayActivity</span><span class="p">,</span> <span class="nx">StartActivity</span><span class="p">,</span> <span class="nx">WelcomeReceiver</span><span class="p">};</span>
 
-<span class="x">return Manifest::define(</span>
-<span class="x">    package: &#39;greeter&#39;,</span>
-<span class="x">    version: &#39;1.0.0&#39;,</span>
-<span class="x">    activities: [StartActivity::class, ProfileActivity::class, RelayActivity::class],</span>
-<span class="x">    permissions: [Permission::SendMessage, Permission::BroadcastEvents],</span>
-<span class="x">    entities: [Subscriber::class],</span>
-<span class="x">    receivers: [WelcomeReceiver::class],</span>
-<span class="x">);</span>
-</code></pre></div>
+<span class="k">return</span> <span class="nx">Manifest</span><span class="o">::</span><span class="na">define</span><span class="p">(</span>
+    <span class="nx">package</span><span class="o">:</span> <span class="s1">&#39;greeter&#39;</span><span class="p">,</span>
+    <span class="nx">version</span><span class="o">:</span> <span class="s1">&#39;1.0.0&#39;</span><span class="p">,</span>
+    <span class="nx">activities</span><span class="o">:</span> <span class="p">[</span><span class="nx">StartActivity</span><span class="o">::</span><span class="na">class</span><span class="p">,</span> <span class="nx">ProfileActivity</span><span class="o">::</span><span class="na">class</span><span class="p">,</span> <span class="nx">RelayActivity</span><span class="o">::</span><span class="na">class</span><span class="p">],</span>
+    <span class="nx">permissions</span><span class="o">:</span> <span class="p">[</span><span class="nx">Permission</span><span class="o">::</span><span class="na">SendMessage</span><span class="p">,</span> <span class="nx">Permission</span><span class="o">::</span><span class="na">BroadcastEvents</span><span class="p">],</span>
+    <span class="nx">entities</span><span class="o">:</span> <span class="p">[</span><span class="nx">Subscriber</span><span class="o">::</span><span class="na">class</span><span class="p">],</span>
+    <span class="nx">receivers</span><span class="o">:</span> <span class="p">[</span><span class="nx">WelcomeReceiver</span><span class="o">::</span><span class="na">class</span><span class="p">],</span>
+<span class="p">);</span>
+</pre></div>
 
 <table>
 <thead>
@@ -155,12 +155,12 @@ for things that are actually "installed."</p>
 </blockquote>
 <h2 id="the-discovery-cycle">The Discovery Cycle</h2>
 <p><code>PackageManager::discover()</code> runs on every <code>Kernel::boot()</code>:</p>
-<div class="codehilite"><pre><span></span><code><span class="x">$pattern = &quot;{plugins_path}/*/manifest.php&quot;;</span>
+<div class="codehilite"><pre><span></span><span class="nv">$pattern</span> <span class="o">=</span> <span class="s2">&quot;{plugins_path}/*/manifest.php&quot;</span><span class="p">;</span>
 
-<span class="x">foreach (glob($pattern) as $manifestFile) {</span>
-<span class="x">    $manifest = require $manifestFile; // must return a Manifest</span>
-<span class="x">}</span>
-</code></pre></div>
+<span class="k">foreach</span> <span class="p">(</span><span class="nb">glob</span><span class="p">(</span><span class="nv">$pattern</span><span class="p">)</span> <span class="k">as</span> <span class="nv">$manifestFile</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nv">$manifest</span> <span class="o">=</span> <span class="k">require</span> <span class="nv">$manifestFile</span><span class="p">;</span> <span class="c1">// must return a Manifest</span>
+<span class="p">}</span>
+</pre></div>
 
 <p>After discovery, <code>Kernel::boot()</code> continues in this order:</p>
 <ol>
@@ -180,10 +180,10 @@ autoloader for every discovered plugin via <code>spl_autoload_register()</code>:
 the first namespace segment (which must match the plugin's root
 class name exactly, e.g. <code>Greeter</code>) maps directly to that plugin's
 <code>src/</code> folder:</p>
-<div class="codehilite"><pre><span></span><code>Greeter\StartActivity              → plugins/greeter/src/StartActivity.php
+<div class="codehilite"><pre><span></span>Greeter\StartActivity              → plugins/greeter/src/StartActivity.php
 Greeter\Entity\Subscriber          → plugins/greeter/src/Entity/Subscriber.php
 Greeter\Repository\SubscriberRepository → plugins/greeter/src/Repository/SubscriberRepository.php
-</code></pre></div>
+</pre></div>
 
 <p>This means your plugin's <code>src/</code> folder structure just needs to match
 its internal namespaces under this convention — the exact same one
@@ -192,8 +192,8 @@ Composer's PSR-4 uses — without needing to build a separate
 <h2 id="installing-a-new-plugin">Installing a New Plugin</h2>
 <p>Installing a plugin means simply <strong>copying its folder into
 <code>plugins/</code></strong>:</p>
-<div class="codehilite"><pre><span></span><code>cp<span class="w"> </span>-r<span class="w"> </span>/path/to/awesome-plugin<span class="w"> </span>plugins/awesome-plugin
-</code></pre></div>
+<div class="codehilite"><pre><span></span>cp<span class="w"> </span>-r<span class="w"> </span>/path/to/awesome-plugin<span class="w"> </span>plugins/awesome-plugin
+</pre></div>
 
 <p>On the next request (webhook or polling), <code>Kernel::boot()</code> will:</p>
 <ul>

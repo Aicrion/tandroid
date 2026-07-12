@@ -110,55 +110,55 @@ modes; the only difference is the entry point.</p>
 </table>
 <h2 id="webhook-mode">Webhook Mode</h2>
 <h3 id="registering-the-webhook-with-telegram">Registering the Webhook with Telegram</h3>
-<div class="codehilite"><pre><span></span><code><span class="x">use Aicrion\Tandroid\Api\Telegram;</span>
+<div class="codehilite"><pre><span></span><span class="k">use</span> <span class="nx">Aicrion\Tandroid\Api\Telegram</span><span class="p">;</span>
 
-<span class="x">Telegram::webhook()-&gt;set(</span>
-<span class="x">    url: &#39;https://your-domain.com/webhook.php&#39;,</span>
-<span class="x">    secretToken: getenv(&#39;AICRION_WEBHOOK_SECRET&#39;) ?: null,</span>
-<span class="x">    dropPendingUpdates: true,</span>
-<span class="x">);</span>
-</code></pre></div>
+<span class="nx">Telegram</span><span class="o">::</span><span class="na">webhook</span><span class="p">()</span><span class="o">-&gt;</span><span class="na">set</span><span class="p">(</span>
+    <span class="nx">url</span><span class="o">:</span> <span class="s1">&#39;https://your-domain.com/webhook.php&#39;</span><span class="p">,</span>
+    <span class="nx">secretToken</span><span class="o">:</span> <span class="nb">getenv</span><span class="p">(</span><span class="s1">&#39;AICRION_WEBHOOK_SECRET&#39;</span><span class="p">)</span> <span class="o">?:</span> <span class="k">null</span><span class="p">,</span>
+    <span class="nx">dropPendingUpdates</span><span class="o">:</span> <span class="k">true</span><span class="p">,</span>
+<span class="p">);</span>
+</pre></div>
 
 <p>or directly with <code>curl</code>:</p>
-<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span><span class="s2">&quot;https://api.telegram.org/bot</span><span class="nv">$AICRION_BOT_TOKEN</span><span class="s2">/setWebhook?url=https://your-domain.com/webhook.php&quot;</span>
-</code></pre></div>
+<div class="codehilite"><pre><span></span>curl<span class="w"> </span><span class="s2">&quot;https://api.telegram.org/bot</span><span class="nv">$AICRION_BOT_TOKEN</span><span class="s2">/setWebhook?url=https://your-domain.com/webhook.php&quot;</span>
+</pre></div>
 
 <h3 id="the-publicwebhookphp-entry-point">The <code>public/webhook.php</code> Entry Point</h3>
-<div class="codehilite"><pre><span></span><code><span class="x">$kernel = Kernel::fromConfigFile(__DIR__ . &#39;/../config/aicrion.yaml&#39;)-&gt;boot();</span>
-<span class="x">$source = new WebhookUpdateSource(file_get_contents(&#39;php://input&#39;) ?: &#39;&#39;);</span>
+<div class="codehilite"><pre><span></span><span class="nv">$kernel</span> <span class="o">=</span> <span class="nx">Kernel</span><span class="o">::</span><span class="na">fromConfigFile</span><span class="p">(</span><span class="no">__DIR__</span> <span class="o">.</span> <span class="s1">&#39;/../config/aicrion.yaml&#39;</span><span class="p">)</span><span class="o">-&gt;</span><span class="na">boot</span><span class="p">();</span>
+<span class="nv">$source</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">WebhookUpdateSource</span><span class="p">(</span><span class="nb">file_get_contents</span><span class="p">(</span><span class="s1">&#39;php://input&#39;</span><span class="p">)</span> <span class="o">?:</span> <span class="s1">&#39;&#39;</span><span class="p">);</span>
 
-<span class="x">foreach ($source-&gt;pull() as $update) {</span>
-<span class="x">    $kernel-&gt;handle($update); // Kernel itself also sends the reply</span>
-<span class="x">}</span>
+<span class="k">foreach</span> <span class="p">(</span><span class="nv">$source</span><span class="o">-&gt;</span><span class="na">pull</span><span class="p">()</span> <span class="k">as</span> <span class="nv">$update</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nv">$kernel</span><span class="o">-&gt;</span><span class="na">handle</span><span class="p">(</span><span class="nv">$update</span><span class="p">);</span> <span class="c1">// Kernel itself also sends the reply</span>
+<span class="p">}</span>
 
-<span class="x">http_response_code(200);</span>
-</code></pre></div>
+<span class="nb">http_response_code</span><span class="p">(</span><span class="mi">200</span><span class="p">);</span>
+</pre></div>
 
 <p>Every time Telegram has a new Update, it sends a <code>POST</code> request with
 a JSON body directly to this file. <code>Kernel::boot()</code> runs once per
 HTTP request — on shared hosting this means no persistent process is
 needed, exactly like running any regular PHP script.</p>
 <h3 id="managing-the-webhook">Managing the Webhook</h3>
-<div class="codehilite"><pre><span></span><code><span class="x">Telegram::webhook()-&gt;info();               // getWebhookInfo</span>
-<span class="x">Telegram::webhook()-&gt;delete(dropPendingUpdates: true); // switch back to polling</span>
-</code></pre></div>
+<div class="codehilite"><pre><span></span><span class="nx">Telegram</span><span class="o">::</span><span class="na">webhook</span><span class="p">()</span><span class="o">-&gt;</span><span class="na">info</span><span class="p">();</span>               <span class="c1">// getWebhookInfo</span>
+<span class="nx">Telegram</span><span class="o">::</span><span class="na">webhook</span><span class="p">()</span><span class="o">-&gt;</span><span class="na">delete</span><span class="p">(</span><span class="nx">dropPendingUpdates</span><span class="o">:</span> <span class="k">true</span><span class="p">);</span> <span class="c1">// switch back to polling</span>
+</pre></div>
 
 <h2 id="polling-mode">Polling Mode</h2>
 <h3 id="the-binpollphp-entry-point">The <code>bin/poll.php</code> Entry Point</h3>
-<div class="codehilite"><pre><span></span><code>php<span class="w"> </span>bin/poll.php
-</code></pre></div>
+<div class="codehilite"><pre><span></span>php<span class="w"> </span>bin/poll.php
+</pre></div>
 
-<div class="codehilite"><pre><span></span><code><span class="x">$kernel = Kernel::fromConfigFile(__DIR__ . &#39;/../config/aicrion.yaml&#39;)-&gt;boot();</span>
-<span class="x">$source = new PollingUpdateSource($kernel-&gt;httpClient(), $kernel-&gt;config()-&gt;botToken);</span>
+<div class="codehilite"><pre><span></span><span class="nv">$kernel</span> <span class="o">=</span> <span class="nx">Kernel</span><span class="o">::</span><span class="na">fromConfigFile</span><span class="p">(</span><span class="no">__DIR__</span> <span class="o">.</span> <span class="s1">&#39;/../config/aicrion.yaml&#39;</span><span class="p">)</span><span class="o">-&gt;</span><span class="na">boot</span><span class="p">();</span>
+<span class="nv">$source</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">PollingUpdateSource</span><span class="p">(</span><span class="nv">$kernel</span><span class="o">-&gt;</span><span class="na">httpClient</span><span class="p">(),</span> <span class="nv">$kernel</span><span class="o">-&gt;</span><span class="na">config</span><span class="p">()</span><span class="o">-&gt;</span><span class="na">botToken</span><span class="p">);</span>
 
-<span class="x">while (true) {</span>
-<span class="x">    foreach ($source-&gt;pull() as $update) {</span>
-<span class="x">        $kernel-&gt;handle($update);</span>
-<span class="x">    }</span>
+<span class="k">while</span> <span class="p">(</span><span class="k">true</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">foreach</span> <span class="p">(</span><span class="nv">$source</span><span class="o">-&gt;</span><span class="na">pull</span><span class="p">()</span> <span class="k">as</span> <span class="nv">$update</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nv">$kernel</span><span class="o">-&gt;</span><span class="na">handle</span><span class="p">(</span><span class="nv">$update</span><span class="p">);</span>
+    <span class="p">}</span>
 
-<span class="x">    usleep(200_000);</span>
-<span class="x">}</span>
-</code></pre></div>
+    <span class="nb">usleep</span><span class="p">(</span><span class="mi">200</span><span class="nx">_000</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
 
 <p><code>PollingUpdateSource</code> keeps the <code>update_id</code> offset internally, so
 each <code>pull()</code> only returns new Updates, and restarting the process

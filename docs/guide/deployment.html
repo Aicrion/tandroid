@@ -88,13 +88,18 @@ files via FTP/File Manager, no SSH, no CLI commands.</p>
 <li><strong>Make <code>var/</code> writable.</strong> Both SQLite (<code>var/data.sqlite</code>) and the
    filesystem cache (<code>var/cache/</code>) need write access:</li>
 </ol>
-<p><code>bash
-   chmod -R 775 var/</code></p>
+<div class="codehilite"><pre><span></span><span class="w">   </span>chmod<span class="w"> </span>-R<span class="w"> </span><span class="m">775</span><span class="w"> </span>var/
+<span class="w">   </span>
+</pre></div>
+
 <ol>
 <li><strong>Register the webhook</strong> (once, from your own browser, no server
    CLI required):</li>
 </ol>
-<p><code>https://api.telegram.org/bot&lt;TOKEN&gt;/setWebhook?url=https://your-domain.com/webhook.php</code></p>
+<div class="codehilite"><pre><span></span>   https://api.telegram.org/bot&lt;TOKEN&gt;/setWebhook?url=https://your-domain.com/webhook.php
+   
+</pre></div>
+
 <ol>
 <li><strong>Test it.</strong> Send <code>/start</code> to the bot. The very first request
    both discovers plugins and builds the database schema (automatic
@@ -121,7 +126,7 @@ use:</p>
   itself — for that, consider a dedicated Doctrine metadata cache).</li>
 </ul>
 <h3 id="sample-systemd-unit-for-polling-mode">Sample systemd Unit for Polling Mode</h3>
-<div class="codehilite"><pre><span></span><code><span class="k">[Unit]</span>
+<div class="codehilite"><pre><span></span><span class="k">[Unit]</span>
 <span class="na">Description</span><span class="o">=</span><span class="s">Aicrion Tandroid Bot (polling)</span>
 <span class="na">After</span><span class="o">=</span><span class="s">network.target</span>
 
@@ -134,13 +139,13 @@ use:</p>
 
 <span class="k">[Install]</span>
 <span class="na">WantedBy</span><span class="o">=</span><span class="s">multi-user.target</span>
-</code></pre></div>
+</pre></div>
 
-<div class="codehilite"><pre><span></span><code>sudo<span class="w"> </span>systemctl<span class="w"> </span><span class="nb">enable</span><span class="w"> </span>--now<span class="w"> </span>aicrion-bot.service
-</code></pre></div>
+<div class="codehilite"><pre><span></span>sudo<span class="w"> </span>systemctl<span class="w"> </span><span class="nb">enable</span><span class="w"> </span>--now<span class="w"> </span>aicrion-bot.service
+</pre></div>
 
 <h3 id="sample-nginx-config-for-webhook-mode">Sample Nginx Config for Webhook Mode</h3>
-<div class="codehilite"><pre><span></span><code><span class="k">server</span><span class="w"> </span><span class="p">{</span>
+<div class="codehilite"><pre><span></span><span class="k">server</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="kn">listen</span><span class="w"> </span><span class="mi">443</span><span class="w"> </span><span class="s">ssl</span><span class="w"> </span><span class="s">http2</span><span class="p">;</span>
 <span class="w">    </span><span class="kn">server_name</span><span class="w"> </span><span class="s">your-domain.com</span><span class="p">;</span>
 <span class="w">    </span><span class="kn">root</span><span class="w"> </span><span class="s">/var/www/my-bot/public</span><span class="p">;</span>
@@ -151,7 +156,7 @@ use:</p>
 <span class="w">        </span><span class="kn">include</span><span class="w"> </span><span class="s">fastcgi_params</span><span class="p">;</span>
 <span class="w">    </span><span class="p">}</span>
 <span class="p">}</span>
-</code></pre></div>
+</pre></div>
 
 <h2 id="security-checklist-before-going-to-production">Security Checklist Before Going to Production</h2>
 <ul>

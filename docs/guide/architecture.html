@@ -71,10 +71,10 @@
 Server combined: the single place that builds every framework
 subsystem, wires it together, and prepares it to process Updates.</p>
 <h2 id="two-lines-to-boot">Two Lines to Boot</h2>
-<div class="codehilite"><pre><span></span><code><span class="x">use Aicrion\Tandroid\Kernel\Kernel;</span>
+<div class="codehilite"><pre><span></span><span class="k">use</span> <span class="nx">Aicrion\Tandroid\Kernel\Kernel</span><span class="p">;</span>
 
-<span class="x">$kernel = Kernel::fromConfigFile(__DIR__ . &#39;/config/aicrion.yaml&#39;)-&gt;boot();</span>
-</code></pre></div>
+<span class="nv">$kernel</span> <span class="o">=</span> <span class="nx">Kernel</span><span class="o">::</span><span class="na">fromConfigFile</span><span class="p">(</span><span class="no">__DIR__</span> <span class="o">.</span> <span class="s1">&#39;/config/aicrion.yaml&#39;</span><span class="p">)</span><span class="o">-&gt;</span><span class="na">boot</span><span class="p">();</span>
+</pre></div>
 
 <p><code>fromConfigFile()</code> reads the YAML file via
 <code>Config\FrameworkConfig::fromFile()</code>. <code>boot()</code> performs every step
@@ -125,8 +125,8 @@ below, in this exact order:</p>
 <p>After <code>boot()</code>, the Kernel instance is ready to process Updates via
 <code>handle()</code>.</p>
 <h2 id="processing-an-update">Processing an Update</h2>
-<div class="codehilite"><pre><span></span><code><span class="x">$view = $kernel-&gt;handle($update);</span>
-</code></pre></div>
+<div class="codehilite"><pre><span></span><span class="nv">$view</span> <span class="o">=</span> <span class="nv">$kernel</span><span class="o">-&gt;</span><span class="na">handle</span><span class="p">(</span><span class="nv">$update</span><span class="p">);</span>
+</pre></div>
 
 <p><code>handle()</code> performs these steps:</p>
 <ol>
@@ -173,7 +173,7 @@ sending it.</p>
   returning to a previous Activity work correctly.</li>
 </ul>
 <h2 id="overall-flow-of-an-update">Overall Flow of an Update</h2>
-<div class="codehilite"><pre><span></span><code>Update (Webhook/Polling)
+<div class="codehilite"><pre><span></span>Update (Webhook/Polling)
         │
         ▼
    Kernel::handle()
@@ -200,7 +200,8 @@ sending it.</p>
         │
         ▼
    Kernel sends a real message to Telegram
-</code></pre></div>
+</pre></div>
+
       <div class="docs-pagination">
         <a href="configuration.html">&larr; Configuration</a><a href="activities-and-intents.html">Activities & Intents &rarr;</a>
       </div>

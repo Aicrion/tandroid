@@ -70,11 +70,11 @@
 <p>The framework is tested with PHPUnit 11 and Mockery. <code>phpunit.xml</code>
 defines two suites: <code>Unit</code> (<code>tests/Unit</code>) and <code>Feature</code>
 (<code>tests/Feature</code>).</p>
-<div class="codehilite"><pre><span></span><code>vendor/bin/phpunit
-</code></pre></div>
+<div class="codehilite"><pre><span></span>vendor/bin/phpunit
+</pre></div>
 
 <h2 id="test-folder-structure">Test Folder Structure</h2>
-<div class="codehilite"><pre><span></span><code>tests/
+<div class="codehilite"><pre><span></span>tests/
 ├── Unit/
 │   ├── ActivityManagerChainTest.php   # NavigationRequest navigation chain
 │   ├── IntentTest.php                 # Intent object construction/immutability
@@ -86,30 +86,30 @@ defines two suites: <code>Unit</code> (<code>tests/Unit</code>) and <code>Featur
     ├── StubContainer.php              # minimal PSR-11 container for tests
     ├── ChainStartActivity.php         # fixture Activity that navigates immediately
     └── ChainTargetActivity.php        # fixture destination Activity
-</code></pre></div>
+</pre></div>
 
 <h2 id="testing-a-single-activity">Testing a Single Activity</h2>
 <p>Since every <code>BotActivity</code> is a plain PHP class (no hidden dependency
 on superglobals), unit-testing one is straightforward: instantiate
 it, call <code>bindUpdate()</code>, run <code>onCreate()</code> with a custom <code>Intent</code>, and
 assert on the <code>getContentView()</code> output:</p>
-<div class="codehilite"><pre><span></span><code><span class="x">use Aicrion\Tandroid\Intent\Intent;</span>
-<span class="x">use Aicrion\Tandroid\Update\{Update, UpdateType};</span>
-<span class="x">use Greeter\ProfileActivity;</span>
+<div class="codehilite"><pre><span></span><span class="k">use</span> <span class="nx">Aicrion\Tandroid\Intent\Intent</span><span class="p">;</span>
+<span class="k">use</span> <span class="nx">Aicrion\Tandroid\Update\</span><span class="p">{</span><span class="nx">Update</span><span class="p">,</span> <span class="nx">UpdateType</span><span class="p">};</span>
+<span class="k">use</span> <span class="nx">Greeter\ProfileActivity</span><span class="p">;</span>
 
-<span class="x">final class ProfileActivityTest extends TestCase</span>
-<span class="x">{</span>
-<span class="x">    public function test_it_shows_the_user_id(): void</span>
-<span class="x">    {</span>
-<span class="x">        $activity = new ProfileActivity();</span>
-<span class="x">        $activity-&gt;bindUpdate(new Update(updateId: 1, chatId: 1, userId: 99, type: UpdateType::Message));</span>
+<span class="k">final</span> <span class="k">class</span> <span class="nc">ProfileActivityTest</span> <span class="k">extends</span> <span class="nx">TestCase</span>
+<span class="p">{</span>
+    <span class="k">public</span> <span class="k">function</span> <span class="nf">test_it_shows_the_user_id</span><span class="p">()</span><span class="o">:</span> <span class="nx">void</span>
+    <span class="p">{</span>
+        <span class="nv">$activity</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">ProfileActivity</span><span class="p">();</span>
+        <span class="nv">$activity</span><span class="o">-&gt;</span><span class="na">bindUpdate</span><span class="p">(</span><span class="k">new</span> <span class="nx">Update</span><span class="p">(</span><span class="nx">updateId</span><span class="o">:</span> <span class="mi">1</span><span class="p">,</span> <span class="nx">chatId</span><span class="o">:</span> <span class="mi">1</span><span class="p">,</span> <span class="nx">userId</span><span class="o">:</span> <span class="mi">99</span><span class="p">,</span> <span class="nx">type</span><span class="o">:</span> <span class="nx">UpdateType</span><span class="o">::</span><span class="na">Message</span><span class="p">));</span>
 
-<span class="x">        $activity-&gt;onCreate(Intent::action(&#39;VIEW_PROFILE&#39;));</span>
+        <span class="nv">$activity</span><span class="o">-&gt;</span><span class="na">onCreate</span><span class="p">(</span><span class="nx">Intent</span><span class="o">::</span><span class="na">action</span><span class="p">(</span><span class="s1">&#39;VIEW_PROFILE&#39;</span><span class="p">));</span>
 
-<span class="x">        $this-&gt;assertStringContainsString(&#39;99&#39;, $activity-&gt;getContentView()?-&gt;text);</span>
-<span class="x">    }</span>
-<span class="x">}</span>
-</code></pre></div>
+        <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">assertStringContainsString</span><span class="p">(</span><span class="s1">&#39;99&#39;</span><span class="p">,</span> <span class="nv">$activity</span><span class="o">-&gt;</span><span class="na">getContentView</span><span class="p">()</span><span class="o">?-&gt;</span><span class="na">text</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
 
 <h2 id="testing-a-navigation-chain-with-activitymanager">Testing a Navigation Chain with ActivityManager</h2>
 <p>For higher-level tests that actually involve
@@ -118,25 +118,25 @@ actually followed), use <code>Tests\Fixtures\StubContainer</code> — a minimal
 PSR-11 container that directly instantiates any zero-argument class
 — and <code>Symfony\Component\Cache\Adapter\ArrayAdapter</code> as an in-memory
 cache:</p>
-<div class="codehilite"><pre><span></span><code><span class="x">$manager = new ActivityManager(</span>
-<span class="x">    container: new StubContainer(),</span>
-<span class="x">    intentResolver: new IntentResolver(registry: []),</span>
-<span class="x">    backStack: new BackStackStore(new ArrayAdapter()),</span>
-<span class="x">    stateStore: new StateStore(new ArrayAdapter()),</span>
-<span class="x">);</span>
+<div class="codehilite"><pre><span></span><span class="nv">$manager</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">ActivityManager</span><span class="p">(</span>
+    <span class="nx">container</span><span class="o">:</span> <span class="k">new</span> <span class="nx">StubContainer</span><span class="p">(),</span>
+    <span class="nx">intentResolver</span><span class="o">:</span> <span class="k">new</span> <span class="nx">IntentResolver</span><span class="p">(</span><span class="nx">registry</span><span class="o">:</span> <span class="p">[]),</span>
+    <span class="nx">backStack</span><span class="o">:</span> <span class="k">new</span> <span class="nx">BackStackStore</span><span class="p">(</span><span class="k">new</span> <span class="nx">ArrayAdapter</span><span class="p">()),</span>
+    <span class="nx">stateStore</span><span class="o">:</span> <span class="k">new</span> <span class="nx">StateStore</span><span class="p">(</span><span class="k">new</span> <span class="nx">ArrayAdapter</span><span class="p">()),</span>
+<span class="p">);</span>
 
-<span class="x">$update = new Update(</span>
-<span class="x">    updateId: 1,</span>
-<span class="x">    chatId: 555,</span>
-<span class="x">    userId: 42,</span>
-<span class="x">    type: UpdateType::CallbackQuery,</span>
-<span class="x">    callbackData: json_encode([&#39;a&#39; =&gt; ChainStartActivity::class, &#39;p&#39; =&gt; []]),</span>
-<span class="x">);</span>
+<span class="nv">$update</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Update</span><span class="p">(</span>
+    <span class="nx">updateId</span><span class="o">:</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="nx">chatId</span><span class="o">:</span> <span class="mi">555</span><span class="p">,</span>
+    <span class="nx">userId</span><span class="o">:</span> <span class="mi">42</span><span class="p">,</span>
+    <span class="nx">type</span><span class="o">:</span> <span class="nx">UpdateType</span><span class="o">::</span><span class="na">CallbackQuery</span><span class="p">,</span>
+    <span class="nx">callbackData</span><span class="o">:</span> <span class="nb">json_encode</span><span class="p">([</span><span class="s1">&#39;a&#39;</span> <span class="o">=&gt;</span> <span class="nx">ChainStartActivity</span><span class="o">::</span><span class="na">class</span><span class="p">,</span> <span class="s1">&#39;p&#39;</span> <span class="o">=&gt;</span> <span class="p">[]]),</span>
+<span class="p">);</span>
 
-<span class="x">$view = $manager-&gt;dispatch($update);</span>
+<span class="nv">$view</span> <span class="o">=</span> <span class="nv">$manager</span><span class="o">-&gt;</span><span class="na">dispatch</span><span class="p">(</span><span class="nv">$update</span><span class="p">);</span>
 
-<span class="x">$this-&gt;assertSame(&#39;landed:chain-start&#39;, $view-&gt;text);</span>
-</code></pre></div>
+<span class="nv">$this</span><span class="o">-&gt;</span><span class="na">assertSame</span><span class="p">(</span><span class="s1">&#39;landed:chain-start&#39;</span><span class="p">,</span> <span class="nv">$view</span><span class="o">-&gt;</span><span class="na">text</span><span class="p">);</span>
+</pre></div>
 
 <p>This is exactly the pattern implemented in
 <code>tests/Unit/ActivityManagerChainTest.php</code> — see the full example
@@ -145,13 +145,13 @@ there.</p>
 <p>Since <code>EntityManagerInterface</code> is a regular dependency, mock it with
 Mockery for unit tests; for integration tests that actually need a
 database, build an in-memory SQLite connection:</p>
-<div class="codehilite"><pre><span></span><code><span class="x">$config = ORMSetup::createAttributeMetadataConfiguration([__DIR__ . &#39;/../src/Entity&#39;], isDevMode: true);</span>
-<span class="x">$connection = DriverManager::getConnection([&#39;driver&#39; =&gt; &#39;pdo_sqlite&#39;, &#39;memory&#39; =&gt; true], $config);</span>
-<span class="x">$entityManager = new EntityManager($connection, $config);</span>
+<div class="codehilite"><pre><span></span><span class="nv">$config</span> <span class="o">=</span> <span class="nx">ORMSetup</span><span class="o">::</span><span class="na">createAttributeMetadataConfiguration</span><span class="p">([</span><span class="no">__DIR__</span> <span class="o">.</span> <span class="s1">&#39;/../src/Entity&#39;</span><span class="p">],</span> <span class="nx">isDevMode</span><span class="o">:</span> <span class="k">true</span><span class="p">);</span>
+<span class="nv">$connection</span> <span class="o">=</span> <span class="nx">DriverManager</span><span class="o">::</span><span class="na">getConnection</span><span class="p">([</span><span class="s1">&#39;driver&#39;</span> <span class="o">=&gt;</span> <span class="s1">&#39;pdo_sqlite&#39;</span><span class="p">,</span> <span class="s1">&#39;memory&#39;</span> <span class="o">=&gt;</span> <span class="k">true</span><span class="p">],</span> <span class="nv">$config</span><span class="p">);</span>
+<span class="nv">$entityManager</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">EntityManager</span><span class="p">(</span><span class="nv">$connection</span><span class="p">,</span> <span class="nv">$config</span><span class="p">);</span>
 
-<span class="x">$tool = new \Doctrine\ORM\Tools\SchemaTool($entityManager);</span>
-<span class="x">$tool-&gt;createSchema($entityManager-&gt;getMetadataFactory()-&gt;getAllMetadata());</span>
-</code></pre></div>
+<span class="nv">$tool</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">\Doctrine\ORM\Tools\SchemaTool</span><span class="p">(</span><span class="nv">$entityManager</span><span class="p">);</span>
+<span class="nv">$tool</span><span class="o">-&gt;</span><span class="na">createSchema</span><span class="p">(</span><span class="nv">$entityManager</span><span class="o">-&gt;</span><span class="na">getMetadataFactory</span><span class="p">()</span><span class="o">-&gt;</span><span class="na">getAllMetadata</span><span class="p">());</span>
+</pre></div>
 
 <h2 id="dont-hit-real-telegram-outbound-calls">Don't Hit Real Telegram Outbound Calls</h2>
 <p>Never make real HTTP requests to <code>api.telegram.org</code> in unit tests.
@@ -159,13 +159,13 @@ Every <code>Api\*Request</code> class accepts a
 <code>Symfony\Contracts\HttpClient\HttpClientInterface</code> in its
 constructor — use
 <code>Symfony\Component\HttpClient\MockHttpClient</code>:</p>
-<div class="codehilite"><pre><span></span><code><span class="x">use Symfony\Component\HttpClient\MockHttpClient;</span>
-<span class="x">use Symfony\Component\HttpClient\Response\MockResponse;</span>
+<div class="codehilite"><pre><span></span><span class="k">use</span> <span class="nx">Symfony\Component\HttpClient\MockHttpClient</span><span class="p">;</span>
+<span class="k">use</span> <span class="nx">Symfony\Component\HttpClient\Response\MockResponse</span><span class="p">;</span>
 
-<span class="x">$client = new MockHttpClient([new MockResponse(json_encode([&#39;ok&#39; =&gt; true, &#39;result&#39; =&gt; []]))]);</span>
-<span class="x">$request = new SendMessageRequest($client, &#39;fake-token&#39;);</span>
-<span class="x">$request-&gt;to(1)-&gt;text(&#39;Hello&#39;)-&gt;send();</span>
-</code></pre></div>
+<span class="nv">$client</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">MockHttpClient</span><span class="p">([</span><span class="k">new</span> <span class="nx">MockResponse</span><span class="p">(</span><span class="nb">json_encode</span><span class="p">([</span><span class="s1">&#39;ok&#39;</span> <span class="o">=&gt;</span> <span class="k">true</span><span class="p">,</span> <span class="s1">&#39;result&#39;</span> <span class="o">=&gt;</span> <span class="p">[]]))]);</span>
+<span class="nv">$request</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">SendMessageRequest</span><span class="p">(</span><span class="nv">$client</span><span class="p">,</span> <span class="s1">&#39;fake-token&#39;</span><span class="p">);</span>
+<span class="nv">$request</span><span class="o">-&gt;</span><span class="na">to</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">-&gt;</span><span class="na">text</span><span class="p">(</span><span class="s1">&#39;Hello&#39;</span><span class="p">)</span><span class="o">-&gt;</span><span class="na">send</span><span class="p">();</span>
+</pre></div>
 
 <h2 id="guidelines-for-writing-new-tests">Guidelines for Writing New Tests</h2>
 <ul>
