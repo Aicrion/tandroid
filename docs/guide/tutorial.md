@@ -233,6 +233,15 @@ What is happening here:
   replacing the current Telegram message in place. Use plain
   `Button::action(...)` when you want chat-style history instead.
 
+> If you swap `Keyboard::inline()` for `Keyboard::reply()` here, the
+> same `Button::action(...)`/`Button::actionReplace(...)` calls still
+> navigate to `ProfileActivity` — but Reply and Inline keyboards are
+> resolved very differently under the hood, and `actionReplace(...)`'s
+> in-place "replace the message" behavior doesn't apply to a Reply
+> keyboard tap. See "Buttons and Keyboards" in
+> [Views and Widgets](views-and-widgets.html) before making that
+> switch.
+
 ## Step 7 — Write a Second Activity and Navigate to It
 
 Create `plugins/greeter/src/ProfileActivity.php`:

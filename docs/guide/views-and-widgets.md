@@ -31,6 +31,59 @@ The final output of `render()` is exactly what
 ['text' => '...', 'parse_mode' => 'MarkdownV2', 'reply_markup' => [...]]
 ```
 
+## Deleting the Previous Message (Optional)
+
+By default, every reply Kernel sends is a **new** Telegram message —
+nothing already in the chat is ever touched (the one exception is
+`IntentFlag::ReplaceMessage`, covered below, which edits a message
+in place instead of sending a new one). That means an Activity
+reachable via `#[IntentFilter(action: 'MAIN')]` — e.g. `StartActivity`
+answering `/start` — sends a brand-new message every single time the
+user re-triggers it, and every older one is left behind in the chat.
+
+If you'd rather the previous bot message disappear first, call
+`deletePreviousMessage()` on the `View` you return:
+
+```php
+$this->setContentView(
+    View::message('Welcome back! 👋')
+        ->attach($keyboard)
+        ->deletePreviousMessage(),
+);
+```
+
+This is **opt-in per View** — nothing changes for any Activity that
+doesn't call it. When set, `Kernel` looks up the message_id it
+recorded the last time it sent *anything* to this chat and calls
+Telegram's `deleteMessage` on it right before sending the new one.
+
+A few things worth knowing before you turn it on:
+
+- **It's best-effort, by design.** If there's no previous message on
+  record for the chat, or Telegram refuses the delete (the message is
+  already gone, was sent by someone else, or is older than Telegram's
+  ~48h delete window), the delete is silently skipped and your View
+  is still sent normally — this never blocks or fails the reply.
+- **It deletes the bot's *own* last message, not "the message the
+  user tapped".** For that in-place-edit use case (e.g. a Wizard
+  page, or a checkbox toggle) you almost always want
+  `Button::actionReplace()` / `IntentFlag::ReplaceMessage` instead,
+  which edits the tapped message rather than deleting-then-resending
+  — cheaper, and doesn't cause a visible flicker/reorder in the chat.
+  Reach for `deletePreviousMessage()` specifically for the case
+  `ReplaceMessage` can't cover: an Activity re-entered from a plain
+  text command (`/start`, a Reply keyboard button, ...), which is
+  never a `callback_query` and therefore has no message to edit.
+- **It's chat-wide, not Activity-specific.** The "previous message"
+  is whatever the bot sent last to that chat, regardless of which
+  Activity produced it — deleting it doesn't know or care whether it
+  was, say, the same `StartActivity` screen or something else
+  entirely the user navigated through in between.
+- Don't combine it with messages you want to stay in the chat history
+  on purpose (confirmations, receipts, anything the user might want
+  to scroll back to) — it is meant for "redraw the current screen",
+  not general-purpose cleanup.
+
 ## WidgetInterface
 
 Every widget has a single contract:
@@ -82,6 +135,53 @@ For a Reply keyboard (not Inline):
 Keyboard::reply()->row(Button::requestContact());
 // or directly:
 Keyboard::requestContact('Send my number');
+```
+
+`Keyboard::reply()` always sends `resize_keyboard: true` to Telegram
+by default, so buttons shrink to fit their labels instead of using
+Telegram's oversized default keys. Pass `false` if you want the
+large default size instead:
+
+```php
+Keyboard::reply(resizeKeyboard: false)->row(Button::action('Menu', to: MenuActivity::class));
+// or, on an already-built keyboard:
+Keyboard::reply()->resizeKeyboard(false)->row(/* ... */);
+```
+
+**`Button::action()`/`Button::actionReplace()` also work inside
+`Keyboard::reply()`**, navigating to another Activity exactly like
+they do on an Inline keyboard — but the mechanism is different, and
+worth understanding:
+
+- On an **Inline** keyboard, a tap comes back as a `callback_query`
+  carrying that exact button's `callback_data`, which encodes the
+  target Activity directly (see `CallbackDataStore`).
+- Telegram gives Reply buttons no such thing — a tap just sends a
+  normal text message whose content is the button's own label, as if
+  the user had typed it. So the framework keeps track, per chat, of
+  which label on the *currently visible* Reply keyboard maps to which
+  Activity (`Kernel\ReplyActionStore`), and `IntentResolver` checks
+  that mapping before falling back to `#[IntentFilter]` matching.
+
+This has two practical consequences:
+
+1. It's chat-scoped and always reflects the **last** Reply keyboard
+   sent to that chat — as soon as you send a different Reply
+   keyboard (or none at all), the old labels stop resolving. Don't
+   rely on a Reply button staying "valid" across an unrelated
+   Activity in between.
+2. Because a tap is a plain Message, not a `callback_query`,
+   `IntentFlag::ReplaceMessage` (from `Button::actionReplace()`) has
+   nothing to edit in place — there's no previous message id to
+   target — so it silently behaves like `Button::action()` on a
+   Reply keyboard. Prefer plain `Button::action()` there to avoid
+   the confusion.
+
+```php
+$keyboard = Keyboard::reply()
+    ->row(Button::action('👤 My Profile', to: ProfileActivity::class));
+
+$view = View::message('Welcome!')->attach($keyboard);
 ```
 
 ## Multi-Select Checkboxes (CheckboxGroupWidget)

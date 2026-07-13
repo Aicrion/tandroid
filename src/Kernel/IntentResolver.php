@@ -12,10 +12,12 @@ use Aicrion\Tandroid\Update\UpdateType;
 
 /**
  * Resolves an incoming Update into either an explicit Intent
- * (when a callback_data payload references a concrete Activity) or
- * an implicit one matched against every registered #[IntentFilter],
- * ordered by priority — directly analogous to Android's intent
- * resolution against the manifest's <intent-filter> entries.
+ * (when a callback_data payload references a concrete Activity, or
+ * a plain text message matches a currently-visible Reply keyboard
+ * action button) or an implicit one matched against every registered
+ * #[IntentFilter], ordered by priority — directly analogous to
+ * Android's intent resolution against the manifest's
+ * <intent-filter> entries.
  */
 final class IntentResolver
 {
@@ -25,29 +27,25 @@ final class IntentResolver
     public function __construct(
         private readonly array $registry,
         private readonly ?CallbackDataStore $callbackDataStore = null,
+        private readonly ?ReplyActionStore $replyActionStore = null,
     ) {}
 
     public function resolve(Update $update): Intent
     {
         if ($update->type === UpdateType::CallbackQuery && $update->callbackData !== null) {
             $decoded = $this->decodeCallbackData($update->callbackData);
+            $intent = $decoded !== null ? $this->intentFromPayload($decoded) : null;
 
-            if ($decoded !== null && isset($decoded['a'])) {
-                $intent = Intent::to($decoded['a']);
+            if ($intent !== null) {
+                return $intent;
+            }
+        }
 
-                foreach ($decoded['p'] ?? [] as $key => $value) {
-                    $intent = $intent->putExtra($key, $value);
-                }
+        if ($update->type === UpdateType::Message && $update->text !== null) {
+            $decoded = $this->replyActionStore?->get($update->chatId, $update->text);
+            $intent = $decoded !== null ? $this->intentFromPayload($decoded) : null;
 
-                foreach ($decoded['f'] ?? [] as $flagName) {
-                    foreach (IntentFlag::cases() as $flag) {
-                        if ($flag->name === $flagName) {
-                            $intent = $intent->withFlag($flag);
-                            break;
-                        }
-                    }
-                }
-
+            if ($intent !== null) {
                 return $intent;
             }
         }
@@ -78,6 +76,37 @@ final class IntentResolver
         }
 
         return $this->callbackDataStore?->get($callbackData);
+    }
+
+    /**
+     * Shared by both the callback_query path and the Reply-keyboard
+     * path (see ReplyActionStore): both ultimately resolve the same
+     * {"a": ..., "p": ..., "f": ...} shape into an explicit Intent.
+     *
+     * @param array{a?: string, p?: array, f?: list<string>} $decoded
+     */
+    private function intentFromPayload(array $decoded): ?Intent
+    {
+        if (!isset($decoded['a'])) {
+            return null;
+        }
+
+        $intent = Intent::to($decoded['a']);
+
+        foreach ($decoded['p'] ?? [] as $key => $value) {
+            $intent = $intent->putExtra($key, $value);
+        }
+
+        foreach ($decoded['f'] ?? [] as $flagName) {
+            foreach (IntentFlag::cases() as $flag) {
+                if ($flag->name === $flagName) {
+                    $intent = $intent->withFlag($flag);
+                    break;
+                }
+            }
+        }
+
+        return $intent;
     }
 
     private function resolveImplicit(Update $update): Intent

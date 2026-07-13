@@ -50,6 +50,10 @@ final class Kernel
 
     private ?HttpClientInterface $httpClient = null;
 
+    private ?ReplyActionStore $replyActionStore = null;
+
+    private ?LastMessageStore $lastMessageStore = null;
+
     public function __construct(
         private readonly FrameworkConfig $config,
     ) {}
@@ -102,8 +106,22 @@ final class Kernel
             ->setArguments([new Reference('aicrion.cache')])
             ->setPublic(true);
 
+        // Backs Button::action()/actionReplace() inside Keyboard::reply()
+        // (see ReplyActionStore's docblock) and, separately, the optional
+        // View::deletePreviousMessage() feature (see LastMessageStore's
+        // docblock) — both are per-chat, so unlike CallbackDataStore
+        // they're only ever consulted through the Kernel/IntentResolver,
+        // never rendered directly by Button/Keyboard.
+        $container->register(ReplyActionStore::class, ReplyActionStore::class)
+            ->setArguments([new Reference('aicrion.cache')])
+            ->setPublic(true);
+
+        $container->register(LastMessageStore::class, LastMessageStore::class)
+            ->setArguments([new Reference('aicrion.cache')])
+            ->setPublic(true);
+
         $container->register(IntentResolver::class, IntentResolver::class)
-            ->setArguments([$registry, new Reference(CallbackDataStore::class)])
+            ->setArguments([$registry, new Reference(CallbackDataStore::class), new Reference(ReplyActionStore::class)])
             ->setPublic(true);
 
         $container->register(BackStackStore::class, BackStackStore::class)
@@ -143,6 +161,8 @@ final class Kernel
 
         $this->container = $container;
         $this->activityManager = $container->get(ActivityManager::class);
+        $this->replyActionStore = $container->get(ReplyActionStore::class);
+        $this->lastMessageStore = $container->get(LastMessageStore::class);
         $this->container->get(BroadcastDispatcher::class)->registerReceivers($packageManager->receiverClasses());
 
         // Button/Keyboard render callback_data deep inside View::render(),
@@ -197,18 +217,76 @@ final class Kernel
         $replyMarkup = $rendered['reply_markup'] ?? [];
         $parseMode = $view->parseMode ?? \Aicrion\Tandroid\View\ParseMode::Plain;
 
+        // A Reply keyboard's explicit-intent buttons (Button::action()
+        // inside Keyboard::reply()) can only be recognized when the
+        // matching plain-text update comes back if this View's own
+        // action map is on record for the chat *before* that happens.
+        // See ReplyActionStore's docblock. Present (possibly empty)
+        // whenever this View carries a Reply keyboard; absent for an
+        // Inline keyboard or no keyboard at all, in which case any
+        // Reply keyboard already on screen for this chat is left alone.
+        if (array_key_exists('reply_actions', $rendered)) {
+            $this->replyActionStore?->remember($update->chatId, $rendered['reply_actions']);
+        }
+
         $messageId = $this->replaceableMessageId($update, $intentFlags);
 
         if ($messageId !== null && $this->tryEdit($update->chatId, $messageId, $text, $replyMarkup, $parseMode)) {
+            // Same message_id as before — LastMessageStore already
+            // points at it, nothing further to remember here.
             return;
         }
 
-        Telegram::message()
+        if (($rendered['delete_previous_message'] ?? false) === true) {
+            $this->deletePreviousMessage($update->chatId);
+        }
+
+        $response = Telegram::message()
             ->to($update->chatId)
             ->text($text)
             ->parseMode($parseMode)
             ->markup($replyMarkup)
             ->send();
+
+        $this->rememberSentMessage($update->chatId, $response);
+    }
+
+    /**
+     * Best-effort delete of the chat's previously recorded bot
+     * message, requested via View::deletePreviousMessage(). Never
+     * throws and never blocks the actual reply: if there's no
+     * message on record, or Telegram refuses the delete (already
+     * gone, or past Telegram's ~48h delete window), this simply
+     * does nothing and the normal send proceeds right after.
+     */
+    private function deletePreviousMessage(int $chatId): void
+    {
+        $previousMessageId = $this->lastMessageStore?->get($chatId);
+
+        if ($previousMessageId === null) {
+            return;
+        }
+
+        try {
+            Telegram::edit($chatId, $previousMessageId)->delete();
+        } catch (\Throwable) {
+            // Ignored on purpose — see docblock above.
+        }
+    }
+
+    /**
+     * Records the message_id Telegram assigned to the message this
+     * Kernel just sent, so a future View::deletePreviousMessage()
+     * for this chat knows what to delete. $response is the raw
+     * decoded sendMessage payload (see SendMessageRequest::send()).
+     */
+    private function rememberSentMessage(int $chatId, array $response): void
+    {
+        $messageId = $response['result']['message_id'] ?? null;
+
+        if (is_int($messageId)) {
+            $this->lastMessageStore?->remember($chatId, $messageId);
+        }
     }
 
     /**
