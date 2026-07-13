@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/assets/logo.svg" width="72" alt="Tandroid logo" onerror="this.style.display='none'">
+  <img src="docs/assets/logo.png" width="120" alt="Tandroid logo" onerror="this.style.display='none'">
 </p>
 
 <h1 align="center">Tandroid</h1>
