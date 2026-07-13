@@ -23,8 +23,6 @@
             "Aicrion\\Tandroid\\": "src/"
         }
     },
-    "minimum-stability": "dev",
-    "prefer-stable": true,
     "autoload-dev": {
         "psr-4": {
             "Aicrion\\Tandroid\\Tests\\": "tests/"
@@ -33,5 +31,10 @@
     "require-dev": {
         "phpunit/phpunit": "^11.0",
         "mockery/mockery": "^1.6"
-    }
+    },
+    "scripts": {
+        "test": "phpunit"
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
 }
